@@ -5,7 +5,7 @@ const ctx = canvas.getContext("2d", { alpha: false });
 const STAR_DENSITY = 0.00016;
 const MIN_STARS = 90;
 const MAX_STARS = 260;
-const TWINKLE_RATIO = 0.34;
+const TWINKLE_RATIO = 0.78;
 
 let stars = [];
 let width = 0;
@@ -33,9 +33,9 @@ function createStars() {
       size: Math.random() < 0.82 ? 1 : 2,
       baseAlpha: randomBetween(0.42, 0.92),
       twinkles,
-      phase: randomBetween(0, Math.PI * 2),
-      speed: randomBetween(0.001, 0.0028),
-      amplitude: twinkles ? randomBetween(0.08, 0.24) : 0
+      speed: randomBetween(0.0035, 0.008),
+      amplitude: twinkles ? randomBetween(0.12, 0.32) : 0,
+      noise: Math.random()
     };
   });
 }
@@ -57,14 +57,19 @@ function resizeCanvas() {
 }
 
 function drawPixelStar(star, time) {
+  const wave = Math.sin(time * star.speed + star.phase);
+  const shimmer = (Math.random() - 0.5) * 0.08;
+
   const twinkle = star.twinkles
-    ? Math.sin(time * star.speed + star.phase) * star.amplitude
+    ? wave * star.amplitude + shimmer
     : 0;
 
   const alpha = clamp(star.baseAlpha + twinkle, 0.26, 1);
   const x = Math.round(star.x);
   const y = Math.round(star.y);
   const s = star.size;
+
+
 
   ctx.globalAlpha = alpha;
   ctx.fillStyle = "#f4f8ff";
