@@ -1,0 +1,196 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="Academic and professional portfolio for Miguel Nogales, PhD Student in AI at USI and IDSIA."
+  />
+  <title>Miguel Nogales | PhD Student in AI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <header class="site-header">
+    <nav class="nav container" aria-label="Primary navigation">
+      <a class="brand" href="#hero" aria-label="Miguel Nogales home">
+        Miguel Nogales
+      </a>
+
+      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#research">Research</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section id="hero" class="hero section">
+      <div class="panel hero-panel">
+        <p class="eyebrow">Università della Svizzera italiana & IDSIA</p>
+        <h1>Miguel Nogales</h1>
+        <p class="role">PhD Student in AI</p>
+        <p class="tagline">
+          Researching time series foundation models, graph machine learning, and robust AI systems for scientific forecasting.
+        </p>
+        <div class="hero-actions" aria-label="Primary links">
+          <a class="button primary" href="#research">View Research</a>
+          <a class="button secondary" href="mailto:miguel.nogales@example.com">Email</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">About</p>
+        <h2>Research at the intersection of sequences, graphs, and science</h2>
+      </div>
+
+      <div class="panel">
+        <p>
+          I am a PhD student in AI at Università della Svizzera italiana (USI) and IDSIA,
+          working with the Graph Machine Learning Group. My research focuses on Time Series
+          Foundation Models, including Mamba, S4, and S5 architectures, as well as Graph Neural
+          Networks for structured forecasting problems.
+        </p>
+        <p>
+          I am especially interested in ecological modeling applications, such as predicting
+          insect spread across landscapes using temporal, spatial, and environmental signals.
+          My background in engineering and signal processing shapes how I approach scalable,
+          interpretable, and scientifically grounded machine learning systems.
+        </p>
+      </div>
+    </section>
+
+    <section id="research" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Research & Publications</p>
+        <h2>Selected papers and active work</h2>
+      </div>
+
+      <div class="publication-list">
+        <article class="panel publication">
+          <div>
+            <h3>Benchmarking Selective State Space Models for Long-Horizon Scientific Time Series</h3>
+            <p class="meta">
+              Miguel Nogales, Collaborator Name, Advisor Name
+            </p>
+            <p class="venue">
+              Submitted to ICML 2026 Workshop on Combining Theory and Benchmarks
+            </p>
+            <p>
+              A study of Mamba, S4, and S5-style architectures for ecological forecasting,
+              emphasizing sequence length scaling, stability, and benchmark design.
+            </p>
+          </div>
+          <div class="publication-actions">
+            <a class="button secondary" href="#" aria-label="Paper PDF placeholder">PDF</a>
+            <a class="button secondary" href="#" aria-label="Code repository placeholder">Code</a>
+          </div>
+        </article>
+
+        <article class="panel publication">
+          <div>
+            <h3>Graph-Based Forecasting of Insect Spread Under Environmental Change</h3>
+            <p class="meta">
+              Miguel Nogales, Research Group Collaborators
+            </p>
+            <p class="venue">
+              Ongoing project, IDSIA Graph Machine Learning Group
+            </p>
+            <p>
+              Modeling ecological spread dynamics with graph neural networks over spatial
+              connectivity, climate variables, and temporal population observations.
+            </p>
+          </div>
+          <div class="publication-actions">
+            <a class="button secondary" href="#" aria-label="Project notes placeholder">Notes</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="projects" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Projects / Technical Work</p>
+        <h2>Implementations, systems, and models</h2>
+      </div>
+
+      <div class="project-grid">
+        <article class="panel project-card">
+          <h3>State Space Models on Linux/HPC</h3>
+          <p>
+            Implemented and profiled S4/S5-inspired state space models in Linux and HPC
+            environments, with reproducible training scripts, cluster job configuration,
+            and GPU-aware experiment tracking.
+          </p>
+          <ul class="tags" aria-label="Project technologies">
+            <li>Python</li>
+            <li>PyTorch</li>
+            <li>SLURM</li>
+            <li>CUDA</li>
+          </ul>
+        </article>
+
+        <article class="panel project-card">
+          <h3>Ecological Time Series Benchmarks</h3>
+          <p>
+            Designed data pipelines for long-range ecological forecasting tasks, including
+            temporal windowing, spatial covariates, missing-value handling, and model
+            comparison protocols.
+          </p>
+          <ul class="tags" aria-label="Project technologies">
+            <li>Time Series</li>
+            <li>Benchmarking</li>
+            <li>Data Pipelines</li>
+          </ul>
+        </article>
+
+        <article class="panel project-card">
+          <h3>Graph Neural Network Prototypes</h3>
+          <p>
+            Built experimental graph learning models for spatial propagation problems,
+            combining node features, environmental signals, and graph topology.
+          </p>
+          <ul class="tags" aria-label="Project technologies">
+            <li>GNNs</li>
+            <li>Geospatial ML</li>
+            <li>Forecasting</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="contact" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Contact</p>
+        <h2>Academic profiles and links</h2>
+      </div>
+
+      <div class="panel contact-panel">
+        <a href="https://github.com/" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://scholar.google.com/" target="_blank" rel="noopener noreferrer">Google Scholar</a>
+        <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="mailto:miguel.nogales@example.com">Email</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer container">
+    <p>&copy; <span id="year"></span> Miguel Nogales. Built with semantic HTML, CSS, and JavaScript.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
