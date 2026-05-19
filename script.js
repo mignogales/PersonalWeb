@@ -2,10 +2,12 @@
 const canvas = document.getElementById("starfield");
 const ctx = canvas.getContext("2d", { alpha: false });
 
-const STAR_DENSITY = 0.00016;
-const MIN_STARS = 90;
-const MAX_STARS = 260;
-const TWINKLE_RATIO = 0.78;
+const BACKGROUND = "#0A0E17";
+const STAR_DENSITY = 0.00018;
+const MIN_STARS = 110;
+const MAX_STARS = 320;
+const TWINKLE_RATIO = 0.82;
+const LARGE_STAR_RATIO = 0.18;
 
 let stars = [];
 let width = 0;
@@ -22,20 +24,25 @@ function randomBetween(min, max) {
 }
 
 function createStars() {
-  const starCount = clamp(Math.round(width * height * STAR_DENSITY), MIN_STARS, MAX_STARS);
+  const count = clamp(
+    Math.round(window.innerWidth * window.innerHeight * STAR_DENSITY),
+    MIN_STARS,
+    MAX_STARS
+  );
 
-  stars = Array.from({ length: starCount }, () => {
+  stars = Array.from({ length: count }, () => {
+    const isLarge = Math.random() < LARGE_STAR_RATIO;
     const twinkles = Math.random() < TWINKLE_RATIO;
 
     return {
       x: Math.floor(Math.random() * width),
       y: Math.floor(Math.random() * height),
-      size: Math.random() < 0.82 ? 1 : 2,
-      baseAlpha: randomBetween(0.42, 0.92),
+      isLarge,
       twinkles,
-      speed: randomBetween(0.0035, 0.008),
-      amplitude: twinkles ? randomBetween(0.12, 0.32) : 0,
-      noise: Math.random()
+      baseAlpha: randomBetween(0.5, 0.9),
+      phase: randomBetween(0, Math.PI * 2),
+      speed: randomBetween(0.003, 0.0065),
+      amplitude: twinkles ? randomBetween(0.06, 0.16) : 0
     };
   });
 }
@@ -56,48 +63,89 @@ function resizeCanvas() {
   createStars();
 }
 
-function drawPixelStar(star, time) {
-  const wave = Math.sin(time * star.speed + star.phase);
-  const shimmer = (Math.random() - 0.5) * 0.08;
+function getStarAlpha(star, time) {
+  if (!star.twinkles) {
+    return star.baseAlpha;
+  }
 
-  const twinkle = star.twinkles
-    ? wave * star.amplitude + shimmer
-    : 0;
+  const slowWave = Math.sin(time * star.speed + star.phase);
+  const softPulse = Math.sin(time * star.speed * 0.43 + star.phase * 1.7);
+  const twinkle = slowWave * star.amplitude + softPulse * star.amplitude * 0.35;
 
-  const alpha = clamp(star.baseAlpha + twinkle, 0.26, 1);
+  return clamp(star.baseAlpha + twinkle, 0.34, 1);
+}
+
+function drawPixel(x, y, color, alpha) {
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = color;
+  ctx.fillRect(Math.round(x), Math.round(y), 1, 1);
+}
+
+function drawSmallStar(star, alpha) {
   const x = Math.round(star.x);
   const y = Math.round(star.y);
-  const s = star.size;
 
+  drawPixel(x, y, "#f7fbff", alpha);
+  drawPixel(x - 1, y, "#d9ecff", alpha * 0.82);
+  drawPixel(x + 1, y, "#d9ecff", alpha * 0.82);
+  drawPixel(x, y - 1, "#d9ecff", alpha * 0.82);
+  drawPixel(x, y + 1, "#d9ecff", alpha * 0.82);
+}
 
+function drawLargeStar(star, alpha) {
+  const x = Math.round(star.x);
+  const y = Math.round(star.y);
 
-  ctx.globalAlpha = alpha;
-  ctx.fillStyle = "#f4f8ff";
+  const core = "#fbfdff";
+  const bright = "#dceeff";
+  const mid = "#98c9ff";
+  const dim = "#4f79a8";
 
-  ctx.fillRect(x, y, s, s);
-  ctx.fillRect(x - s, y, s, s);
-  ctx.fillRect(x + s, y, s, s);
-  ctx.fillRect(x, y - s, s, s);
-  ctx.fillRect(x, y + s, s, s);
+  drawPixel(x, y, core, alpha);
 
-  if (s === 2) {
-    ctx.globalAlpha = alpha * 0.45;
-    ctx.fillStyle = "#8fc7ff";
-    ctx.fillRect(x - 2 * s, y, s, s);
-    ctx.fillRect(x + 2 * s, y, s, s);
-    ctx.fillRect(x, y - 2 * s, s, s);
-    ctx.fillRect(x, y + 2 * s, s, s);
+  drawPixel(x - 1, y, bright, alpha * 0.9);
+  drawPixel(x + 1, y, bright, alpha * 0.9);
+  drawPixel(x, y - 1, bright, alpha * 0.9);
+  drawPixel(x, y + 1, bright, alpha * 0.9);
+
+  drawPixel(x - 2, y, mid, alpha * 0.62);
+  drawPixel(x + 2, y, mid, alpha * 0.62);
+  drawPixel(x, y - 2, mid, alpha * 0.62);
+  drawPixel(x, y + 2, mid, alpha * 0.62);
+
+  drawPixel(x - 1, y - 1, mid, alpha * 0.52);
+  drawPixel(x + 1, y - 1, mid, alpha * 0.52);
+  drawPixel(x - 1, y + 1, mid, alpha * 0.52);
+  drawPixel(x + 1, y + 1, mid, alpha * 0.52);
+
+  drawPixel(x - 2, y - 1, dim, alpha * 0.28);
+  drawPixel(x + 2, y - 1, dim, alpha * 0.28);
+  drawPixel(x - 2, y + 1, dim, alpha * 0.28);
+  drawPixel(x + 2, y + 1, dim, alpha * 0.28);
+  drawPixel(x - 1, y - 2, dim, alpha * 0.28);
+  drawPixel(x + 1, y - 2, dim, alpha * 0.28);
+  drawPixel(x - 1, y + 2, dim, alpha * 0.28);
+  drawPixel(x + 1, y + 2, dim, alpha * 0.28);
+}
+
+function drawStar(star, time) {
+  const alpha = getStarAlpha(star, time);
+
+  if (star.isLarge) {
+    drawLargeStar(star, alpha);
+  } else {
+    drawSmallStar(star, alpha);
   }
 
   ctx.globalAlpha = 1;
 }
 
 function animate(time) {
-  ctx.fillStyle = "#0A0E17";
+  ctx.fillStyle = BACKGROUND;
   ctx.fillRect(0, 0, width, height);
 
   for (const star of stars) {
-    drawPixelStar(star, time);
+    drawStar(star, time);
   }
 
   animationFrameId = requestAnimationFrame(animate);
@@ -113,24 +161,32 @@ function handleResize() {
 }
 
 const navToggle = document.querySelector(".nav-toggle");
-const navLinks = document.querySelector(".nav-links");
 const navItems = document.querySelectorAll(".nav-links a");
 
-navToggle.addEventListener("click", () => {
-  const isOpen = document.body.classList.toggle("nav-open");
-  navToggle.setAttribute("aria-expanded", String(isOpen));
-});
+if (navToggle) {
+  navToggle.addEventListener("click", () => {
+    const isOpen = document.body.classList.toggle("nav-open");
+    navToggle.setAttribute("aria-expanded", String(isOpen));
+  });
+}
 
 navItems.forEach((link) => {
   link.addEventListener("click", () => {
     document.body.classList.remove("nav-open");
-    navToggle.setAttribute("aria-expanded", "false");
+
+    if (navToggle) {
+      navToggle.setAttribute("aria-expanded", "false");
+    }
   });
 });
 
-window.addEventListener("resize", handleResize, { passive: true });
+const year = document.getElementById("year");
 
-document.getElementById("year").textContent = new Date().getFullYear();
+if (year) {
+  year.textContent = new Date().getFullYear();
+}
+
+window.addEventListener("resize", handleResize, { passive: true });
 
 resizeCanvas();
 animationFrameId = requestAnimationFrame(animate);
