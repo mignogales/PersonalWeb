@@ -27,6 +27,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: hidden;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
@@ -62,6 +63,64 @@ p {
   width: 100vw;
   height: 100vh;
   background: var(--bg);
+}
+
+.spaceship {
+  --ship-size: clamp(96px, 17vw, 154px);
+  --ship-y: clamp(104px, 22vh, 184px);
+  position: fixed;
+  bottom: var(--ship-y);
+  left: calc(var(--ship-size) * -1.35);
+  z-index: 8;
+  display: grid;
+  width: var(--ship-size);
+  aspect-ratio: 677 / 369;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  image-rendering: pixelated;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 220ms ease,
+    filter 180ms ease;
+}
+
+.spaceship img {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.spaceship-fire {
+  opacity: 0;
+}
+
+.spaceship-visible .spaceship {
+  opacity: 0.94;
+  pointer-events: auto;
+}
+
+.spaceship-boost .spaceship {
+  filter: drop-shadow(0 0 16px rgba(255, 156, 56, 0.56));
+}
+
+.spaceship-boost .spaceship-idle {
+  opacity: 0;
+}
+
+.spaceship-boost .spaceship-fire {
+  opacity: 1;
+}
+
+.spaceship:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 6px;
 }
 
 .container {
@@ -160,6 +219,12 @@ p {
   padding: 80px 0;
 }
 
+main::after {
+  content: "";
+  display: block;
+  height: 85vh;
+}
+
 .hero {
   min-height: calc(100vh - var(--header-height));
   display: grid;
@@ -173,6 +238,11 @@ p {
   background: var(--panel);
   box-shadow: 0 24px 80px var(--shadow);
   backdrop-filter: blur(14px);
+}
+
+.scroll-slide {
+  transform: translate3d(var(--scroll-slide-x, 0), 0, 0);
+  will-change: transform;
 }
 
 .hero-panel {
@@ -429,6 +499,11 @@ h1 {
     width: min(calc(100% - 24px), var(--max-width));
   }
 
+  .spaceship {
+    --ship-size: 88px;
+    --ship-y: 92px;
+  }
+
   .contact-panel {
     grid-template-columns: 1fr;
   }
@@ -446,6 +521,16 @@ h1 {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .scroll-slide {
+    transform: none !important;
+  }
+
+  .spaceship-visible .spaceship {
+    right: 18px;
+    left: auto;
+    transform: none;
   }
 
   *,

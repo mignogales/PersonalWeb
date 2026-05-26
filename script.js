@@ -15,6 +15,13 @@ const TRAIL_STRENGTH = 0.48;
 const TRAIL_SAMPLE_DISTANCE = 10;
 const SCROLL_PARALLAX_FACTOR = 0.12;
 const SCROLL_PARALLAX_EASE = 0.08;
+const SLIDE_CENTER_HOLD = 0.32;
+const SLIDE_MAX_PROGRESS = 1.06;
+const SLIDE_EDGE_GAP = 42;
+const SPACESHIP_BOTTOM_THRESHOLD = 6;
+const SPACESHIP_FLIGHT_DURATION = 7800;
+const SPACESHIP_BOOST_DURATION = 3400;
+const SPACESHIP_BOOST_RATE = 2.9;
 
 let stars = [];
 let width = 0;
@@ -31,6 +38,13 @@ let parallax = {
   y: 0,
   targetY: 0
 };
+let slideCards = [];
+let prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let spaceshipBoostTimeoutId = null;
+let spaceshipFlightComplete = false;
+let spaceshipFlightActive = false;
+let spaceshipFlightProgress = 0;
+let spaceshipFlightLastTime = null;
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -280,6 +294,7 @@ function animate(time) {
   pointerTrail = pointerTrail.filter((point) => time - point.time < TRAIL_LIFETIME);
   parallax.targetY = -window.scrollY * SCROLL_PARALLAX_FACTOR;
   parallax.y += (parallax.targetY - parallax.y) * SCROLL_PARALLAX_EASE;
+  updateSpaceshipFlight(time);
 
   for (const star of stars) {
     drawStar(star, time);
@@ -288,12 +303,137 @@ function animate(time) {
   animationFrameId = requestAnimationFrame(animate);
 }
 
+function getSlideProgress(distanceFromCenter) {
+  const direction = Math.sign(distanceFromCenter);
+  const distance = Math.abs(distanceFromCenter);
+
+  if (distance <= SLIDE_CENTER_HOLD) {
+    return 0;
+  }
+
+  return direction * clamp(
+    (distance - SLIDE_CENTER_HOLD) / (SLIDE_MAX_PROGRESS - SLIDE_CENTER_HOLD),
+    0,
+    1
+  );
+}
+
+function updateSlideCards() {
+  if (prefersReducedMotion) {
+    return;
+  }
+
+  const viewportCenter = window.innerHeight / 2;
+  const viewportWidth = window.innerWidth;
+
+  slideCards.forEach((card) => {
+    const rect = card.getBoundingClientRect();
+    const cardCenter = rect.top + rect.height / 2;
+    const normalizedDistance = (cardCenter - viewportCenter) / viewportCenter;
+    const progress = getSlideProgress(normalizedDistance);
+    const travel = viewportWidth / 2 + rect.width / 2 + SLIDE_EDGE_GAP;
+
+    card.style.setProperty("--scroll-slide-x", `${Math.round(progress * travel)}px`);
+  });
+}
+
+function isAtScrollBottom() {
+  const scrollBottom = window.scrollY + window.innerHeight;
+  const pageBottom = document.documentElement.scrollHeight;
+
+  return scrollBottom >= pageBottom - SPACESHIP_BOTTOM_THRESHOLD;
+}
+
+function updateSpaceshipVisibility() {
+  if (isAtScrollBottom()) {
+    startSpaceshipFlight();
+  }
+}
+
+function startSpaceshipFlight() {
+  if (!spaceship || spaceshipFlightActive || spaceshipFlightComplete) {
+    return;
+  }
+
+  if (prefersReducedMotion) {
+    spaceshipFlightComplete = true;
+    return;
+  }
+
+  spaceshipFlightActive = true;
+  spaceshipFlightProgress = 0;
+  spaceshipFlightLastTime = null;
+  spaceship.style.transform = "translate3d(0, 0, 0)";
+  document.body.classList.add("spaceship-visible");
+}
+
+function updateSpaceshipFlight(time) {
+  if (!spaceship || !spaceshipFlightActive || prefersReducedMotion) {
+    return;
+  }
+
+  if (spaceshipFlightLastTime === null) {
+    spaceshipFlightLastTime = time;
+    return;
+  }
+
+  const elapsed = time - spaceshipFlightLastTime;
+  const speed = document.body.classList.contains("spaceship-boost")
+    ? SPACESHIP_BOOST_RATE
+    : 1;
+  spaceshipFlightLastTime = time;
+  spaceshipFlightProgress = clamp(
+    spaceshipFlightProgress + (elapsed * speed) / SPACESHIP_FLIGHT_DURATION,
+    0,
+    1
+  );
+
+  const distance = window.innerWidth + spaceship.offsetWidth * 2.7;
+  spaceship.style.transform = `translate3d(${Math.round(distance * spaceshipFlightProgress)}px, 0, 0)`;
+
+  if (spaceshipFlightProgress >= 1) {
+    handleSpaceshipFlightEnd();
+  }
+}
+
+function boostSpaceship() {
+  if (!spaceship || !spaceshipFlightActive || spaceshipFlightComplete) {
+    return;
+  }
+
+  document.body.classList.add("spaceship-boost");
+  window.clearTimeout(spaceshipBoostTimeoutId);
+  spaceshipBoostTimeoutId = window.setTimeout(() => {
+    document.body.classList.remove("spaceship-boost");
+  }, SPACESHIP_BOOST_DURATION);
+}
+
+function handleSpaceshipFlightEnd() {
+  if (!spaceship) {
+    return;
+  }
+
+  spaceshipFlightComplete = true;
+  spaceshipFlightActive = false;
+  spaceshipFlightLastTime = null;
+  document.body.classList.remove("spaceship-visible", "spaceship-boost");
+  window.clearTimeout(spaceshipBoostTimeoutId);
+  spaceship.style.transform = "translate3d(0, 0, 0)";
+}
+
+function handleScroll() {
+  updateSlideCards();
+  updateSpaceshipVisibility();
+}
+
 function handleResize() {
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
   }
 
   resizeCanvas();
+  updateSlideCards();
+  updateSpaceshipVisibility();
   animationFrameId = requestAnimationFrame(animate);
 }
 
@@ -324,6 +464,7 @@ function handlePointerLeave() {
 
 const navToggle = document.querySelector(".nav-toggle");
 const navItems = document.querySelectorAll(".nav-links a");
+const spaceship = document.querySelector(".spaceship");
 
 if (navToggle) {
   navToggle.addEventListener("click", () => {
@@ -348,7 +489,17 @@ if (year) {
   year.textContent = new Date().getFullYear();
 }
 
+if (spaceship) {
+  spaceship.addEventListener("click", boostSpaceship);
+}
+
+slideCards = Array.from(document.querySelectorAll(".section:not(.hero) .panel"));
+slideCards.forEach((card) => card.classList.add("scroll-slide"));
+updateSlideCards();
+updateSpaceshipVisibility();
+
 window.addEventListener("resize", handleResize, { passive: true });
+window.addEventListener("scroll", handleScroll, { passive: true });
 window.addEventListener("pointermove", handlePointerMove, { passive: true });
 window.addEventListener("pointerleave", handlePointerLeave, { passive: true });
 window.addEventListener("blur", handlePointerLeave);
