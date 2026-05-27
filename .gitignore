@@ -1,0 +1,33 @@
+# Local papers and private/reference material
+Papers/
+*.pdf
+
+# macOS and editor files
+.DS_Store
+._*
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dependencies and build output
+node_modules/
+dist/
+build/
+.cache/
+.parcel-cache/
+.vite/
+
+# Logs and temporary files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+tmp/
+temp/
+
+# Environment files
+.env
+.env.*
+!.env.example
