@@ -494,27 +494,69 @@ if (spaceship) {
   spaceship.addEventListener("click", boostSpaceship);
 }
 
+function setPaperCardTilt(card, x, y) {
+  const dx = x - 0.5;
+  const dy = y - 0.5;
+  const tiltY = dx * 16;
+  const tiltX = -dy * 16;
+
+  card.style.setProperty("--tilt-x", `${tiltX.toFixed(2)}deg`);
+  card.style.setProperty("--tilt-y", `${tiltY.toFixed(2)}deg`);
+}
+
 paperCards.forEach((card) => {
+  const cardLink = card.querySelector(".paper-links a[href]");
+
+  if (cardLink) {
+    const cardTitle = card.querySelector("h3")?.textContent.trim();
+
+    card.classList.add("has-card-link");
+    card.setAttribute("tabindex", "0");
+    card.setAttribute("role", "link");
+    card.setAttribute(
+      "aria-label",
+      cardTitle ? `Open ${cardTitle}` : cardLink.textContent.trim()
+    );
+
+    card.addEventListener("click", (event) => {
+      if (event.target.closest("a")) {
+        return;
+      }
+
+      if (cardLink.target === "_blank") {
+        window.open(cardLink.href, "_blank", "noopener,noreferrer");
+        return;
+      }
+
+      window.location.href = cardLink.href;
+    });
+
+    card.addEventListener("keydown", (event) => {
+      if (event.target.closest("a") || !["Enter", " "].includes(event.key)) {
+        return;
+      }
+
+      event.preventDefault();
+      card.click();
+    });
+  }
+
   card.addEventListener("pointermove", (event) => {
     if (prefersReducedMotion) {
       return;
     }
 
     const rect = card.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width;
-    const y = (event.clientY - rect.top) / rect.height;
-    const tiltY = (x - 0.5) * 12;
-    const tiltX = (0.5 - y) * 12;
-
-    card.style.setProperty("--tilt-x", `${tiltX.toFixed(2)}deg`);
-    card.style.setProperty("--tilt-y", `${tiltY.toFixed(2)}deg`);
-    card.style.setProperty("--shine-x", `${(-38 + x * 168).toFixed(1)}%`);
+    const x = clamp((event.clientX - rect.left) / rect.width, 0, 1);
+    const y = clamp((event.clientY - rect.top) / rect.height, 0, 1);
+    setPaperCardTilt(card, x, y);
   });
 
   card.addEventListener("pointerleave", () => {
-    card.style.setProperty("--tilt-x", "0deg");
-    card.style.setProperty("--tilt-y", "0deg");
-    card.style.setProperty("--shine-x", "-72%");
+    [
+      "--tilt-x",
+      "--tilt-y"
+    ].forEach((property) => card.style.removeProperty(property));
   });
 });
 
