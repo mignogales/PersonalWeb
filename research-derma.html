@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Dermatoscopic image research by Miguel Nogales." />
+  <title>Dermatoscopic Images | Miguel Nogales</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <header class="site-header">
+    <nav class="nav container" aria-label="Primary navigation">
+      <a class="brand" href="index.html#hero">Miguel Nogales</a>
+      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#research">Research</a></li>
+        <li><a href="index.html#education">Education</a></li>
+        <li><a href="index.html#projects">Projects</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container research-page">
+    <section class="section">
+      <div class="panel topic-hero">
+        <div>
+          <p class="eyebrow">Medical imaging</p>
+          <h1>Dermatoscopic Images</h1>
+          <p class="tagline">
+            Work on dermatological image analysis, especially how deep models extract
+            clinically meaningful visual structure from dermoscopy images while handling
+            limited labels, domain mismatch, and difficult melanoma-related tasks.
+          </p>
+          <a class="button secondary" href="index.html#research">Back to research</a>
+        </div>
+        <img src="assets/research/placeholder.svg" alt="" aria-hidden="true" />
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Papers</p>
+        <h2>Skin-lesion imaging and learning</h2>
+      </div>
+      <p class="topic-intro">
+        These papers sit around deep learning for dermatoscopic images: learning useful
+        representations, reducing overfitting, analyzing melanoma depth, and making models
+        more clinically relevant.
+      </p>
+      <div class="paper-grid">
+        <article class="paper-card first-author">
+          <img src="assets/research/placeholder.svg" alt="" aria-hidden="true" />
+          <div class="paper-card-body">
+            <p class="meta">Array, 2026</p>
+            <h3>Are deep features able to learn melanoma depth gradation when trained only for binary tasks?</h3>
+            <p class="venue">Deep features, dermoscopy images, melanoma thickness, XAI</p>
+            <p>
+              Explores whether representations learned for simpler classification objectives
+              still encode information that is useful for melanoma-depth analysis.
+            </p>
+            <div class="paper-links">
+              <a href="https://www.sciencedirect.com/science/article/pii/S2590005626001815" target="_blank" rel="noopener noreferrer">ScienceDirect</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="paper-card coauthor">
+          <img src="assets/research/placeholder.svg" alt="" aria-hidden="true" />
+          <div class="paper-card-body">
+            <p class="meta">arXiv, 2025</p>
+            <h3>Mitigating Overfitting in Medical Imaging: Self-Supervised Pretraining vs. ImageNet Transfer Learning for Dermatological Diagnosis</h3>
+            <p class="venue">Self-supervised learning, transfer learning, dermatological diagnosis</p>
+            <p>
+              Compares domain-specific representation learning with general ImageNet transfer
+              for dermatological diagnosis under limited and specialized medical data.
+            </p>
+            <div class="paper-links">
+              <a href="https://arxiv.org/pdf/2505.16773" target="_blank" rel="noopener noreferrer">arXiv</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="paper-card first-author">
+          <img src="assets/research/placeholder.svg" alt="" aria-hidden="true" />
+          <div class="paper-card-body">
+            <p class="meta">IEEE EEITE, 2025</p>
+            <h3>Domain-Specific Knowledge Distillation for Melanoma Depth in Dermatological Imaging</h3>
+            <p class="venue">Knowledge distillation, melanoma, Breslow depth</p>
+            <p>
+              Uses domain-specific distillation to make dermatological models more compact
+              while preserving signals connected to melanoma-depth estimation.
+            </p>
+            <div class="paper-links">
+              <a href="https://ieeexplore.ieee.org/document/11165955" target="_blank" rel="noopener noreferrer">IEEE</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer container">
+    <p>&copy; <span id="year"></span> Miguel Nogales. Built with semantic HTML, CSS, and JavaScript. (it was LLM made, i didnt do anything)</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
