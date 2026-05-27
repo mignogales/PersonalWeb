@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="LLM efficiency research by Miguel Nogales." />
+  <title>LLM Efficiency | Miguel Nogales</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <header class="site-header">
+    <nav class="nav container" aria-label="Primary navigation">
+      <a class="brand" href="index.html#hero">Miguel Nogales</a>
+      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#research">Research</a></li>
+        <li><a href="index.html#education">Education</a></li>
+        <li><a href="index.html#projects">Projects</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container research-page">
+    <section class="section">
+      <div class="panel topic-hero">
+        <div>
+          <p class="eyebrow">Efficient AI</p>
+          <h1>LLM Efficiency</h1>
+          <p class="tagline">
+            Work on reducing the computational cost of modern sequence models through
+            dynamic inference, early exits, and architecture-aware mechanisms for
+            Transformer- and Mamba-based systems.
+          </p>
+          <a class="button secondary" href="index.html#research">Back to research</a>
+        </div>
+        <img src="assets/research/placeholder.svg" alt="" aria-hidden="true" />
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Papers</p>
+        <h2>Dynamic computation</h2>
+      </div>
+      <p class="topic-intro">
+        This line studies how large sequence models can spend computation adaptively,
+        using less work for easier inputs while preserving quality on harder ones.
+      </p>
+      <div class="paper-grid">
+        <article class="paper-card first-author">
+          <img src="assets/research/placeholder.svg" alt="" aria-hidden="true" />
+          <div class="paper-card-body">
+            <p class="meta">IEEE IJCNN, 2025</p>
+            <h3>DYNAMAX: Dynamic computing for Transformers and Mamba based architectures</h3>
+            <p class="venue">Large language models, dynamic computing, early exits</p>
+            <p>
+              Studies adaptive computation for Transformer and state-space architectures,
+              aiming to reduce inference cost through input-dependent execution.
+            </p>
+            <div class="paper-links">
+              <a href="https://ieeexplore.ieee.org/document/11228828" target="_blank" rel="noopener noreferrer">IEEE</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer container">
+    <p>&copy; <span id="year"></span> Miguel Nogales. Built with semantic HTML, CSS, and JavaScript. (it was LLM made, i didnt do anything)</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

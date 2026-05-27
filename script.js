@@ -15,8 +15,8 @@ const TRAIL_STRENGTH = 0.48;
 const TRAIL_SAMPLE_DISTANCE = 10;
 const SCROLL_PARALLAX_FACTOR = 0.12;
 const SCROLL_PARALLAX_EASE = 0.08;
-const SLIDE_CENTER_HOLD = 0.32;
-const SLIDE_MAX_PROGRESS = 1.06;
+const SLIDE_CENTER_HOLD = 0.56;
+const SLIDE_MAX_PROGRESS = 1.18;
 const SLIDE_EDGE_GAP = 42;
 const SPACESHIP_BOTTOM_THRESHOLD = 6;
 const SPACESHIP_FLIGHT_DURATION = 12000;
@@ -465,6 +465,7 @@ function handlePointerLeave() {
 const navToggle = document.querySelector(".nav-toggle");
 const navItems = document.querySelectorAll(".nav-links a");
 const spaceship = document.querySelector(".spaceship");
+const paperCards = document.querySelectorAll(".paper-card");
 
 if (navToggle) {
   navToggle.addEventListener("click", () => {
@@ -493,7 +494,33 @@ if (spaceship) {
   spaceship.addEventListener("click", boostSpaceship);
 }
 
-slideCards = Array.from(document.querySelectorAll(".section:not(.hero) .panel"));
+paperCards.forEach((card) => {
+  card.addEventListener("pointermove", (event) => {
+    if (prefersReducedMotion) {
+      return;
+    }
+
+    const rect = card.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width;
+    const y = (event.clientY - rect.top) / rect.height;
+    const tiltY = (x - 0.5) * 12;
+    const tiltX = (0.5 - y) * 12;
+
+    card.style.setProperty("--tilt-x", `${tiltX.toFixed(2)}deg`);
+    card.style.setProperty("--tilt-y", `${tiltY.toFixed(2)}deg`);
+    card.style.setProperty("--shine-x", `${(-38 + x * 168).toFixed(1)}%`);
+  });
+
+  card.addEventListener("pointerleave", () => {
+    card.style.setProperty("--tilt-x", "0deg");
+    card.style.setProperty("--tilt-y", "0deg");
+    card.style.setProperty("--shine-x", "-72%");
+  });
+});
+
+slideCards = document.querySelector(".research-page")
+  ? []
+  : Array.from(document.querySelectorAll(".section:not(.hero) .panel"));
 slideCards.forEach((card) => card.classList.add("scroll-slide"));
 updateSlideCards();
 updateSpaceshipVisibility();

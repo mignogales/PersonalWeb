@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-labelledby="title">
+  <title id="title">Research image placeholder</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#121f34"/>
+      <stop offset="0.55" stop-color="#0a0e17"/>
+      <stop offset="1" stop-color="#172944"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8fc7ff"/>
+      <stop offset="1" stop-color="#c5e3ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="480" fill="url(#bg)"/>
+  <rect x="110" y="86" width="420" height="308" rx="8" fill="#101b2d" stroke="#bed5ff" stroke-opacity="0.42" stroke-width="3"/>
+  <path d="M150 326l92-90 62 58 86-104 100 136" fill="none" stroke="url(#mark)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="234" cy="174" r="30" fill="#8fc7ff" opacity="0.8"/>
+  <path d="M184 362h272" stroke="#bed5ff" stroke-opacity="0.6" stroke-width="10" stroke-linecap="round"/>
+</svg>
