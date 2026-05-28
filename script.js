@@ -8,6 +8,8 @@ const MAX_STARS = 640;
 const TWINKLE_RATIO = 0.82;
 const LARGE_STAR_RATIO = 0.16;
 const GIANT_STAR_RATIO = 0.035;
+const COLORED_STAR_RATIO = 0.1;
+const STAR_ACCENT_COLORS = ["#ffee00", "#ff0000", "#ff00ff", "#00e1ff"];
 const HOVER_RADIUS_MIN = 86;
 const HOVER_RADIUS_MAX = 153;
 const TRAIL_LIFETIME = 1000;
@@ -15,6 +17,10 @@ const TRAIL_STRENGTH = 0.48;
 const TRAIL_SAMPLE_DISTANCE = 10;
 const SCROLL_PARALLAX_FACTOR = 0.12;
 const SCROLL_PARALLAX_EASE = 0.08;
+const SCROLL_ANIMATION_PAUSE_DURATION = 150;
+const SCROLL_CANVAS_RENDER_INTERVAL = 90;
+const STAR_DEPTH_LAYERS = [0.18, 0.34, 0.58, 0.84, 1];
+const STAR_DEPTH_JITTER = 0.035;
 const SLIDE_CENTER_HOLD = 0.56;
 const SLIDE_MAX_PROGRESS = 1.55;
 const SLIDE_EDGE_GAP = 42;
@@ -23,6 +29,7 @@ const SPACESHIP_FLIGHT_DURATION = 12000;
 const SPACESHIP_BOOST_DURATION = 3400;
 const SPACESHIP_BOOST_RATE = 1.85;
 const BACKGROUND_MUSIC_VIDEO_ID = "KF32DRg9opA";
+const PAGE_TRANSITION_DURATION = 1400;
 
 let stars = [];
 let width = 0;
@@ -39,6 +46,9 @@ let parallax = {
   y: 0,
   targetY: 0
 };
+let scrollPauseUntil = 0;
+let lastScrollCanvasRender = 0;
+let lastStarfieldTime = 0;
 let slideCards = [];
 let prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 let spaceshipBoostTimeoutId = null;
@@ -70,6 +80,19 @@ function pickStarSize() {
   return "small";
 }
 
+function pickStarDepth() {
+  const layer = STAR_DEPTH_LAYERS[Math.floor(Math.random() * STAR_DEPTH_LAYERS.length)];
+  return clamp(layer + randomBetween(-STAR_DEPTH_JITTER, STAR_DEPTH_JITTER), 0.16, 1);
+}
+
+function pickStarColor() {
+  if (Math.random() >= COLORED_STAR_RATIO) {
+    return null;
+  }
+
+  return STAR_ACCENT_COLORS[Math.floor(Math.random() * STAR_ACCENT_COLORS.length)];
+}
+
 function createStars() {
   const count = clamp(
     Math.round(window.innerWidth * window.innerHeight * STAR_DENSITY),
@@ -85,9 +108,10 @@ function createStars() {
     return {
       x: Math.floor(Math.random() * width),
       y: Math.floor(Math.random() * height),
-      depth: randomBetween(0.16, 1),
+      depth: pickStarDepth(),
       size,
       twinkles,
+      color: pickStarColor(),
       baseAlpha: randomBetween(0.46, isGiant ? 0.78 : 0.86),
       phase: randomBetween(0, Math.PI * 2),
       speed: randomBetween(0.0011, 0.003),
@@ -167,6 +191,22 @@ function getHoverInfluence(star, time) {
   return influence;
 }
 
+function hexToRgb(hex) {
+  const value = hex.replace("#", "");
+  const number = Number.parseInt(value, 16);
+
+  return {
+    r: (number >> 16) & 255,
+    g: (number >> 8) & 255,
+    b: number & 255
+  };
+}
+
+function rgbaFromHex(hex, alpha) {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 function drawStarGlow(star, alpha, influence) {
   if (influence <= 0) {
     return;
@@ -175,9 +215,15 @@ function drawStarGlow(star, alpha, influence) {
   const glowRadius = 7 + influence * 22;
   const gradient = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, glowRadius);
 
-  gradient.addColorStop(0, `rgba(234, 246, 255, ${0.34 * alpha * influence})`);
-  gradient.addColorStop(0.34, `rgba(143, 199, 255, ${0.16 * alpha * influence})`);
-  gradient.addColorStop(1, "rgba(143, 199, 255, 0)");
+  if (star.color) {
+    gradient.addColorStop(0, rgbaFromHex(star.color, 0.34 * alpha * influence));
+    gradient.addColorStop(0.34, rgbaFromHex(star.color, 0.16 * alpha * influence));
+    gradient.addColorStop(1, rgbaFromHex(star.color, 0));
+  } else {
+    gradient.addColorStop(0, `rgba(234, 246, 255, ${0.34 * alpha * influence})`);
+    gradient.addColorStop(0.34, `rgba(143, 199, 255, ${0.16 * alpha * influence})`);
+    gradient.addColorStop(1, "rgba(143, 199, 255, 0)");
+  }
 
   ctx.fillStyle = gradient;
   ctx.beginPath();
@@ -196,12 +242,14 @@ function drawSmallStar(star, alpha, influence) {
   const y = Math.round(star.y);
   const size = 1 + influence * 2.2;
   const arm = Math.round(1 + influence * 3);
+  const coreColor = star.color || "#f7fbff";
+  const armColor = star.color || "#d9ecff";
 
-  drawPixel(x, y, "#f7fbff", alpha, size);
-  drawPixel(x - arm, y, "#d9ecff", alpha * 0.82, size);
-  drawPixel(x + arm, y, "#d9ecff", alpha * 0.82, size);
-  drawPixel(x, y - arm, "#d9ecff", alpha * 0.82, size);
-  drawPixel(x, y + arm, "#d9ecff", alpha * 0.82, size);
+  drawPixel(x, y, coreColor, alpha, size);
+  drawPixel(x - arm, y, armColor, alpha * 0.82, size);
+  drawPixel(x + arm, y, armColor, alpha * 0.82, size);
+  drawPixel(x, y - arm, armColor, alpha * 0.82, size);
+  drawPixel(x, y + arm, armColor, alpha * 0.82, size);
 }
 
 function drawLargeStar(star, alpha, influence) {
@@ -211,32 +259,36 @@ function drawLargeStar(star, alpha, influence) {
   const spread = 1 + influence * 2.8;
   const near = Math.round(spread);
   const far = Math.round(2 + influence * 5);
+  const coreColor = star.color || "#fbfdff";
+  const nearColor = star.color || "#dceeff";
+  const farColor = star.color || "#98c9ff";
+  const dimColor = star.color || "#4f79a8";
 
-  drawPixel(x, y, "#fbfdff", alpha, size);
+  drawPixel(x, y, coreColor, alpha, size);
 
-  drawPixel(x - near, y, "#dceeff", alpha * 0.9, size);
-  drawPixel(x + near, y, "#dceeff", alpha * 0.9, size);
-  drawPixel(x, y - near, "#dceeff", alpha * 0.9, size);
-  drawPixel(x, y + near, "#dceeff", alpha * 0.9, size);
+  drawPixel(x - near, y, nearColor, alpha * 0.9, size);
+  drawPixel(x + near, y, nearColor, alpha * 0.9, size);
+  drawPixel(x, y - near, nearColor, alpha * 0.9, size);
+  drawPixel(x, y + near, nearColor, alpha * 0.9, size);
 
-  drawPixel(x - far, y, "#98c9ff", alpha * 0.62, size);
-  drawPixel(x + far, y, "#98c9ff", alpha * 0.62, size);
-  drawPixel(x, y - far, "#98c9ff", alpha * 0.62, size);
-  drawPixel(x, y + far, "#98c9ff", alpha * 0.62, size);
+  drawPixel(x - far, y, farColor, alpha * 0.62, size);
+  drawPixel(x + far, y, farColor, alpha * 0.62, size);
+  drawPixel(x, y - far, farColor, alpha * 0.62, size);
+  drawPixel(x, y + far, farColor, alpha * 0.62, size);
 
-  drawPixel(x - near, y - near, "#98c9ff", alpha * 0.52, size);
-  drawPixel(x + near, y - near, "#98c9ff", alpha * 0.52, size);
-  drawPixel(x - near, y + near, "#98c9ff", alpha * 0.52, size);
-  drawPixel(x + near, y + near, "#98c9ff", alpha * 0.52, size);
+  drawPixel(x - near, y - near, farColor, alpha * 0.52, size);
+  drawPixel(x + near, y - near, farColor, alpha * 0.52, size);
+  drawPixel(x - near, y + near, farColor, alpha * 0.52, size);
+  drawPixel(x + near, y + near, farColor, alpha * 0.52, size);
 
-  drawPixel(x - far, y - near, "#4f79a8", alpha * 0.28, size);
-  drawPixel(x + far, y - near, "#4f79a8", alpha * 0.28, size);
-  drawPixel(x - far, y + near, "#4f79a8", alpha * 0.28, size);
-  drawPixel(x + far, y + near, "#4f79a8", alpha * 0.28, size);
-  drawPixel(x - near, y - far, "#4f79a8", alpha * 0.28, size);
-  drawPixel(x + near, y - far, "#4f79a8", alpha * 0.28, size);
-  drawPixel(x - near, y + far, "#4f79a8", alpha * 0.28, size);
-  drawPixel(x + near, y + far, "#4f79a8", alpha * 0.28, size);
+  drawPixel(x - far, y - near, dimColor, alpha * 0.28, size);
+  drawPixel(x + far, y - near, dimColor, alpha * 0.28, size);
+  drawPixel(x - far, y + near, dimColor, alpha * 0.28, size);
+  drawPixel(x + far, y + near, dimColor, alpha * 0.28, size);
+  drawPixel(x - near, y - far, dimColor, alpha * 0.28, size);
+  drawPixel(x + near, y - far, dimColor, alpha * 0.28, size);
+  drawPixel(x - near, y + far, dimColor, alpha * 0.28, size);
+  drawPixel(x + near, y + far, dimColor, alpha * 0.28, size);
 }
 
 function drawGiantStar(star, alpha, influence) {
@@ -248,28 +300,33 @@ function drawGiantStar(star, alpha, influence) {
   const mid = Math.round(2 + influence * 4);
   const far = Math.round(3 + influence * 6);
   const long = Math.round(4 + influence * 8);
+  const coreColor = star.color || "#ffffff";
+  const nearColor = star.color || "#eaf6ff";
+  const farColor = star.color || "#a8d6ff";
+  const midColor = star.color || "#8fc7ff";
+  const dimColor = star.color || "#47719e";
 
-  drawPixel(x - 1, y - 1, "#ffffff", alpha, coreSize);
+  drawPixel(x - 1, y - 1, coreColor, alpha, coreSize);
 
-  drawPixel(x - mid, y - near, "#eaf6ff", alpha * 0.92, size);
-  drawPixel(x + near, y - near, "#eaf6ff", alpha * 0.92, size);
-  drawPixel(x - near, y - mid, "#eaf6ff", alpha * 0.92, size);
-  drawPixel(x - near, y + near, "#eaf6ff", alpha * 0.92, size);
+  drawPixel(x - mid, y - near, nearColor, alpha * 0.92, size);
+  drawPixel(x + near, y - near, nearColor, alpha * 0.92, size);
+  drawPixel(x - near, y - mid, nearColor, alpha * 0.92, size);
+  drawPixel(x - near, y + near, nearColor, alpha * 0.92, size);
 
-  drawPixel(x - far, y - near, "#a8d6ff", alpha * 0.72, size);
-  drawPixel(x + mid, y - near, "#a8d6ff", alpha * 0.72, size);
-  drawPixel(x - near, y - far, "#a8d6ff", alpha * 0.72, size);
-  drawPixel(x - near, y + mid, "#a8d6ff", alpha * 0.72, size);
+  drawPixel(x - far, y - near, farColor, alpha * 0.72, size);
+  drawPixel(x + mid, y - near, farColor, alpha * 0.72, size);
+  drawPixel(x - near, y - far, farColor, alpha * 0.72, size);
+  drawPixel(x - near, y + mid, farColor, alpha * 0.72, size);
 
-  drawPixel(x - mid, y - mid, "#8fc7ff", alpha * 0.56, size);
-  drawPixel(x + near, y - mid, "#8fc7ff", alpha * 0.56, size);
-  drawPixel(x - mid, y + near, "#8fc7ff", alpha * 0.56, size);
-  drawPixel(x + near, y + near, "#8fc7ff", alpha * 0.56, size);
+  drawPixel(x - mid, y - mid, midColor, alpha * 0.56, size);
+  drawPixel(x + near, y - mid, midColor, alpha * 0.56, size);
+  drawPixel(x - mid, y + near, midColor, alpha * 0.56, size);
+  drawPixel(x + near, y + near, midColor, alpha * 0.56, size);
 
-  drawPixel(x - long, y - near, "#47719e", alpha * 0.32, size);
-  drawPixel(x + far, y - near, "#47719e", alpha * 0.32, size);
-  drawPixel(x - near, y - long, "#47719e", alpha * 0.32, size);
-  drawPixel(x - near, y + far, "#47719e", alpha * 0.32, size);
+  drawPixel(x - long, y - near, dimColor, alpha * 0.32, size);
+  drawPixel(x + far, y - near, dimColor, alpha * 0.32, size);
+  drawPixel(x - near, y - long, dimColor, alpha * 0.32, size);
+  drawPixel(x - near, y + far, dimColor, alpha * 0.32, size);
 }
 
 function drawStar(star, time) {
@@ -290,16 +347,33 @@ function drawStar(star, time) {
   ctx.globalAlpha = 1;
 }
 
-function animate(time) {
+function updateCanvasParallax() {
+  parallax.targetY = -window.scrollY * SCROLL_PARALLAX_FACTOR;
+  parallax.y += (parallax.targetY - parallax.y) * SCROLL_PARALLAX_EASE;
+}
+
+function renderStarfield(time) {
   ctx.fillStyle = BACKGROUND;
   ctx.fillRect(0, 0, width, height);
   pointerTrail = pointerTrail.filter((point) => time - point.time < TRAIL_LIFETIME);
-  parallax.targetY = -window.scrollY * SCROLL_PARALLAX_FACTOR;
-  parallax.y += (parallax.targetY - parallax.y) * SCROLL_PARALLAX_EASE;
-  updateSpaceshipFlight(time);
 
   for (const star of stars) {
     drawStar(star, time);
+  }
+}
+
+function animate(time) {
+  const isScrollPaused = time < scrollPauseUntil;
+
+  updateCanvasParallax();
+  updateSpaceshipFlight(time);
+
+  if (!isScrollPaused) {
+    renderStarfield(time);
+    lastStarfieldTime = time;
+  } else if (time - lastScrollCanvasRender >= SCROLL_CANVAS_RENDER_INTERVAL) {
+    renderStarfield(lastStarfieldTime || time);
+    lastScrollCanvasRender = time;
   }
 
   animationFrameId = requestAnimationFrame(animate);
@@ -489,8 +563,10 @@ function toggleBackgroundMusic() {
 }
 
 function handleScroll() {
+  scrollPauseUntil = performance.now() + SCROLL_ANIMATION_PAUSE_DURATION;
   updateSlideCards();
   updateSpaceshipVisibility();
+  updateEarthPortalFocus();
 }
 
 function handleResize() {
@@ -501,6 +577,7 @@ function handleResize() {
   resizeCanvas();
   updateSlideCards();
   updateSpaceshipVisibility();
+  updateEarthPortalFocus();
   animationFrameId = requestAnimationFrame(animate);
 }
 
@@ -533,6 +610,8 @@ const navToggle = document.querySelector(".nav-toggle");
 const navItems = document.querySelectorAll(".nav-links a");
 const spaceship = document.querySelector(".spaceship");
 const musicToggle = document.querySelector(".music-toggle");
+const earthPortal = document.querySelector(".earth-portal");
+const aboutMePortalSection = document.querySelector(".about-me-portal-section");
 const paperCards = document.querySelectorAll(".paper-card");
 const researchCards = document.querySelectorAll(".research-card");
 
@@ -566,6 +645,46 @@ if (spaceship) {
 if (musicToggle) {
   musicToggle.addEventListener("click", toggleBackgroundMusic);
   updateMusicToggle();
+}
+
+function handleEarthPortalClick(event) {
+  if (!earthPortal || prefersReducedMotion) {
+    return;
+  }
+
+  const topElement = document.elementFromPoint(event.clientX, event.clientY);
+
+  if (!topElement || !earthPortal.contains(topElement)) {
+    event.preventDefault();
+    return;
+  }
+
+  event.preventDefault();
+  document.body.classList.add("page-transitioning");
+  window.setTimeout(() => {
+    window.location.href = earthPortal.href;
+  }, PAGE_TRANSITION_DURATION);
+}
+
+function updateEarthPortalFocus() {
+  if (!earthPortal || !aboutMePortalSection) {
+    return;
+  }
+
+  const rect = aboutMePortalSection.getBoundingClientRect();
+  const sectionCenter = rect.top + rect.height / 2;
+  const viewportCenter = window.innerHeight / 2;
+  const maxDistance = window.innerHeight * 0.82;
+  const distance = Math.abs(sectionCenter - viewportCenter);
+  const proximity = 1 - clamp(distance / maxDistance, 0, 1);
+  const focus = proximity * proximity * (3 - 2 * proximity);
+
+  earthPortal.style.setProperty("--portal-focus", focus.toFixed(3));
+}
+
+if (earthPortal) {
+  earthPortal.addEventListener("click", handleEarthPortalClick);
+  updateEarthPortalFocus();
 }
 
 function setCardTilt(card, x, y, strength = 16) {
@@ -638,14 +757,13 @@ paperCards.forEach((card) => {
   enablePointerTilt(card);
 });
 
-researchCards.forEach((card) => enablePointerTilt(card, 8));
-
 slideCards = document.querySelector(".research-page")
   ? []
   : Array.from(document.querySelectorAll(".section:not(.hero) .panel"));
 slideCards.forEach((card) => card.classList.add("scroll-slide"));
 updateSlideCards();
 updateSpaceshipVisibility();
+updateEarthPortalFocus();
 
 window.addEventListener("resize", handleResize, { passive: true });
 window.addEventListener("scroll", handleScroll, { passive: true });

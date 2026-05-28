@@ -200,6 +200,88 @@ p {
   background: var(--accent-strong);
 }
 
+.earth-portal {
+  --portal-focus: 0;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  display: grid;
+  width: clamp(132px, 22vw, 260px);
+  aspect-ratio: 669 / 373;
+  place-items: center;
+  border-radius: 50%;
+  image-rendering: pixelated;
+  opacity: calc(0.18 + var(--portal-focus) * 0.42);
+  filter: brightness(calc(0.88 + var(--portal-focus) * 0.58));
+  transform: translate(-50%, -50%);
+  transition:
+    opacity 260ms ease,
+    filter 260ms ease,
+    transform 260ms ease;
+}
+
+.earth-portal::before {
+  content: "";
+  position: absolute;
+  inset: -28%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(143, 199, 255, 0.24),
+    rgba(47, 217, 190, 0.12) 34%,
+    rgba(47, 217, 190, 0) 68%
+  );
+  opacity: calc(var(--portal-focus) * 0.92);
+  transform: scale(calc(0.76 + var(--portal-focus) * 0.42));
+  transition:
+    opacity 260ms ease,
+    transform 260ms ease;
+}
+
+.earth-portal img {
+  width: 100%;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.earth-portal:hover,
+.earth-portal:focus-visible {
+  opacity: 0.72;
+  filter:
+    brightness(1.42)
+    drop-shadow(0 0 10px rgba(143, 199, 255, 0.52))
+    drop-shadow(0 0 22px rgba(47, 217, 190, 0.22));
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.earth-portal:hover::before,
+.earth-portal:focus-visible::before {
+  opacity: 0.86;
+  transform: scale(1.12);
+}
+
+.earth-portal:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 8px;
+}
+
+.page-fade {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: #ffffff;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1400ms ease;
+}
+
+.page-transitioning .page-fade {
+  opacity: 1;
+}
+
 .youtube-background-player {
   position: fixed;
   width: 1px;
@@ -319,6 +401,8 @@ main::after {
 }
 
 .panel {
+  position: relative;
+  z-index: 2;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--panel);
@@ -408,6 +492,8 @@ h1 {
 }
 
 .section-heading {
+  position: relative;
+  z-index: 2;
   max-width: 760px;
   margin-bottom: 24px;
 }
@@ -422,6 +508,40 @@ h1 {
 
 .section > .panel {
   padding: clamp(22px, 4vw, 34px);
+}
+
+.about-highlight {
+  color: var(--accent-strong);
+  font-weight: 800;
+  text-shadow: 0 0 22px rgba(143, 199, 255, 0.28);
+}
+
+.about-me-page {
+  min-height: 100vh;
+}
+
+.about-me-shell {
+  min-height: calc(100vh - var(--header-height));
+}
+
+.about-me-portal-section {
+  min-height: 72vh;
+  scroll-margin-top: calc(var(--header-height) - 20px);
+}
+
+.about-me-cue {
+  position: relative;
+  z-index: 2;
+  max-width: 760px;
+  margin-bottom: 24px;
+}
+
+.about-me-cue h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: 0;
 }
 
 .publication-list {
@@ -457,6 +577,8 @@ h1 {
 }
 
 .research-grid {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 18px;
@@ -464,9 +586,6 @@ h1 {
 }
 
 .research-card {
-  --card-lift: 0px;
-  --tilt-x: 0deg;
-  --tilt-y: 0deg;
   position: relative;
   display: flex;
   min-height: 100%;
@@ -474,11 +593,7 @@ h1 {
   gap: 18px;
   overflow: hidden;
   padding: 18px;
-  transform:
-    translate3d(var(--scroll-slide-x, 0), var(--card-lift), 0)
-    rotateX(var(--tilt-x))
-    rotateY(var(--tilt-y));
-  transform-style: preserve-3d;
+  transform: translate3d(var(--scroll-slide-x, 0), 0, 0);
   transition:
     transform 180ms ease,
     border-color 180ms ease,
@@ -488,7 +603,6 @@ h1 {
 
 .research-card:hover,
 .research-card:focus-visible {
-  --card-lift: -6px;
   border-color: rgba(197, 227, 255, 0.48);
   background: rgba(18, 31, 52, 0.86);
 }
@@ -742,6 +856,8 @@ h1 {
 }
 
 .project-grid {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 18px;
@@ -784,6 +900,8 @@ h1 {
 }
 
 .contact-panel {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1px;
@@ -812,6 +930,8 @@ h1 {
 }
 
 .footer {
+  position: relative;
+  z-index: 2;
   padding: 36px 0 48px;
   color: var(--subtle);
   font-size: 0.92rem;
@@ -890,6 +1010,7 @@ h1 {
   .hero-panel {
     padding: 28px;
   }
+
 }
 
 @media (max-width: 480px) {
@@ -907,6 +1028,10 @@ h1 {
     bottom: 14px;
     width: 44px;
     height: 44px;
+  }
+
+  .earth-portal {
+    width: 130px;
   }
 
   .contact-panel {
