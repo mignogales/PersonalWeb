@@ -28,7 +28,10 @@ const SPACESHIP_BOTTOM_THRESHOLD = 6;
 const SPACESHIP_FLIGHT_DURATION = 12000;
 const SPACESHIP_BOOST_DURATION = 3400;
 const SPACESHIP_BOOST_RATE = 1.85;
-const BACKGROUND_MUSIC_SRC = "assets/research/misc/sounds/Starbyte Run.mp3";
+const EARTH_STAR_MASK_PADDING = 6;
+const SITE_ROOT = new URL("../", document.currentScript?.src || window.location.href);
+const assetPath = (path) => new URL(path, SITE_ROOT).href;
+const BACKGROUND_MUSIC_SRC = assetPath("assets/research/misc/sounds/Starbyte Run.mp3");
 const BACKGROUND_MUSIC_VOLUME = 0.14;
 const BACKGROUND_MUSIC_STATE_KEY = "miguel-site-background-music";
 const BACKGROUND_MUSIC_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
@@ -366,6 +369,39 @@ function renderStarfield(time) {
   for (const star of stars) {
     drawStar(star, time);
   }
+
+  maskEarthPortalStars();
+}
+
+function maskEarthPortalStars() {
+  if (!earthPortal) {
+    return;
+  }
+
+  const rect = earthPortal.getBoundingClientRect();
+
+  if (
+    rect.right < 0 ||
+    rect.bottom < 0 ||
+    rect.left > width ||
+    rect.top > height
+  ) {
+    return;
+  }
+
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = BACKGROUND;
+  ctx.beginPath();
+  ctx.ellipse(
+    rect.left + rect.width / 2,
+    rect.top + rect.height / 2,
+    rect.width / 2 + EARTH_STAR_MASK_PADDING,
+    rect.height / 2 + EARTH_STAR_MASK_PADDING,
+    0,
+    0,
+    Math.PI * 2
+  );
+  ctx.fill();
 }
 
 function animate(time) {
@@ -532,7 +568,7 @@ function createMusicToggleButton() {
 
   const moon = document.createElement("img");
   moon.className = "music-toggle-icon";
-  moon.src = "assets/research/misc/moon.png";
+  moon.src = assetPath("assets/research/misc/moon.png");
   moon.alt = "";
   moon.setAttribute("aria-hidden", "true");
 

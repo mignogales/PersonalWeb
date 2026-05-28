@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,20 +8,20 @@
     content="Academic and professional portfolio for Miguel Nogales, PhD Student in AI at Università della Svizzera italiana, IDSIA, and the Graph Machine Learning Group."
   />
   <title>Miguel Nogales | PhD Student in AI</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <canvas id="starfield" aria-hidden="true"></canvas>
   <button class="spaceship" type="button" aria-label="Boost spaceship">
     <img
       class="spaceship-idle"
-      src="assets/spaceship-idle.png"
+      src="assets/ui/spaceship-idle.png"
       alt=""
       aria-hidden="true"
     />
     <img
       class="spaceship-fire"
-      src="assets/spaceship-fire.png"
+      src="assets/ui/spaceship-fire.png"
       alt=""
       aria-hidden="true"
     />
@@ -41,7 +40,7 @@
       aria-hidden="true"
     />
   </button>
-  <a class="earth-portal" href="about-me.html" aria-label="Open About Me">
+  <a class="earth-portal" href="pages/about-me.html" aria-label="Open About Me">
     <img src="assets/research/misc/earth.png" alt="" aria-hidden="true" />
   </a>
   <div class="page-fade" aria-hidden="true"></div>
@@ -118,7 +117,7 @@
       </div>
 
       <div class="research-grid">
-        <a class="panel research-card topic-tsfm" href="research-tsfm.html">
+        <a class="panel research-card topic-tsfm" href="pages/research/tsfm.html">
           <img src="assets/research/paper-images/time_series_header.png" alt="" aria-hidden="true" />
           <div>
             <p class="meta">Current research</p>
@@ -131,7 +130,7 @@
           <span class="card-link">Open topic</span>
         </a>
 
-        <a class="panel research-card topic-derma" href="research-derma.html">
+        <a class="panel research-card topic-derma" href="pages/research/derma.html">
           <img src="assets/research/paper-images/derma-thumbnail.png" alt="" aria-hidden="true" />
           <div>
             <p class="meta">Medical imaging</p>
@@ -144,7 +143,7 @@
           <span class="card-link">Open topic</span>
         </a>
 
-        <a class="panel research-card topic-llm" href="research-llm-efficiency.html">
+        <a class="panel research-card topic-llm" href="pages/research/llm-efficiency.html">
           <img src="assets/research/paper-images/dynamax.png" alt="" aria-hidden="true" />
           <div>
             <p class="meta">Efficient AI</p>
@@ -157,7 +156,7 @@
           <span class="card-link">Open topic</span>
         </a>
 
-        <a class="panel research-card topic-pa" href="research-power-amplifiers.html">
+        <a class="panel research-card topic-pa" href="pages/research/power-amplifiers.html">
           <img src="assets/research/paper-images/predistortion-header-thumbnail.png" alt="" aria-hidden="true" />
           <div>
             <p class="meta">Telecommunications</p>
@@ -317,6 +316,6 @@
     <p>&copy; <span id="year"></span> Miguel Nogales. Built with semantic HTML, CSS, and JavaScript. (it was LLM made, i didnt do anything)</p>
   </footer>
 
-  <script src="script.js"></script>
+  <script src="js/script.js"></script>
 </body>
 </html>
