@@ -9,7 +9,7 @@ const TWINKLE_RATIO = 0.82;
 const LARGE_STAR_RATIO = 0.16;
 const GIANT_STAR_RATIO = 0.035;
 const COLORED_STAR_RATIO = 0.1;
-const STAR_ACCENT_COLORS = ["#ffee00", "#ff0000", "#ff00ff", "#00e1ff"];
+const STAR_ACCENT_COLORS = ["#ffee00", "#fcc2cf", "#ff00ff", "#00e1ff"];
 const HOVER_RADIUS_MIN = 86;
 const HOVER_RADIUS_MAX = 153;
 const TRAIL_LIFETIME = 1000;
@@ -445,11 +445,20 @@ function updateSlideCards() {
   const viewportWidth = window.innerWidth;
 
   slideCards.forEach((card) => {
+    if (card.dataset.slideLocked === "true") {
+      card.style.setProperty("--scroll-slide-x", "0px");
+      return;
+    }
+
     const rect = card.getBoundingClientRect();
     const cardCenter = rect.top + rect.height / 2;
     const normalizedDistance = (cardCenter - viewportCenter) / viewportCenter;
     const progress = getSlideProgress(normalizedDistance);
     const travel = viewportWidth / 2 + rect.width / 2 + SLIDE_EDGE_GAP;
+
+    if (progress === 0) {
+      card.dataset.slideLocked = "true";
+    }
 
     card.style.setProperty("--scroll-slide-x", `${Math.round(progress * travel)}px`);
   });

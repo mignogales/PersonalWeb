@@ -512,9 +512,43 @@ h1 {
 
 .about-me-page {
   min-height: 100vh;
+  isolation: isolate;
+}
+
+.about-me-page::before,
+.about-me-page::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.about-me-page::before {
+  z-index: 0;
+  background-image: url("../assets/research/misc/europe.png");
+  background-position: center;
+  background-size: cover;
+  opacity: 0.86;
+}
+
+.about-me-page::after {
+  z-index: 1;
+  background:
+    linear-gradient(rgba(6, 10, 18, 0.28), rgba(6, 10, 18, 0.42)),
+    radial-gradient(circle at 50% 45%, rgba(10, 14, 23, 0.04), rgba(10, 14, 23, 0.54));
+}
+
+.about-me-page #starfield {
+  opacity: 0.34;
+}
+
+.about-me-page .site-header,
+.about-me-shell {
+  position: relative;
 }
 
 .about-me-shell {
+  z-index: 2;
   min-height: calc(100vh - var(--header-height));
 }
 
