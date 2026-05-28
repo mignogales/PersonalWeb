@@ -28,7 +28,10 @@ const SPACESHIP_BOTTOM_THRESHOLD = 6;
 const SPACESHIP_FLIGHT_DURATION = 12000;
 const SPACESHIP_BOOST_DURATION = 3400;
 const SPACESHIP_BOOST_RATE = 1.85;
-const BACKGROUND_MUSIC_VIDEO_ID = "KF32DRg9opA";
+const BACKGROUND_MUSIC_SRC = "assets/research/misc/sounds/Starbyte Run.mp3";
+const BACKGROUND_MUSIC_VOLUME = 0.14;
+const BACKGROUND_MUSIC_STATE_KEY = "miguel-site-background-music";
+const BACKGROUND_MUSIC_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 const PAGE_TRANSITION_DURATION = 1400;
 
 let stars = [];
@@ -57,6 +60,9 @@ let spaceshipFlightActive = false;
 let spaceshipFlightProgress = 0;
 let spaceshipFlightLastTime = null;
 let musicIsPlaying = false;
+let musicPlayer = null;
+let musicResumeTime = 0;
+let musicResumeApplied = false;
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -505,49 +511,140 @@ function updateMusicToggle() {
   musicToggle.classList.toggle("is-playing", musicIsPlaying);
   musicToggle.setAttribute("aria-pressed", String(musicIsPlaying));
 
-  const label = musicIsPlaying ? "Pause background music" : "Play background music";
+  const label = musicIsPlaying ? "Pause Starbyte Run" : "Play Starbyte Run";
   musicToggle.setAttribute("aria-label", label);
   musicToggle.setAttribute("title", label);
 }
 
+function createMusicToggleButton() {
+  const existingButton = document.querySelector(".music-toggle");
+
+  if (existingButton) {
+    return existingButton;
+  }
+
+  const button = document.createElement("button");
+  button.className = "music-toggle";
+  button.type = "button";
+  button.setAttribute("aria-label", "Play Starbyte Run");
+  button.setAttribute("aria-pressed", "false");
+  button.title = "Play Starbyte Run";
+
+  const moon = document.createElement("img");
+  moon.className = "music-toggle-icon";
+  moon.src = "assets/research/misc/moon.png";
+  moon.alt = "";
+  moon.setAttribute("aria-hidden", "true");
+
+  button.append(moon);
+  document.body.append(button);
+
+  return button;
+}
+
+function getSavedMusicState() {
+  let storedState = "";
+
+  try {
+    storedState = window.localStorage?.getItem(BACKGROUND_MUSIC_STATE_KEY) || "";
+  } catch {
+    storedState = "";
+  }
+
+  if (!storedState) {
+    const cookiePrefix = `${BACKGROUND_MUSIC_STATE_KEY}=`;
+    const cookie = document.cookie
+      .split("; ")
+      .find((value) => value.startsWith(cookiePrefix));
+
+    storedState = cookie ? decodeURIComponent(cookie.slice(cookiePrefix.length)) : "";
+  }
+
+  try {
+    return JSON.parse(storedState) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveMusicState(isPlaying = musicIsPlaying, time = getMusicCurrentTime()) {
+  const serializedState = JSON.stringify({
+    isPlaying,
+    time
+  });
+
+  try {
+    window.localStorage?.setItem(BACKGROUND_MUSIC_STATE_KEY, serializedState);
+  } catch {
+    // Fall back to a cookie below.
+  }
+
+  document.cookie = `${BACKGROUND_MUSIC_STATE_KEY}=${encodeURIComponent(serializedState)}; max-age=${BACKGROUND_MUSIC_COOKIE_MAX_AGE}; path=/; SameSite=Lax`;
+}
+
+function getMusicCurrentTime() {
+  if (!musicPlayer) {
+    return musicResumeTime || 0;
+  }
+
+  return musicPlayer.currentTime || 0;
+}
+
 function getMusicPlayerContainer() {
-  let playerContainer = document.querySelector(".youtube-background-player");
+  let playerContainer = document.querySelector(".audio-background-player");
 
   if (!playerContainer) {
     playerContainer = document.createElement("div");
-    playerContainer.className = "youtube-background-player";
+    playerContainer.className = "audio-background-player";
     document.body.append(playerContainer);
   }
 
   return playerContainer;
 }
 
-function startBackgroundMusic() {
+function createMusicPlayer() {
+  if (musicPlayer) {
+    return;
+  }
+
   const playerContainer = getMusicPlayerContainer();
-  const params = new URLSearchParams({
-    autoplay: "1",
-    controls: "0",
-    disablekb: "1",
-    loop: "1",
-    modestbranding: "1",
-    playsinline: "1",
-    playlist: BACKGROUND_MUSIC_VIDEO_ID,
-    rel: "0"
-  });
+  const audio = document.createElement("audio");
+  audio.src = BACKGROUND_MUSIC_SRC;
+  audio.loop = true;
+  audio.preload = "auto";
+  audio.volume = BACKGROUND_MUSIC_VOLUME;
 
-  playerContainer.innerHTML = "";
+  playerContainer.replaceChildren(audio);
+  musicPlayer = audio;
+}
 
-  const iframe = document.createElement("iframe");
-  iframe.width = "1";
-  iframe.height = "1";
-  iframe.title = "Background music player";
-  iframe.allow = "autoplay; encrypted-media";
-  iframe.src = `https://www.youtube.com/embed/${BACKGROUND_MUSIC_VIDEO_ID}?${params.toString()}`;
-  playerContainer.append(iframe);
+function startBackgroundMusic() {
+  createMusicPlayer();
+  musicPlayer.volume = BACKGROUND_MUSIC_VOLUME;
+
+  if (!musicResumeApplied && musicResumeTime > 0) {
+    musicPlayer.currentTime = musicResumeTime;
+    musicResumeApplied = true;
+  }
+
+  const playPromise = musicPlayer.play();
+  saveMusicState(true);
+
+  if (playPromise) {
+    playPromise.catch(() => {
+      musicIsPlaying = false;
+      saveMusicState(false);
+      updateMusicToggle();
+    });
+  }
 }
 
 function stopBackgroundMusic() {
-  document.querySelector(".youtube-background-player")?.remove();
+  if (musicPlayer) {
+    musicPlayer.pause();
+  }
+
+  saveMusicState(false);
 }
 
 function toggleBackgroundMusic() {
@@ -609,7 +706,7 @@ function handlePointerLeave() {
 const navToggle = document.querySelector(".nav-toggle");
 const navItems = document.querySelectorAll(".nav-links a");
 const spaceship = document.querySelector(".spaceship");
-const musicToggle = document.querySelector(".music-toggle");
+const musicToggle = createMusicToggleButton();
 const earthPortal = document.querySelector(".earth-portal");
 const aboutMePortalSection = document.querySelector(".about-me-portal-section");
 const paperCards = document.querySelectorAll(".paper-card");
@@ -643,9 +740,26 @@ if (spaceship) {
 }
 
 if (musicToggle) {
+  const savedMusicState = getSavedMusicState();
+  musicIsPlaying = savedMusicState.isPlaying === true;
+  musicResumeTime = Number(savedMusicState.time) || 0;
+  createMusicPlayer();
   musicToggle.addEventListener("click", toggleBackgroundMusic);
   updateMusicToggle();
+
+  if (musicIsPlaying) {
+    startBackgroundMusic();
+  }
 }
+
+window.addEventListener("pageshow", () => {
+  document.body.classList.remove("page-transitioning");
+});
+
+window.addEventListener("pagehide", () => {
+  saveMusicState(musicIsPlaying);
+  document.body.classList.remove("page-transitioning");
+});
 
 function handleEarthPortalClick(event) {
   if (!earthPortal || prefersReducedMotion) {

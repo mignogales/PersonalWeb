@@ -129,14 +129,16 @@ p {
   bottom: 20px;
   z-index: 12;
   display: grid;
-  width: 48px;
-  height: 48px;
+  width: 58px;
+  height: 58px;
   place-items: center;
   padding: 0;
-  border: 1px solid rgba(197, 227, 255, 0.3);
+  border: 1px solid rgba(197, 227, 255, 0.36);
   border-radius: 50%;
-  color: var(--text);
-  background: rgba(13, 20, 34, 0.82);
+  color: #eef4ff;
+  background:
+    radial-gradient(circle at 36% 30%, rgba(255, 255, 255, 0.15), transparent 34%),
+    rgba(9, 15, 27, 0.82);
   box-shadow: 0 18px 44px rgba(0, 0, 0, 0.32);
   backdrop-filter: blur(14px);
   cursor: pointer;
@@ -149,12 +151,14 @@ p {
 
 .music-toggle:hover,
 .music-toggle:focus-visible {
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.03);
   border-color: rgba(197, 227, 255, 0.62);
-  background: rgba(18, 31, 52, 0.9);
+  background:
+    radial-gradient(circle at 36% 30%, rgba(255, 255, 255, 0.2), transparent 34%),
+    rgba(15, 26, 44, 0.92);
   box-shadow:
     0 20px 52px rgba(0, 0, 0, 0.38),
-    0 0 24px rgba(143, 199, 255, 0.18);
+    0 0 26px rgba(197, 227, 255, 0.2);
 }
 
 .music-toggle:focus-visible {
@@ -163,41 +167,32 @@ p {
 }
 
 .music-toggle-icon {
-  position: relative;
-  width: 18px;
-  height: 20px;
-  border-right: 4px solid currentColor;
-  border-bottom: 4px solid currentColor;
-  border-radius: 0 0 7px 0;
-}
-
-.music-toggle-icon::before {
-  content: "";
-  position: absolute;
-  top: -1px;
-  right: -4px;
-  width: 13px;
-  height: 4px;
-  border-radius: 999px;
-  background: currentColor;
-}
-
-.music-toggle-icon::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: -8px;
-  width: 13px;
-  height: 9px;
-  border-radius: 50%;
-  background: currentColor;
-  transform: rotate(-16deg);
+  display: block;
+  width: 44px;
+  max-width: none;
+  height: auto;
+  animation: moon-spin 8s linear infinite;
+  animation-play-state: paused;
+  image-rendering: pixelated;
+  filter:
+    drop-shadow(0 0 8px rgba(197, 227, 255, 0.36))
+    drop-shadow(0 0 14px rgba(255, 255, 255, 0.14));
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .music-toggle.is-playing {
-  color: #07101d;
-  border-color: rgba(197, 227, 255, 0.7);
-  background: var(--accent-strong);
+  border-color: rgba(232, 243, 255, 0.76);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(197, 227, 255, 0.18), transparent 62%),
+    rgba(9, 15, 27, 0.86);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.32),
+    0 0 34px rgba(197, 227, 255, 0.28);
+}
+
+.music-toggle.is-playing .music-toggle-icon {
+  animation-play-state: running;
 }
 
 .earth-portal {
@@ -282,7 +277,7 @@ p {
   opacity: 1;
 }
 
-.youtube-background-player {
+.audio-background-player {
   position: fixed;
   width: 1px;
   height: 1px;
@@ -1026,8 +1021,12 @@ h1 {
   .music-toggle {
     right: 14px;
     bottom: 14px;
-    width: 44px;
-    height: 44px;
+    width: 50px;
+    height: 50px;
+  }
+
+  .music-toggle-icon {
+    width: 38px;
   }
 
   .earth-portal {
@@ -1063,11 +1062,21 @@ h1 {
     transform: none;
   }
 
+  .music-toggle.is-playing .music-toggle-icon {
+    animation: none;
+  }
+
   *,
   *::before,
   *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+}
+
+@keyframes moon-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
