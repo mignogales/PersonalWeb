@@ -534,6 +534,7 @@ const navItems = document.querySelectorAll(".nav-links a");
 const spaceship = document.querySelector(".spaceship");
 const musicToggle = document.querySelector(".music-toggle");
 const paperCards = document.querySelectorAll(".paper-card");
+const researchCards = document.querySelectorAll(".research-card");
 
 if (navToggle) {
   navToggle.addEventListener("click", () => {
@@ -567,14 +568,34 @@ if (musicToggle) {
   updateMusicToggle();
 }
 
-function setPaperCardTilt(card, x, y) {
+function setCardTilt(card, x, y, strength = 16) {
   const dx = x - 0.5;
   const dy = y - 0.5;
-  const tiltY = dx * 16;
-  const tiltX = -dy * 16;
+  const tiltY = dx * strength;
+  const tiltX = -dy * strength;
 
   card.style.setProperty("--tilt-x", `${tiltX.toFixed(2)}deg`);
   card.style.setProperty("--tilt-y", `${tiltY.toFixed(2)}deg`);
+}
+
+function enablePointerTilt(card, strength = 16) {
+  card.addEventListener("pointermove", (event) => {
+    if (prefersReducedMotion) {
+      return;
+    }
+
+    const rect = card.getBoundingClientRect();
+    const x = clamp((event.clientX - rect.left) / rect.width, 0, 1);
+    const y = clamp((event.clientY - rect.top) / rect.height, 0, 1);
+    setCardTilt(card, x, y, strength);
+  });
+
+  card.addEventListener("pointerleave", () => {
+    [
+      "--tilt-x",
+      "--tilt-y"
+    ].forEach((property) => card.style.removeProperty(property));
+  });
 }
 
 paperCards.forEach((card) => {
@@ -614,24 +635,10 @@ paperCards.forEach((card) => {
     });
   }
 
-  card.addEventListener("pointermove", (event) => {
-    if (prefersReducedMotion) {
-      return;
-    }
-
-    const rect = card.getBoundingClientRect();
-    const x = clamp((event.clientX - rect.left) / rect.width, 0, 1);
-    const y = clamp((event.clientY - rect.top) / rect.height, 0, 1);
-    setPaperCardTilt(card, x, y);
-  });
-
-  card.addEventListener("pointerleave", () => {
-    [
-      "--tilt-x",
-      "--tilt-y"
-    ].forEach((property) => card.style.removeProperty(property));
-  });
+  enablePointerTilt(card);
 });
+
+researchCards.forEach((card) => enablePointerTilt(card, 8));
 
 slideCards = document.querySelector(".research-page")
   ? []
