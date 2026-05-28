@@ -16,12 +16,13 @@ const TRAIL_SAMPLE_DISTANCE = 10;
 const SCROLL_PARALLAX_FACTOR = 0.12;
 const SCROLL_PARALLAX_EASE = 0.08;
 const SLIDE_CENTER_HOLD = 0.56;
-const SLIDE_MAX_PROGRESS = 1.18;
+const SLIDE_MAX_PROGRESS = 1.55;
 const SLIDE_EDGE_GAP = 42;
 const SPACESHIP_BOTTOM_THRESHOLD = 6;
 const SPACESHIP_FLIGHT_DURATION = 12000;
 const SPACESHIP_BOOST_DURATION = 3400;
 const SPACESHIP_BOOST_RATE = 1.85;
+const BACKGROUND_MUSIC_VIDEO_ID = "KF32DRg9opA";
 
 let stars = [];
 let width = 0;
@@ -45,6 +46,7 @@ let spaceshipFlightComplete = false;
 let spaceshipFlightActive = false;
 let spaceshipFlightProgress = 0;
 let spaceshipFlightLastTime = null;
+let musicIsPlaying = false;
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -421,6 +423,71 @@ function handleSpaceshipFlightEnd() {
   spaceship.style.transform = "translate3d(0, 0, 0)";
 }
 
+function updateMusicToggle() {
+  if (!musicToggle) {
+    return;
+  }
+
+  musicToggle.classList.toggle("is-playing", musicIsPlaying);
+  musicToggle.setAttribute("aria-pressed", String(musicIsPlaying));
+
+  const label = musicIsPlaying ? "Pause background music" : "Play background music";
+  musicToggle.setAttribute("aria-label", label);
+  musicToggle.setAttribute("title", label);
+}
+
+function getMusicPlayerContainer() {
+  let playerContainer = document.querySelector(".youtube-background-player");
+
+  if (!playerContainer) {
+    playerContainer = document.createElement("div");
+    playerContainer.className = "youtube-background-player";
+    document.body.append(playerContainer);
+  }
+
+  return playerContainer;
+}
+
+function startBackgroundMusic() {
+  const playerContainer = getMusicPlayerContainer();
+  const params = new URLSearchParams({
+    autoplay: "1",
+    controls: "0",
+    disablekb: "1",
+    loop: "1",
+    modestbranding: "1",
+    playsinline: "1",
+    playlist: BACKGROUND_MUSIC_VIDEO_ID,
+    rel: "0"
+  });
+
+  playerContainer.innerHTML = "";
+
+  const iframe = document.createElement("iframe");
+  iframe.width = "1";
+  iframe.height = "1";
+  iframe.title = "Background music player";
+  iframe.allow = "autoplay; encrypted-media";
+  iframe.src = `https://www.youtube.com/embed/${BACKGROUND_MUSIC_VIDEO_ID}?${params.toString()}`;
+  playerContainer.append(iframe);
+}
+
+function stopBackgroundMusic() {
+  document.querySelector(".youtube-background-player")?.remove();
+}
+
+function toggleBackgroundMusic() {
+  if (musicIsPlaying) {
+    stopBackgroundMusic();
+    musicIsPlaying = false;
+  } else {
+    startBackgroundMusic();
+    musicIsPlaying = true;
+  }
+
+  updateMusicToggle();
+}
+
 function handleScroll() {
   updateSlideCards();
   updateSpaceshipVisibility();
@@ -465,6 +532,7 @@ function handlePointerLeave() {
 const navToggle = document.querySelector(".nav-toggle");
 const navItems = document.querySelectorAll(".nav-links a");
 const spaceship = document.querySelector(".spaceship");
+const musicToggle = document.querySelector(".music-toggle");
 const paperCards = document.querySelectorAll(".paper-card");
 
 if (navToggle) {
@@ -492,6 +560,11 @@ if (year) {
 
 if (spaceship) {
   spaceship.addEventListener("click", boostSpaceship);
+}
+
+if (musicToggle) {
+  musicToggle.addEventListener("click", toggleBackgroundMusic);
+  updateMusicToggle();
 }
 
 function setPaperCardTilt(card, x, y) {

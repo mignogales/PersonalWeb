@@ -123,6 +123,92 @@ p {
   outline-offset: 6px;
 }
 
+.music-toggle {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 12;
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(197, 227, 255, 0.3);
+  border-radius: 50%;
+  color: var(--text);
+  background: rgba(13, 20, 34, 0.82);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(14px);
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.music-toggle:hover,
+.music-toggle:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(197, 227, 255, 0.62);
+  background: rgba(18, 31, 52, 0.9);
+  box-shadow:
+    0 20px 52px rgba(0, 0, 0, 0.38),
+    0 0 24px rgba(143, 199, 255, 0.18);
+}
+
+.music-toggle:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 4px;
+}
+
+.music-toggle-icon {
+  position: relative;
+  width: 18px;
+  height: 20px;
+  border-right: 4px solid currentColor;
+  border-bottom: 4px solid currentColor;
+  border-radius: 0 0 7px 0;
+}
+
+.music-toggle-icon::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: -4px;
+  width: 13px;
+  height: 4px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.music-toggle-icon::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -8px;
+  width: 13px;
+  height: 9px;
+  border-radius: 50%;
+  background: currentColor;
+  transform: rotate(-16deg);
+}
+
+.music-toggle.is-playing {
+  color: #07101d;
+  border-color: rgba(197, 227, 255, 0.7);
+  background: var(--accent-strong);
+}
+
+.youtube-background-player {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+}
+
 .container {
   width: min(calc(100% - 32px), var(--max-width));
   margin-inline: auto;
@@ -791,6 +877,13 @@ h1 {
   .spaceship {
     --ship-size: 88px;
     --ship-y: 92px;
+  }
+
+  .music-toggle {
+    right: 14px;
+    bottom: 14px;
+    width: 44px;
+    height: 44px;
   }
 
   .contact-panel {
