@@ -1103,6 +1103,155 @@ function enablePointerTilt(card, strength = 16) {
   });
 }
 
+const paperTooltip = paperCards.length ? document.createElement("div") : null;
+let activePaperTooltipCard = null;
+
+if (paperTooltip) {
+  paperTooltip.className = "paper-tooltip";
+  paperTooltip.setAttribute("aria-hidden", "true");
+  document.body.appendChild(paperTooltip);
+}
+
+function getPaperDescription(card) {
+  return card
+    .querySelector(".paper-card-body > p:not(.meta, .venue)")
+    ?.textContent
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getPaperTooltipDetails(card) {
+  return {
+    description: getPaperDescription(card),
+    meta: card.querySelector(".meta")?.textContent.replace(/\s+/g, " ").trim(),
+    title: card.querySelector("h3")?.textContent.replace(/\s+/g, " ").trim()
+  };
+}
+
+function setPaperTooltipContent(details) {
+  if (!paperTooltip) {
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  if (details.meta) {
+    const meta = document.createElement("div");
+    meta.className = "paper-tooltip-meta";
+    meta.textContent = details.meta;
+    fragment.appendChild(meta);
+  }
+
+  if (details.title) {
+    const title = document.createElement("div");
+    title.className = "paper-tooltip-title";
+    title.textContent = details.title;
+    fragment.appendChild(title);
+  }
+
+  const description = document.createElement("div");
+  description.className = "paper-tooltip-text";
+  description.textContent = details.description;
+  fragment.appendChild(description);
+  paperTooltip.replaceChildren(fragment);
+}
+
+function syncPaperTooltipTheme(card) {
+  if (!paperTooltip) {
+    return;
+  }
+
+  const styles = getComputedStyle(card);
+  paperTooltip.style.setProperty("--tooltip-panel", styles.getPropertyValue("--paper-panel"));
+  paperTooltip.style.setProperty("--tooltip-panel-strong", styles.getPropertyValue("--paper-panel-strong"));
+  paperTooltip.style.setProperty("--tooltip-border", styles.getPropertyValue("--paper-metal"));
+  paperTooltip.style.setProperty("--tooltip-text", styles.getPropertyValue("--paper-text"));
+  paperTooltip.style.setProperty("--tooltip-muted", styles.getPropertyValue("--paper-muted"));
+  paperTooltip.style.setProperty("--tooltip-holo", styles.getPropertyValue("--paper-holo-a"));
+  paperTooltip.style.setProperty("--tooltip-holo-soft", styles.getPropertyValue("--paper-holo-soft-b"));
+}
+
+function positionPaperTooltip() {
+  if (!paperTooltip || !activePaperTooltipCard) {
+    return;
+  }
+
+  const gap = 14;
+  const margin = 12;
+  const cardRect = activePaperTooltipCard.getBoundingClientRect();
+  const tooltipRect = paperTooltip.getBoundingClientRect();
+  const rightSide = cardRect.right + gap;
+  const leftSide = cardRect.left - tooltipRect.width - gap;
+  let left = rightSide;
+  let side = "right";
+
+  if (rightSide + tooltipRect.width > window.innerWidth - margin) {
+    left = leftSide;
+    side = "left";
+  }
+
+  if (left < margin) {
+    left = clamp(cardRect.left, margin, window.innerWidth - tooltipRect.width - margin);
+    side = "center";
+  }
+
+  const centeredTop = cardRect.top + cardRect.height / 2 - tooltipRect.height / 2;
+  const top = clamp(centeredTop, margin, window.innerHeight - tooltipRect.height - margin);
+
+  paperTooltip.style.left = `${Math.round(left)}px`;
+  paperTooltip.style.top = `${Math.round(top)}px`;
+  paperTooltip.dataset.side = side;
+}
+
+function showPaperTooltip(card) {
+  if (!paperTooltip) {
+    return;
+  }
+
+  if (card === activePaperTooltipCard && paperTooltip.classList.contains("is-visible")) {
+    return;
+  }
+
+  const details = getPaperTooltipDetails(card);
+
+  if (!details.description) {
+    return;
+  }
+
+  activePaperTooltipCard = card;
+  setPaperTooltipContent(details);
+  syncPaperTooltipTheme(card);
+  paperTooltip.classList.add("is-visible");
+  window.requestAnimationFrame(positionPaperTooltip);
+}
+
+function hidePaperTooltip(card) {
+  if (!paperTooltip || card !== activePaperTooltipCard) {
+    return;
+  }
+
+  paperTooltip.classList.remove("is-visible");
+  activePaperTooltipCard = null;
+}
+
+function handlePaperTooltipMove(event) {
+  if (!paperTooltip) {
+    return;
+  }
+
+  const targetCard = document
+    .elementFromPoint(event.clientX, event.clientY)
+    ?.closest(".paper-card");
+
+  if (!targetCard) {
+    return;
+  }
+
+  if (targetCard !== activePaperTooltipCard) {
+    showPaperTooltip(targetCard);
+  }
+}
+
 paperCards.forEach((card) => {
   const cardLink = card.querySelector(".paper-links a[href]");
 
@@ -1140,8 +1289,22 @@ paperCards.forEach((card) => {
     });
   }
 
+  card.addEventListener("pointerenter", () => showPaperTooltip(card));
+  card.addEventListener("pointerleave", () => hidePaperTooltip(card));
+  card.addEventListener("mouseover", () => showPaperTooltip(card));
+  card.addEventListener("mouseout", (event) => {
+    if (!card.contains(event.relatedTarget)) {
+      hidePaperTooltip(card);
+    }
+  });
+  card.addEventListener("focus", () => showPaperTooltip(card));
+  card.addEventListener("blur", () => hidePaperTooltip(card));
   enablePointerTilt(card);
 });
+
+if (paperTooltip) {
+  document.addEventListener("mousemove", handlePaperTooltipMove);
+}
 
 slideCards = document.querySelector(".research-page")
   ? []
@@ -1153,6 +1316,8 @@ updateEarthPortalFocus();
 
 window.addEventListener("resize", handleResize, { passive: true });
 window.addEventListener("scroll", handleScroll, { passive: true });
+window.addEventListener("resize", positionPaperTooltip, { passive: true });
+window.addEventListener("scroll", positionPaperTooltip, { passive: true });
 window.addEventListener("pointermove", handlePointerMove, { passive: true });
 window.addEventListener("pointerleave", handlePointerLeave, { passive: true });
 window.addEventListener("blur", handlePointerLeave);
