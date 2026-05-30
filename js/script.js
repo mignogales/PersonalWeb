@@ -503,12 +503,13 @@ function renderScene(time) {
 
 function animate(time) {
   const isScrollPaused = time < scrollPauseUntil;
+  const shouldAnimateDuringScroll = currentTheme === THEMES.LIGHT;
   const elapsed = lastAnimationTime === null ? 0 : time - lastAnimationTime;
   lastAnimationTime = time;
 
   updateSpaceshipFlight(time);
 
-  if (!isScrollPaused) {
+  if (!isScrollPaused || shouldAnimateDuringScroll) {
     sceneTime += elapsed;
     renderScene(sceneTime);
   } else if (time - lastScrollCanvasRender >= SCROLL_CANVAS_RENDER_INTERVAL) {
