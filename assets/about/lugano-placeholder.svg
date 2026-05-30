@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img" aria-labelledby="title desc">
+  <title id="title">Lugano placeholder</title>
+  <desc id="desc">Abstract placeholder image for Lugano.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#9fd6ff"/>
+      <stop offset="0.56" stop-color="#7fbfbb"/>
+      <stop offset="1" stop-color="#26365f"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="620" fill="url(#sky)"/>
+  <path d="M0 320 L126 202 L260 324 L398 154 L548 318 L668 226 L900 348 L900 620 L0 620 Z" fill="#273653"/>
+  <path d="M0 392 C144 354 266 414 418 376 C576 336 710 370 900 322 L900 620 L0 620 Z" fill="#17263e"/>
+  <path d="M0 474 C174 432 306 494 482 454 C632 420 770 448 900 412 L900 620 L0 620 Z" fill="#4da7b6" opacity="0.94"/>
+  <path d="M112 430 H238 V502 H112 Z M584 398 H736 V484 H584 Z" fill="#f2d48b"/>
+  <path d="M142 462 H174 V502 H142 Z M626 432 H666 V484 H626 Z" fill="#263247"/>
+  <text x="48" y="558" fill="#f7fbff" font-family="Inter, Arial, sans-serif" font-size="54" font-weight="800">Lugano</text>
+</svg>

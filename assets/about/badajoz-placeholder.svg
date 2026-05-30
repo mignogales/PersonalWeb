@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img" aria-labelledby="title desc">
+  <title id="title">Badajoz placeholder</title>
+  <desc id="desc">Abstract placeholder image for Badajoz.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffd36a"/>
+      <stop offset="0.52" stop-color="#ed7f5c"/>
+      <stop offset="1" stop-color="#223f70"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="620" fill="url(#sky)"/>
+  <circle cx="704" cy="146" r="78" fill="#fff2b8" opacity="0.92"/>
+  <path d="M0 392 C130 344 244 370 378 328 C522 282 666 316 900 246 L900 620 L0 620 Z" fill="#263b57" opacity="0.95"/>
+  <path d="M82 352 H296 V294 H350 V352 H534 V272 H594 V352 H762 V620 H82 Z" fill="#f3c66e"/>
+  <path d="M126 352 V248 H236 V352 Z" fill="#b65345"/>
+  <path d="M148 284 H214 V352 H148 Z" fill="#273247"/>
+  <path d="M390 352 V228 H492 V352 Z" fill="#b65345"/>
+  <path d="M416 272 H466 V352 H416 Z" fill="#273247"/>
+  <path d="M650 352 V260 H726 V352 Z" fill="#b65345"/>
+  <path d="M672 296 H704 V352 H672 Z" fill="#273247"/>
+  <text x="48" y="558" fill="#fff8dc" font-family="Inter, Arial, sans-serif" font-size="54" font-weight="800">Badajoz</text>
+</svg>

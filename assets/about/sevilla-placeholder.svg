@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img" aria-labelledby="title desc">
+  <title id="title">Sevilla placeholder</title>
+  <desc id="desc">Abstract placeholder image for Sevilla.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#75c7d8"/>
+      <stop offset="0.56" stop-color="#f0b14f"/>
+      <stop offset="1" stop-color="#9b394c"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="620" fill="url(#sky)"/>
+  <path d="M0 430 C132 386 234 448 380 402 C526 356 700 372 900 314 L900 620 L0 620 Z" fill="#1f3f55" opacity="0.88"/>
+  <path d="M164 398 H736 V620 H164 Z" fill="#f0c36b"/>
+  <path d="M286 398 V174 H382 V398 Z" fill="#c9613e"/>
+  <path d="M310 216 H358 V258 H310 Z M310 292 H358 V334 H310 Z" fill="#263247"/>
+  <path d="M260 174 H408 L382 126 H286 Z" fill="#f6d18a"/>
+  <path d="M514 398 V250 H608 V398 Z" fill="#c9613e"/>
+  <path d="M538 292 H584 V398 H538 Z" fill="#263247"/>
+  <path d="M188 454 H256 V620 H188 Z M658 454 H712 V620 H658 Z" fill="#263247"/>
+  <text x="48" y="558" fill="#fff9df" font-family="Inter, Arial, sans-serif" font-size="54" font-weight="800">Sevilla</text>
+</svg>

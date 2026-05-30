@@ -10,7 +10,7 @@
   <title>Miguel Nogales | PhD Student in AI</title>
   <link rel="icon" type="image/png" href="assets/research/misc/favicon.png" />
   <link rel="apple-touch-icon" href="assets/research/misc/favicon.png" />
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css?v=theme-switch-device-mode" />
 </head>
 <body>
   <canvas id="starfield" aria-hidden="true"></canvas>
@@ -42,8 +42,22 @@
       aria-hidden="true"
     />
   </button>
+  <button
+    class="theme-toggle"
+    type="button"
+    aria-label="Switch to dark theme"
+    aria-pressed="false"
+    title="Switch to dark theme"
+  >
+    <img
+      class="theme-toggle-icon"
+      src="assets/research/misc/moon.png"
+      alt=""
+      aria-hidden="true"
+    />
+  </button>
   <a class="earth-portal" href="pages/about-me.html" aria-label="Open About Me">
-    <img src="assets/research/misc/earth.png" alt="" aria-hidden="true" />
+    <img src="assets/research/misc/sun.png" alt="" aria-hidden="true" />
   </a>
   <div class="page-fade" aria-hidden="true"></div>
 
@@ -318,6 +332,6 @@
     <p>&copy; <span id="year"></span> Miguel Nogales. Built with semantic HTML, CSS, and JavaScript. (it was LLM made, i didnt do anything)</p>
   </footer>
 
-  <script src="js/script.js"></script>
+  <script src="js/script.js?v=theme-switch-device-mode"></script>
 </body>
 </html>

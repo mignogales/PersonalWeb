@@ -1,7 +1,20 @@
 const canvas = document.getElementById("starfield");
 const ctx = canvas.getContext("2d", { alpha: false });
 
-const BACKGROUND = "#0A0E17";
+const THEMES = {
+  LIGHT: "light",
+  DARK: "dark"
+};
+const DEVICE_MODES = {
+  DESKTOP: "desktop",
+  MOBILE: "mobile"
+};
+const THEME_STATE_KEY = "miguel-site-theme";
+const SKY_BACKGROUND = "#DFF5FF";
+const SPACE_BACKGROUND = "#0A0E17";
+const CLOUD_DENSITY = 0.000018;
+const MIN_CLOUDS = 14;
+const MAX_CLOUDS = 34;
 const STAR_DENSITY = 0.00036;
 const MIN_STARS = 110;
 const MAX_STARS = 640;
@@ -19,6 +32,8 @@ const SCROLL_PARALLAX_FACTOR = 0.12;
 const SCROLL_PARALLAX_EASE = 0.08;
 const SCROLL_ANIMATION_PAUSE_DURATION = 150;
 const SCROLL_CANVAS_RENDER_INTERVAL = 90;
+const CLOUD_DEPTH_LAYERS = [0.22, 0.38, 0.56, 0.74, 0.92];
+const CLOUD_DEPTH_JITTER = 0.045;
 const STAR_DEPTH_LAYERS = [0.18, 0.34, 0.58, 0.84, 1];
 const STAR_DEPTH_JITTER = 0.035;
 const SLIDE_CENTER_HOLD = 0.56;
@@ -36,12 +51,43 @@ const BACKGROUND_MUSIC_VOLUME = 0.14;
 const BACKGROUND_MUSIC_STATE_KEY = "miguel-site-background-music";
 const BACKGROUND_MUSIC_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 const PAGE_TRANSITION_DURATION = 1400;
+const CLOUD_ASSETS = [
+  { src: assetPath("assets/research/misc/cloud1.png"), weight: 0.58 },
+  { src: assetPath("assets/research/misc/cloud2.png"), weight: 0.24 },
+  { src: assetPath("assets/research/misc/cloud3.png"), weight: 0.18 }
+];
+const THEME_ASSETS = {
+  [THEMES.LIGHT]: {
+    portal: assetPath("assets/research/misc/sun.png"),
+    toggle: assetPath("assets/research/misc/earth.png")
+  },
+  [THEMES.DARK]: {
+    portal: assetPath("assets/research/misc/earth.png"),
+    toggle: assetPath("assets/research/misc/sun.png")
+  }
+};
+const sunImage = new Image();
+sunImage.src = THEME_ASSETS[THEMES.LIGHT].portal;
+const cloudImages = CLOUD_ASSETS.map((asset) => {
+  const image = new Image();
+  image.src = asset.src;
+  return {
+    ...asset,
+    image
+  };
+});
 
+let clouds = [];
 let stars = [];
 let width = 0;
 let height = 0;
 let dpr = 1;
 let animationFrameId = null;
+let currentTheme = THEMES.LIGHT;
+let sceneTime = 0;
+let lastAnimationTime = null;
+let scrollPauseUntil = 0;
+let lastScrollCanvasRender = 0;
 let pointer = {
   active: false,
   x: 0,
@@ -52,9 +98,6 @@ let parallax = {
   y: 0,
   targetY: 0
 };
-let scrollPauseUntil = 0;
-let lastScrollCanvasRender = 0;
-let lastStarfieldTime = 0;
 let slideCards = [];
 let prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 let spaceshipBoostTimeoutId = null;
@@ -73,6 +116,26 @@ function clamp(value, min, max) {
 
 function randomBetween(min, max) {
   return min + Math.random() * (max - min);
+}
+
+function pickCloudDepth() {
+  const layer = CLOUD_DEPTH_LAYERS[Math.floor(Math.random() * CLOUD_DEPTH_LAYERS.length)];
+  return clamp(layer + randomBetween(-CLOUD_DEPTH_JITTER, CLOUD_DEPTH_JITTER), 0.16, 1);
+}
+
+function pickCloudImage() {
+  const roll = Math.random();
+  let cursor = 0;
+
+  for (const cloud of cloudImages) {
+    cursor += cloud.weight;
+
+    if (roll <= cursor) {
+      return cloud.image;
+    }
+  }
+
+  return cloudImages[0].image;
 }
 
 function pickStarSize() {
@@ -100,6 +163,28 @@ function pickStarColor() {
   }
 
   return STAR_ACCENT_COLORS[Math.floor(Math.random() * STAR_ACCENT_COLORS.length)];
+}
+
+function createClouds() {
+  const count = clamp(
+    Math.round(window.innerWidth * window.innerHeight * CLOUD_DENSITY),
+    MIN_CLOUDS,
+    MAX_CLOUDS
+  );
+
+  clouds = Array.from({ length: count }, () => {
+    const depth = pickCloudDepth();
+    const cloudWidth = Math.round(randomBetween(180, 430) * (0.62 + depth * 0.58));
+
+    return {
+      x: randomBetween(-cloudWidth, width + cloudWidth),
+      y: randomBetween(-height * 0.06, height * 0.9),
+      depth,
+      width: cloudWidth,
+      speed: randomBetween(0.002, 0.014) * (0.54 + depth),
+      image: pickCloudImage()
+    };
+  });
 }
 
 function createStars() {
@@ -142,7 +227,12 @@ function resizeCanvas() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.imageSmoothingEnabled = false;
 
+  createClouds();
   createStars();
+}
+
+function wrapPosition(value, max) {
+  return ((value % max) + max) % max;
 }
 
 function getStarAlpha(star, time) {
@@ -162,10 +252,6 @@ function getRenderedStar(star) {
     ...star,
     y: wrapPosition(star.y + parallax.y * star.depth, height)
   };
-}
-
-function wrapPosition(value, max) {
-  return ((value % max) + max) % max;
 }
 
 function getPointInfluence(star, point, radius) {
@@ -216,6 +302,74 @@ function rgbaFromHex(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+function drawSkyBackground() {
+  const gradient = ctx.createLinearGradient(0, 0, 0, height);
+  gradient.addColorStop(0, "#bfeeff");
+  gradient.addColorStop(0.5, "#e9f9ff");
+  gradient.addColorStop(1, "#ffffff");
+
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+}
+
+function drawCloud(cloud, time) {
+  const renderedWidth = cloud.width;
+  const renderedHeight = renderedWidth * (369 / 677);
+  const drift = time * cloud.speed;
+  const x = wrapPosition(cloud.x + drift, width + renderedWidth * 2) - renderedWidth;
+  const rawY = cloud.y + Math.sin(time * 0.00012 + cloud.depth * 8) * (6 + cloud.depth * 8);
+  const y = wrapPosition(rawY + renderedHeight, height + renderedHeight * 2) - renderedHeight;
+
+  ctx.globalAlpha = 1;
+
+  if (cloud.image.complete && cloud.image.naturalWidth > 0) {
+    ctx.drawImage(cloud.image, x, y, renderedWidth, renderedHeight);
+  } else {
+    ctx.fillStyle = "rgba(255, 255, 255, 0.62)";
+    ctx.beginPath();
+    ctx.ellipse(
+      x + renderedWidth * 0.5,
+      y + renderedHeight * 0.55,
+      renderedWidth * 0.42,
+      renderedHeight * 0.26,
+      0,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
+  }
+
+  ctx.globalAlpha = 1;
+}
+
+function drawCanvasSun() {
+  if (!earthPortal || !sunImage.complete || sunImage.naturalWidth === 0) {
+    return;
+  }
+
+  const rect = earthPortal.getBoundingClientRect();
+
+  if (
+    rect.right < 0 ||
+    rect.bottom < 0 ||
+    rect.left > width ||
+    rect.top > height
+  ) {
+    return;
+  }
+
+  const focus = Number.parseFloat(
+    earthPortal.style.getPropertyValue("--portal-focus")
+  ) || 0;
+
+  ctx.globalAlpha = 0.32 + focus * 0.38;
+  ctx.filter = `brightness(${1 + focus * 0.3}) drop-shadow(0 0 ${10 + focus * 16}px rgba(255, 184, 64, 0.36))`;
+  ctx.drawImage(sunImage, rect.left, rect.top, rect.width, rect.height);
+  ctx.filter = "none";
+  ctx.globalAlpha = 1;
+}
+
 function drawStarGlow(star, alpha, influence) {
   if (influence <= 0) {
     return;
@@ -246,114 +400,39 @@ function drawPixel(x, y, color, alpha, size = 1) {
   ctx.fillRect(x - size / 2, y - size / 2, size, size);
 }
 
-function drawSmallStar(star, alpha, influence) {
-  const x = Math.round(star.x);
-  const y = Math.round(star.y);
-  const size = 1 + influence * 2.2;
-  const arm = Math.round(1 + influence * 3);
-  const coreColor = star.color || "#f7fbff";
-  const armColor = star.color || "#d9ecff";
-
-  drawPixel(x, y, coreColor, alpha, size);
-  drawPixel(x - arm, y, armColor, alpha * 0.82, size);
-  drawPixel(x + arm, y, armColor, alpha * 0.82, size);
-  drawPixel(x, y - arm, armColor, alpha * 0.82, size);
-  drawPixel(x, y + arm, armColor, alpha * 0.82, size);
-}
-
-function drawLargeStar(star, alpha, influence) {
-  const x = Math.round(star.x);
-  const y = Math.round(star.y);
-  const size = 1 + influence * 1.9;
-  const spread = 1 + influence * 2.8;
-  const near = Math.round(spread);
-  const far = Math.round(2 + influence * 5);
-  const coreColor = star.color || "#fbfdff";
-  const nearColor = star.color || "#dceeff";
-  const farColor = star.color || "#98c9ff";
-  const dimColor = star.color || "#4f79a8";
-
-  drawPixel(x, y, coreColor, alpha, size);
-
-  drawPixel(x - near, y, nearColor, alpha * 0.9, size);
-  drawPixel(x + near, y, nearColor, alpha * 0.9, size);
-  drawPixel(x, y - near, nearColor, alpha * 0.9, size);
-  drawPixel(x, y + near, nearColor, alpha * 0.9, size);
-
-  drawPixel(x - far, y, farColor, alpha * 0.62, size);
-  drawPixel(x + far, y, farColor, alpha * 0.62, size);
-  drawPixel(x, y - far, farColor, alpha * 0.62, size);
-  drawPixel(x, y + far, farColor, alpha * 0.62, size);
-
-  drawPixel(x - near, y - near, farColor, alpha * 0.52, size);
-  drawPixel(x + near, y - near, farColor, alpha * 0.52, size);
-  drawPixel(x - near, y + near, farColor, alpha * 0.52, size);
-  drawPixel(x + near, y + near, farColor, alpha * 0.52, size);
-
-  drawPixel(x - far, y - near, dimColor, alpha * 0.28, size);
-  drawPixel(x + far, y - near, dimColor, alpha * 0.28, size);
-  drawPixel(x - far, y + near, dimColor, alpha * 0.28, size);
-  drawPixel(x + far, y + near, dimColor, alpha * 0.28, size);
-  drawPixel(x - near, y - far, dimColor, alpha * 0.28, size);
-  drawPixel(x + near, y - far, dimColor, alpha * 0.28, size);
-  drawPixel(x - near, y + far, dimColor, alpha * 0.28, size);
-  drawPixel(x + near, y + far, dimColor, alpha * 0.28, size);
-}
-
-function drawGiantStar(star, alpha, influence) {
-  const x = Math.round(star.x);
-  const y = Math.round(star.y);
-  const size = 1 + influence * 1.7;
-  const coreSize = 2 + influence * 2.7;
-  const near = Math.round(1 + influence * 2);
-  const mid = Math.round(2 + influence * 4);
-  const far = Math.round(3 + influence * 6);
-  const long = Math.round(4 + influence * 8);
-  const coreColor = star.color || "#ffffff";
-  const nearColor = star.color || "#eaf6ff";
-  const farColor = star.color || "#a8d6ff";
-  const midColor = star.color || "#8fc7ff";
-  const dimColor = star.color || "#47719e";
-
-  drawPixel(x - 1, y - 1, coreColor, alpha, coreSize);
-
-  drawPixel(x - mid, y - near, nearColor, alpha * 0.92, size);
-  drawPixel(x + near, y - near, nearColor, alpha * 0.92, size);
-  drawPixel(x - near, y - mid, nearColor, alpha * 0.92, size);
-  drawPixel(x - near, y + near, nearColor, alpha * 0.92, size);
-
-  drawPixel(x - far, y - near, farColor, alpha * 0.72, size);
-  drawPixel(x + mid, y - near, farColor, alpha * 0.72, size);
-  drawPixel(x - near, y - far, farColor, alpha * 0.72, size);
-  drawPixel(x - near, y + mid, farColor, alpha * 0.72, size);
-
-  drawPixel(x - mid, y - mid, midColor, alpha * 0.56, size);
-  drawPixel(x + near, y - mid, midColor, alpha * 0.56, size);
-  drawPixel(x - mid, y + near, midColor, alpha * 0.56, size);
-  drawPixel(x + near, y + near, midColor, alpha * 0.56, size);
-
-  drawPixel(x - long, y - near, dimColor, alpha * 0.32, size);
-  drawPixel(x + far, y - near, dimColor, alpha * 0.32, size);
-  drawPixel(x - near, y - long, dimColor, alpha * 0.32, size);
-  drawPixel(x - near, y + far, dimColor, alpha * 0.32, size);
-}
-
 function drawStar(star, time) {
   const renderedStar = getRenderedStar(star);
   const influence = getHoverInfluence(renderedStar, time);
   const alpha = clamp(getStarAlpha(star, time) + influence * 0.74, 0.18, 1);
+  const x = Math.round(renderedStar.x);
+  const y = Math.round(renderedStar.y);
+  const coreColor = renderedStar.color || "#f7fbff";
+  const armColor = renderedStar.color || "#d9ecff";
+  const size = renderedStar.size === "giant" ? 2 + influence * 2.4 : 1 + influence * 1.8;
+  const near = renderedStar.size === "small" ? 1 : 2;
+  const far = renderedStar.size === "giant" ? 5 : 3;
 
   drawStarGlow(renderedStar, alpha, influence);
+  drawPixel(x, y, coreColor, alpha, size);
+  drawPixel(x - near, y, armColor, alpha * 0.82, size);
+  drawPixel(x + near, y, armColor, alpha * 0.82, size);
+  drawPixel(x, y - near, armColor, alpha * 0.82, size);
+  drawPixel(x, y + near, armColor, alpha * 0.82, size);
 
-  if (star.size === "giant") {
-    drawGiantStar(renderedStar, alpha, influence);
-  } else if (star.size === "large") {
-    drawLargeStar(renderedStar, alpha, influence);
-  } else {
-    drawSmallStar(renderedStar, alpha, influence);
+  if (renderedStar.size !== "small") {
+    drawPixel(x - far, y, "#8fc7ff", alpha * 0.46, 1);
+    drawPixel(x + far, y, "#8fc7ff", alpha * 0.46, 1);
+    drawPixel(x, y - far, "#8fc7ff", alpha * 0.46, 1);
+    drawPixel(x, y + far, "#8fc7ff", alpha * 0.46, 1);
   }
 
   ctx.globalAlpha = 1;
+}
+
+function drawSpaceBackground() {
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = SPACE_BACKGROUND;
+  ctx.fillRect(0, 0, width, height);
 }
 
 function updateCanvasParallax() {
@@ -361,19 +440,7 @@ function updateCanvasParallax() {
   parallax.y += (parallax.targetY - parallax.y) * SCROLL_PARALLAX_EASE;
 }
 
-function renderStarfield(time) {
-  ctx.fillStyle = BACKGROUND;
-  ctx.fillRect(0, 0, width, height);
-  pointerTrail = pointerTrail.filter((point) => time - point.time < TRAIL_LIFETIME);
-
-  for (const star of stars) {
-    drawStar(star, time);
-  }
-
-  maskEarthPortalStars();
-}
-
-function maskEarthPortalStars() {
+function maskPortalStars() {
   if (!earthPortal) {
     return;
   }
@@ -390,7 +457,7 @@ function maskEarthPortalStars() {
   }
 
   ctx.globalAlpha = 1;
-  ctx.fillStyle = BACKGROUND;
+  ctx.fillStyle = SPACE_BACKGROUND;
   ctx.beginPath();
   ctx.ellipse(
     rect.left + rect.width / 2,
@@ -404,17 +471,48 @@ function maskEarthPortalStars() {
   ctx.fill();
 }
 
+function renderLightScene(time) {
+  drawSkyBackground();
+  drawCanvasSun();
+
+  for (const cloud of clouds) {
+    drawCloud(cloud, time);
+  }
+}
+
+function renderDarkScene(time) {
+  drawSpaceBackground();
+  pointerTrail = pointerTrail.filter((point) => time - point.time < TRAIL_LIFETIME);
+
+  for (const star of stars) {
+    drawStar(star, time);
+  }
+
+  maskPortalStars();
+}
+
+function renderScene(time) {
+  if (currentTheme === THEMES.DARK) {
+    updateCanvasParallax();
+    renderDarkScene(time);
+    return;
+  }
+
+  renderLightScene(time);
+}
+
 function animate(time) {
   const isScrollPaused = time < scrollPauseUntil;
+  const elapsed = lastAnimationTime === null ? 0 : time - lastAnimationTime;
+  lastAnimationTime = time;
 
-  updateCanvasParallax();
   updateSpaceshipFlight(time);
 
   if (!isScrollPaused) {
-    renderStarfield(time);
-    lastStarfieldTime = time;
+    sceneTime += elapsed;
+    renderScene(sceneTime);
   } else if (time - lastScrollCanvasRender >= SCROLL_CANVAS_RENDER_INTERVAL) {
-    renderStarfield(lastStarfieldTime || time);
+    renderScene(sceneTime);
     lastScrollCanvasRender = time;
   }
 
@@ -587,6 +685,109 @@ function createMusicToggleButton() {
   return button;
 }
 
+function getSavedTheme() {
+  try {
+    const savedTheme = window.localStorage?.getItem(THEME_STATE_KEY);
+
+    if (Object.values(THEMES).includes(savedTheme)) {
+      return savedTheme;
+    }
+  } catch {
+    // Keep the default light theme.
+  }
+
+  return THEMES.LIGHT;
+}
+
+function saveTheme(theme) {
+  try {
+    window.localStorage?.setItem(THEME_STATE_KEY, theme);
+  } catch {
+    // Theme persistence is a nicety; the UI still works without it.
+  }
+}
+
+function createThemeToggleButton() {
+  const existingButton = document.querySelector(".theme-toggle");
+
+  if (existingButton) {
+    return existingButton;
+  }
+
+  const button = document.createElement("button");
+  button.className = "theme-toggle";
+  button.type = "button";
+
+  const icon = document.createElement("img");
+  icon.className = "theme-toggle-icon";
+  icon.alt = "";
+  icon.setAttribute("aria-hidden", "true");
+
+  button.append(icon);
+  document.body.append(button);
+
+  return button;
+}
+
+function updateThemeToggle() {
+  if (!themeToggle) {
+    return;
+  }
+
+  const isDark = currentTheme === THEMES.DARK;
+  const nextThemeLabel = isDark ? "light" : "dark";
+  const label = `Switch to ${nextThemeLabel} theme`;
+  const icon = themeToggle.querySelector(".theme-toggle-icon");
+
+  themeToggle.setAttribute("aria-label", label);
+  themeToggle.setAttribute("aria-pressed", String(isDark));
+  themeToggle.title = label;
+
+  if (icon) {
+    icon.src = THEME_ASSETS[currentTheme].toggle;
+  }
+}
+
+function updatePortalThemeImage() {
+  const portalImage = earthPortal?.querySelector("img");
+
+  if (portalImage) {
+    portalImage.src = THEME_ASSETS[currentTheme].portal;
+  }
+}
+
+function applyTheme(theme, shouldSave = true) {
+  currentTheme = Object.values(THEMES).includes(theme) ? theme : THEMES.LIGHT;
+  document.documentElement.dataset.theme = currentTheme;
+  updatePortalThemeImage();
+  updateThemeToggle();
+  pointerTrail = [];
+  renderScene(sceneTime);
+
+  if (shouldSave) {
+    saveTheme(currentTheme);
+  }
+}
+
+function toggleTheme() {
+  applyTheme(currentTheme === THEMES.DARK ? THEMES.LIGHT : THEMES.DARK);
+}
+
+function getDeviceMode() {
+  const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+  const noHover = window.matchMedia("(hover: none)").matches;
+  const narrowViewport = window.matchMedia("(max-width: 760px)").matches;
+  const likelyTouchMobile = coarsePointer && noHover;
+
+  return likelyTouchMobile || narrowViewport
+    ? DEVICE_MODES.MOBILE
+    : DEVICE_MODES.DESKTOP;
+}
+
+function updateDeviceMode() {
+  document.documentElement.dataset.device = getDeviceMode();
+}
+
 function getSavedMusicState() {
   let storedState = "";
 
@@ -716,14 +917,20 @@ function handleResize() {
     cancelAnimationFrame(animationFrameId);
   }
 
+  updateDeviceMode();
   resizeCanvas();
   updateSlideCards();
   updateSpaceshipVisibility();
   updateEarthPortalFocus();
+  renderScene(sceneTime);
   animationFrameId = requestAnimationFrame(animate);
 }
 
 function handlePointerMove(event) {
+  if (currentTheme !== THEMES.DARK) {
+    return;
+  }
+
   const previous = pointerTrail[pointerTrail.length - 1] || pointer;
   const dx = event.clientX - previous.x;
   const dy = event.clientY - previous.y;
@@ -739,7 +946,7 @@ function handlePointerMove(event) {
     pointerTrail.push({
       x: pointer.x,
       y: pointer.y,
-      time: performance.now()
+      time: sceneTime
     });
   }
 }
@@ -752,6 +959,7 @@ const navToggle = document.querySelector(".nav-toggle");
 const navItems = document.querySelectorAll(".nav-links a");
 const spaceship = document.querySelector(".spaceship");
 const musicToggle = createMusicToggleButton();
+const themeToggle = createThemeToggleButton();
 const earthPortal = document.querySelector(".earth-portal");
 const aboutMePortalSection = document.querySelector(".about-me-portal-section");
 const paperCards = document.querySelectorAll(".paper-card");
@@ -795,6 +1003,10 @@ if (musicToggle) {
   if (musicIsPlaying) {
     startBackgroundMusic();
   }
+}
+
+if (themeToggle) {
+  themeToggle.addEventListener("click", toggleTheme);
 }
 
 window.addEventListener("pageshow", () => {
@@ -930,5 +1142,7 @@ window.addEventListener("pointermove", handlePointerMove, { passive: true });
 window.addEventListener("pointerleave", handlePointerLeave, { passive: true });
 window.addEventListener("blur", handlePointerLeave);
 
+updateDeviceMode();
 resizeCanvas();
+applyTheme(getSavedTheme(), false);
 animationFrameId = requestAnimationFrame(animate);

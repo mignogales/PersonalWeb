@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img" aria-labelledby="title desc">
+  <title id="title">Milano placeholder</title>
+  <desc id="desc">Abstract placeholder image for Milano.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#b9d7ff"/>
+      <stop offset="0.58" stop-color="#7589a6"/>
+      <stop offset="1" stop-color="#29324f"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="620" fill="url(#sky)"/>
+  <path d="M0 418 C190 360 330 442 484 368 C610 308 766 336 900 288 L900 620 L0 620 Z" fill="#1a2234" opacity="0.88"/>
+  <path d="M132 392 H776 V620 H132 Z" fill="#d9e0e8"/>
+  <path d="M222 392 V202 H298 V392 Z M602 392 V170 H688 V392 Z" fill="#aeb9c8"/>
+  <path d="M258 202 L260 126 L294 202 Z M644 170 L652 92 L684 170 Z" fill="#f4f6f8"/>
+  <path d="M360 392 V244 H520 V392 Z" fill="#c5cfdb"/>
+  <path d="M392 284 H488 V392 H392 Z" fill="#263247"/>
+  <path d="M180 452 H242 V620 H180 Z M664 452 H728 V620 H664 Z" fill="#263247"/>
+  <text x="48" y="558" fill="#f7fbff" font-family="Inter, Arial, sans-serif" font-size="54" font-weight="800">Milano</text>
+</svg>
