@@ -121,9 +121,18 @@ p {
   opacity: 0;
   pointer-events: none;
   transform: translate3d(0, 0, 0);
+  will-change: transform;
   transition:
     opacity 220ms ease,
     filter 180ms ease;
+}
+
+:root:not([data-theme="dark"]) .spaceship {
+  --ship-size: clamp(104px, 13vw, 138px);
+  --ship-y: clamp(128px, 24vh, 210px);
+  right: calc(var(--ship-size) * -1.35);
+  left: auto;
+  aspect-ratio: 388 / 643;
 }
 
 .spaceship img {
@@ -138,6 +147,23 @@ p {
   opacity: 0;
 }
 
+.wingull-frame {
+  opacity: 0;
+}
+
+:root:not([data-theme="dark"]) .spaceship-idle,
+:root:not([data-theme="dark"]) .spaceship-fire {
+  opacity: 0;
+}
+
+:root:not([data-theme="dark"]) .wingull-frame-one {
+  animation: wingull-flap-one 420ms steps(1, end) infinite;
+}
+
+:root:not([data-theme="dark"]) .wingull-frame-two {
+  animation: wingull-flap-two 420ms steps(1, end) infinite;
+}
+
 .spaceship-visible .spaceship {
   opacity: 0.94;
   pointer-events: auto;
@@ -147,12 +173,25 @@ p {
   filter: drop-shadow(0 0 16px rgba(255, 156, 56, 0.56));
 }
 
+:root:not([data-theme="dark"]) .spaceship-boost .spaceship {
+  filter: drop-shadow(0 10px 14px rgba(48, 116, 166, 0.22));
+}
+
 .spaceship-boost .spaceship-idle {
   opacity: 0;
 }
 
 .spaceship-boost .spaceship-fire {
   opacity: 1;
+}
+
+:root:not([data-theme="dark"]) .spaceship-boost .spaceship-fire {
+  opacity: 0;
+}
+
+:root:not([data-theme="dark"]) .spaceship-boost .wingull-frame-one,
+:root:not([data-theme="dark"]) .spaceship-boost .wingull-frame-two {
+  animation-duration: 180ms;
 }
 
 .spaceship:focus-visible {
@@ -1375,5 +1414,29 @@ h1 {
 @keyframes moon-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes wingull-flap-one {
+  0%,
+  49.99% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes wingull-flap-two {
+  0%,
+  49.99% {
+    opacity: 0;
+  }
+
+  50%,
+  100% {
+    opacity: 1;
   }
 }

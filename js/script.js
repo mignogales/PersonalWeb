@@ -590,6 +590,7 @@ function startSpaceshipFlight() {
   spaceshipFlightProgress = 0;
   spaceshipFlightLastTime = null;
   spaceship.style.transform = "translate3d(0, 0, 0)";
+  updateSpaceshipThemeLabel();
   document.body.classList.add("spaceship-visible");
 }
 
@@ -614,8 +615,9 @@ function updateSpaceshipFlight(time) {
     1
   );
 
+  const direction = currentTheme === THEMES.LIGHT ? -1 : 1;
   const distance = window.innerWidth + spaceship.offsetWidth * 2.7;
-  spaceship.style.transform = `translate3d(${Math.round(distance * spaceshipFlightProgress)}px, 0, 0)`;
+  spaceship.style.transform = `translate3d(${Math.round(direction * distance * spaceshipFlightProgress)}px, 0, 0)`;
 
   if (spaceshipFlightProgress >= 1) {
     handleSpaceshipFlightEnd();
@@ -645,6 +647,16 @@ function handleSpaceshipFlightEnd() {
   document.body.classList.remove("spaceship-visible", "spaceship-boost");
   window.clearTimeout(spaceshipBoostTimeoutId);
   spaceship.style.transform = "translate3d(0, 0, 0)";
+}
+
+function updateSpaceshipThemeLabel() {
+  if (!spaceship) {
+    return;
+  }
+
+  const flyerName = currentTheme === THEMES.LIGHT ? "Wingull" : "spaceship";
+  spaceship.setAttribute("aria-label", `Boost ${flyerName}`);
+  spaceship.title = `Boost ${flyerName}`;
 }
 
 function updateMusicToggle() {
@@ -762,6 +774,7 @@ function applyTheme(theme, shouldSave = true) {
   document.documentElement.dataset.theme = currentTheme;
   updatePortalThemeImage();
   updateThemeToggle();
+  updateSpaceshipThemeLabel();
   pointerTrail = [];
   renderScene(sceneTime);
 
@@ -990,6 +1003,7 @@ if (year) {
 }
 
 if (spaceship) {
+  updateSpaceshipThemeLabel();
   spaceship.addEventListener("click", boostSpaceship);
 }
 
