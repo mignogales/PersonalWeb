@@ -10,7 +10,7 @@
   <title>About Me | Miguel Nogales</title>
   <link rel="icon" type="image/png" href="../assets/research/misc/favicon.png" />
   <link rel="apple-touch-icon" href="../assets/research/misc/favicon.png" />
-  <link rel="stylesheet" href="../css/style.css?v=theme-switch-device-mode" />
+  <link rel="stylesheet" href="../css/style.css?v=history-collage-shuffle" />
 </head>
 <body class="about-me-page">
   <canvas id="starfield" aria-hidden="true"></canvas>
@@ -23,6 +23,7 @@
       <ul class="nav-links about-nav-links">
         <li><a href="../index.html#about">Home</a></li>
         <li><a href="#history">History</a></li>
+        <li><a href="#random-stuff">Random stuff</a></li>
       </ul>
     </nav>
   </header>
@@ -39,74 +40,174 @@
 
     <section id="history" class="about-timeline" aria-label="Miguel Nogales personal history">
       <article class="panel history-card">
-        <img src="../assets/about/badajoz-placeholder.svg" alt="Placeholder photo for Badajoz" />
-        <div>
-          <p class="meta">Born here</p>
-          <h2>
-            <a href="https://en.wikipedia.org/wiki/Badajoz" target="_blank" rel="noopener noreferrer">
-              Badajoz
-            </a>
-          </h2>
-          <p>
-            I was born in Badajoz, a city in Extremadura that most people outside
-            Spain have never heard of, which is exactly why it deserves the link.
-            It is the first point on the map.
-          </p>
-        </div>
+        <details
+          class="history-collage"
+          data-history-city="Badajoz"
+          data-history-placeholder="../assets/about/badajoz-placeholder.svg"
+          data-history-alt="Badajoz"
+        >
+          <summary aria-label="Show Badajoz photo collage">
+            <img src="../assets/about/badajoz-placeholder.svg" alt="Badajoz" />
+            <div>
+              <p class="meta">Born here</p>
+              <h2>
+                <a href="https://en.wikipedia.org/wiki/Badajoz" target="_blank" rel="noopener noreferrer">
+                  Badajoz
+                </a>
+              </h2>
+              <p>
+                I was born in Badajoz, a city in Extremadura that most people outside
+                Spain have never heard of, which is exactly why it deserves the link.
+                It is the first point on the map.
+              </p>
+            </div>
+          </summary>
+          <div class="history-collage-grid" aria-label="Badajoz photo collage"></div>
+        </details>
       </article>
 
       <article class="panel history-card">
-        <img src="../assets/about/sevilla-placeholder.svg" alt="Placeholder photo for Sevilla" />
-        <div>
-          <p class="meta">Bachelor's and Master's</p>
-          <h2>
-            <a href="https://en.wikipedia.org/wiki/Seville" target="_blank" rel="noopener noreferrer">
-              Sevilla
-            </a>
-          </h2>
-          <p>
-            Sevilla is where I went to university for my Bachelor's and Master's,
-            building the engineering foundations that later pulled me toward AI,
-            telecommunications, and research.
-          </p>
-        </div>
+        <details
+          class="history-collage"
+          data-history-city="Sevilla"
+          data-history-placeholder="../assets/about/sevilla-placeholder.svg"
+          data-history-alt="Sevilla"
+        >
+          <summary aria-label="Show Sevilla photo collage">
+            <img src="../assets/about/sevilla-placeholder.svg" alt="Sevilla" />
+            <div>
+              <p class="meta">Bachelor's and Master's</p>
+              <h2>
+                <a href="https://en.wikipedia.org/wiki/Seville" target="_blank" rel="noopener noreferrer">
+                  Sevilla
+                </a>
+              </h2>
+              <p>
+                Sevilla is where I went to university for my Bachelor's and Master's,
+                building the engineering foundations that later pulled me toward AI,
+                telecommunications, and research.
+              </p>
+            </div>
+          </summary>
+          <div class="history-collage-grid" aria-label="Sevilla photo collage"></div>
+        </details>
       </article>
 
       <article class="panel history-card">
-        <img src="../assets/about/milano-placeholder.svg" alt="Placeholder photo for Milano" />
-        <div>
-          <p class="meta">Politecnico di Milano</p>
-          <h2>
-            <a href="https://en.wikipedia.org/wiki/Milan" target="_blank" rel="noopener noreferrer">
-              Milano
-            </a>
-          </h2>
-          <p>
-            Milano came next through Polimi, where I studied Artificial Intelligence
-            and joined a faster, more international rhythm of computer science and
-            machine learning.
-          </p>
-        </div>
+        <details
+          class="history-collage"
+          data-history-city="Milano"
+          data-history-placeholder="../assets/about/milano-placeholder.svg"
+          data-history-alt="Milano"
+        >
+          <summary aria-label="Show Milano photo collage">
+            <img src="../assets/about/milano-placeholder.svg" alt="Milano" />
+            <div>
+              <p class="meta">Politecnico di Milano</p>
+              <h2>
+                <a href="https://en.wikipedia.org/wiki/Milan" target="_blank" rel="noopener noreferrer">
+                  Milano
+                </a>
+              </h2>
+              <p>
+                Milano came next through Polimi, where I studied Artificial Intelligence
+                and joined a faster, more international rhythm of computer science and
+                machine learning.
+              </p>
+            </div>
+          </summary>
+          <div class="history-collage-grid" aria-label="Milano photo collage"></div>
+        </details>
       </article>
 
       <article class="panel history-card">
-        <img src="../assets/about/lugano-placeholder.svg" alt="Placeholder photo for Lugano" />
-        <div>
-          <p class="meta">Now</p>
-          <h2>
-            <a href="https://en.wikipedia.org/wiki/Lugano" target="_blank" rel="noopener noreferrer">
-              Lugano
-            </a>
-          </h2>
-          <p>
-            Now I am in Lugano for the PhD chapter, working on AI research at USI
-            and IDSIA while living between mountains, lakes, code, and papers.
-          </p>
-        </div>
+        <details
+          class="history-collage"
+          data-history-city="Lugano"
+          data-history-placeholder="../assets/about/lugano-placeholder.svg"
+          data-history-alt="Lugano"
+        >
+          <summary aria-label="Show Lugano photo collage">
+            <img src="../assets/about/lugano-placeholder.svg" alt="Lugano" />
+            <div>
+              <p class="meta">Now</p>
+              <h2>
+                <a href="https://en.wikipedia.org/wiki/Lugano" target="_blank" rel="noopener noreferrer">
+                  Lugano
+                </a>
+              </h2>
+              <p>
+                Now I am in Lugano for the PhD chapter, working on AI research at USI
+                and IDSIA while living between mountains, lakes, code, and papers.
+              </p>
+            </div>
+          </summary>
+          <div class="history-collage-grid" aria-label="Lugano photo collage"></div>
+        </details>
       </article>
+    </section>
+
+    <section id="random-stuff" class="random-stuff-section" aria-labelledby="random-stuff-title">
+      <div class="random-stuff-heading">
+        <p class="eyebrow">Random stuff</p>
+        <h2 id="random-stuff-title">Other chapters, less official</h2>
+      </div>
+
+      <div class="random-stuff-list">
+        <a class="panel random-stuff-card random-stuff-link" href="hobbies.html">
+          <div class="random-stuff-photo" aria-hidden="true">
+            <span>Photo soon</span>
+          </div>
+          <div>
+            <p class="meta">Hobbies</p>
+            <h3>Things I do when I am not debugging something</h3>
+            <p>
+              A place for the hobbies that slowly accumulate around work and
+              research: the small routines, interests, and side quests that keep
+              life from becoming only papers and code.
+            </p>
+          </div>
+        </a>
+
+        <a
+          class="panel random-stuff-card random-stuff-link"
+          href="https://www.us.es/actualidad-de-la-us/un-equipo-de-estudiantes-de-la-us-en-el-top-10-en-un-concurso-de-ingenieria"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <div class="random-stuff-photo" aria-hidden="true">
+            <img src="../assets/research/misc/us-competition.jpg" alt="" onerror="this.remove()" />
+            <span>Photo soon</span>
+          </div>
+          <div>
+            <p class="meta">Random competition</p>
+            <h3>That one competition we somehow entered</h3>
+            <p>
+              Reserved for a random competition story: the kind of thing that
+              starts as a casual plan and ends up deserving its own little
+              permanent spot here.
+            </p>
+          </div>
+        </a>
+
+        <article class="panel random-stuff-card">
+          <div class="random-stuff-photo" aria-hidden="true">
+            <span>Photo soon</span>
+          </div>
+          <div>
+            <p class="meta">Fitness challenge</p>
+            <h3>Second place, recently earned</h3>
+            <p>
+              A small marker for a recent fitness challenge where we finished
+              second. Future photo goes here, because proof makes the flex
+              friendlier.
+            </p>
+          </div>
+        </article>
+      </div>
     </section>
   </main>
 
-  <script src="../js/script.js?v=theme-switch-device-mode"></script>
+  <script src="../js/script.js?v=history-collage-shuffle"></script>
 </body>
 </html>

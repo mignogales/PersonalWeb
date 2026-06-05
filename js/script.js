@@ -46,6 +46,36 @@ const SPACESHIP_BOOST_RATE = 1.85;
 const EARTH_STAR_MASK_PADDING = 6;
 const SITE_ROOT = new URL("../", document.currentScript?.src || window.location.href);
 const assetPath = (path) => new URL(path, SITE_ROOT).href;
+const HISTORY_CITY_IMAGES = {
+  Badajoz: [
+    { file: "alcazaba.png", alt: "Badajoz Alcazaba at sunset" },
+    { file: "puerta palma.jpeg", alt: "Puerta de Palmas in Badajoz" },
+    { file: "rio.jpeg", alt: "Guadiana river in Badajoz" }
+  ],
+  Sevilla: [
+    { file: "torre del oro.jpeg", alt: "Torre del Oro in Sevilla" },
+    { file: "portada.jpeg", alt: "Sevilla street view" },
+    { file: "fachada.jpeg", alt: "Historic facade in Sevilla" },
+    { file: "catedral.jpeg", alt: "Sevilla cathedral" },
+    { file: "edificio.jpeg", alt: "Building in Sevilla" },
+    { file: "feria.jpeg", alt: "Feria scene in Sevilla" }
+  ],
+  Milano: [],
+  Lugano: [
+    { file: "uni.jpeg", alt: "University building in Lugano" },
+    { file: "noche.jpeg", alt: "Lugano at night" },
+    { file: "nevado.jpeg", alt: "Snowy Lugano view" },
+    { file: "noche 2.jpeg", alt: "Night lights in Lugano" },
+    { file: "patos.jpeg", alt: "Ducks by the water in Lugano" },
+    { file: "corno.jpeg", alt: "Mountain view near Lugano" },
+    { file: "otono.jpeg", alt: "Autumn in Lugano" },
+    { file: "grulla.jpeg", alt: "Bird by the water in Lugano" },
+    { file: "morcote.jpeg", alt: "Morcote near Lugano" },
+    { file: "carretera.jpeg", alt: "Road near Lugano" },
+    { file: "parque.jpeg", alt: "Park in Lugano" },
+    { file: "rio.jpeg", alt: "Waterfront in Lugano" }
+  ]
+};
 const BACKGROUND_MUSIC_SRC = assetPath("assets/research/misc/sounds/Starbyte Run.mp3");
 const BACKGROUND_MUSIC_VOLUME = 0.14;
 const BACKGROUND_MUSIC_STATE_KEY = "miguel-site-background-music";
@@ -1234,6 +1264,204 @@ function hidePaperTooltip(card) {
   activePaperTooltipCard = null;
 }
 
+function tuneHistoryCollageCrop(image, index) {
+  const naturalRatio = image.naturalWidth / image.naturalHeight;
+  const cropRatio = clamp(1 + (naturalRatio - 1) * 0.18, 0.92, 1.12);
+
+  image.style.setProperty("--tile-ratio", cropRatio.toFixed(3));
+  image.dataset.crop = naturalRatio > 1.16
+    ? "landscape"
+    : naturalRatio < 0.86
+      ? "portrait"
+      : "square";
+
+  if (index === 0) {
+    image.dataset.tile = "feature";
+  } else if (index % 5 === 0) {
+    image.dataset.tile = "large";
+  } else if (index % 3 === 0) {
+    image.dataset.tile = "wide";
+  } else {
+    image.dataset.tile = "standard";
+  }
+}
+
+function whenHistoryImageReady(image, index) {
+  const tune = () => tuneHistoryCollageCrop(image, index);
+
+  if (image.complete && image.naturalWidth) {
+    tune();
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    image.addEventListener(
+      "load",
+      () => {
+        tune();
+        resolve();
+      },
+      { once: true }
+    );
+    image.addEventListener(
+      "error",
+      () => {
+        image.dataset.crop = "square";
+        image.style.setProperty("--tile-ratio", "1");
+        resolve();
+      },
+      { once: true }
+    );
+  });
+}
+
+function shuffleHistoryImages(images) {
+  return images
+    .map((image) => ({ image, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ image }) => image);
+}
+
+function getHistoryCollageColumnCount(grid, imageCount) {
+  const width = grid.clientWidth;
+
+  if (width < 560 || imageCount <= 2) {
+    return 2;
+  }
+
+  if (imageCount <= 5) {
+    return 3;
+  }
+
+  return width > 920 ? 4 : 3;
+}
+
+function layoutHistoryCollage(grid) {
+  const images = Array.from(grid.querySelectorAll("img"));
+
+  if (!images.length || grid.hidden || grid.clientWidth === 0) {
+    return;
+  }
+
+  const columnCount = getHistoryCollageColumnCount(grid, images.length);
+  const gap = Number.parseFloat(getComputedStyle(grid).gap) || 8;
+  const columnWidth = (grid.clientWidth - gap * (columnCount - 1)) / columnCount;
+  const columnHeights = Array.from({ length: columnCount }, () => 0);
+  const columns = Array.from({ length: columnCount }, () => {
+    const column = document.createElement("div");
+    column.className = "history-collage-column";
+    return column;
+  });
+
+  images.forEach((image) => {
+    const ratio = Number.parseFloat(image.style.getPropertyValue("--tile-ratio")) || 1;
+    const targetColumn = columnHeights.indexOf(Math.min(...columnHeights));
+
+    columns[targetColumn].appendChild(image);
+    columnHeights[targetColumn] += columnWidth / ratio + gap;
+  });
+
+  grid.style.setProperty("--collage-columns", String(columnCount));
+  grid.replaceChildren(...columns);
+  grid.classList.add("is-packed");
+}
+
+function layoutHistoryCollages() {
+  document
+    .querySelectorAll(".history-collage.has-collage[open] .history-collage-grid")
+    .forEach(layoutHistoryCollage);
+}
+
+function initHistoryCollages() {
+  document.querySelectorAll(".history-collage[data-history-city]").forEach((details) => {
+    const city = details.dataset.historyCity;
+    const placeholder = details.dataset.historyPlaceholder;
+    const fallbackAlt = details.dataset.historyAlt || city || "City photo";
+    const summary = details.querySelector("summary");
+    const previewImage = summary?.querySelector("img");
+    const grid = details.querySelector(".history-collage-grid");
+    const images = (HISTORY_CITY_IMAGES[city] || []).map((image) => ({
+      ...image,
+      src: assetPath(`assets/about/${city}/${image.file}`)
+    }));
+    const hasCollage = images.length > 1;
+    const preview = images[0] || {
+      src: placeholder,
+      alt: fallbackAlt
+    };
+
+    if (previewImage && preview.src) {
+      previewImage.src = preview.src;
+      previewImage.alt = preview.alt || fallbackAlt;
+    }
+
+    if (grid) {
+      const gridImages = shuffleHistoryImages(images).map((image, index) => {
+        const gridImage = document.createElement("img");
+        gridImage.src = image.src;
+        gridImage.alt = image.alt || fallbackAlt;
+        gridImage.dataset.tile = index === 0 ? "feature" : "standard";
+        return gridImage;
+      });
+
+      grid.replaceChildren(...gridImages);
+      grid.hidden = !hasCollage;
+      grid.dataset.ready = "false";
+
+      Promise.all(gridImages.map(whenHistoryImageReady)).then(() => {
+        grid.dataset.ready = "true";
+
+        if (details.open) {
+          layoutHistoryCollage(grid);
+        }
+      });
+    }
+
+    details.dataset.imageCount = String(images.length);
+    details.classList.toggle("has-collage", hasCollage);
+    details.classList.toggle("no-collage", !hasCollage);
+
+    if (!hasCollage) {
+      details.removeAttribute("open");
+    }
+
+    summary?.addEventListener("click", (event) => {
+      if (event.target.closest("a")) {
+        return;
+      }
+
+      if (!details.classList.contains("has-collage")) {
+        event.preventDefault();
+      }
+    });
+
+    summary?.addEventListener("keydown", (event) => {
+      if (!["Enter", " "].includes(event.key) || event.target.closest("a")) {
+        return;
+      }
+
+      if (!details.classList.contains("has-collage")) {
+        event.preventDefault();
+      }
+    });
+
+    details.addEventListener("toggle", () => {
+      if (!details.classList.contains("has-collage") && details.open) {
+        details.open = false;
+        return;
+      }
+
+      if (details.open && grid) {
+        window.requestAnimationFrame(() => {
+          if (grid.dataset.ready === "true") {
+            layoutHistoryCollage(grid);
+          }
+        });
+      }
+    });
+  });
+}
+
 function handlePaperTooltipMove(event) {
   if (!paperTooltip) {
     return;
@@ -1306,6 +1534,8 @@ if (paperTooltip) {
   document.addEventListener("mousemove", handlePaperTooltipMove);
 }
 
+initHistoryCollages();
+
 slideCards = document.querySelector(".research-page")
   ? []
   : Array.from(document.querySelectorAll(".section:not(.hero) .panel"));
@@ -1316,6 +1546,7 @@ updateEarthPortalFocus();
 
 window.addEventListener("resize", handleResize, { passive: true });
 window.addEventListener("scroll", handleScroll, { passive: true });
+window.addEventListener("resize", layoutHistoryCollages, { passive: true });
 window.addEventListener("resize", positionPaperTooltip, { passive: true });
 window.addEventListener("scroll", positionPaperTooltip, { passive: true });
 window.addEventListener("pointermove", handlePointerMove, { passive: true });
