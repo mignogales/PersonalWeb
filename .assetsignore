@@ -1,0 +1,13 @@
+.git
+.git/**
+.wrangler
+.wrangler/**
+node_modules
+node_modules/**
+Italian_submodule
+Italian_submodule/**
+.assetsignore
+.gitignore
+wrangler.jsonc
+.DS_Store
+**/.DS_Store
