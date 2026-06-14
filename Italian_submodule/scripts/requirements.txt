@@ -1,0 +1,2 @@
+deep-translator==1.11.4
+verbecc==2.0.2

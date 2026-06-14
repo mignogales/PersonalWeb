@@ -1663,6 +1663,95 @@ h1 {
   gap: 18px;
 }
 
+.running-projects-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.running-project-card {
+  display: grid;
+  min-height: 100%;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 22px;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+a.running-project-card:hover,
+a.running-project-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--research-card-hover-border);
+  background: var(--research-card-hover-bg);
+  box-shadow: 0 26px 84px var(--research-card-hover-shadow);
+}
+
+.running-project-icon {
+  display: grid;
+  width: 82px;
+  aspect-ratio: 1;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(255, 157, 47, 0.16), rgba(22, 132, 199, 0.16)),
+    var(--panel-strong);
+}
+
+.running-project-icon img {
+  width: 68%;
+  height: 68%;
+  object-fit: contain;
+}
+
+.running-project-icon span {
+  color: var(--accent-strong);
+  font-size: 2.4rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.running-project-copy {
+  min-width: 0;
+}
+
+.running-project-copy p:last-of-type {
+  margin-bottom: 16px;
+}
+
+.running-project-placeholder {
+  grid-template-columns: auto minmax(0, 1fr);
+  opacity: 0.88;
+}
+
+.running-project-note {
+  position: relative;
+  z-index: 2;
+  margin-top: 18px;
+  padding: clamp(20px, 4vw, 28px);
+}
+
+.running-project-note h3 {
+  margin-bottom: 8px;
+  color: var(--text);
+  font-size: 1.14rem;
+  line-height: 1.3;
+}
+
+.running-project-note p {
+  max-width: 820px;
+  margin-bottom: 0;
+}
+
 .project-card {
   display: flex;
   min-height: 100%;
@@ -1755,6 +1844,10 @@ h1 {
     grid-template-columns: 1fr;
   }
 
+  .running-projects-grid {
+    grid-template-columns: 1fr;
+  }
+
   .publication {
     grid-template-columns: 1fr;
   }
@@ -1821,6 +1914,15 @@ h1 {
 
   .section {
     padding: 58px 0;
+  }
+
+  .running-project-card {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .running-project-card .card-link {
+    margin-top: 0;
   }
 
   .hero {

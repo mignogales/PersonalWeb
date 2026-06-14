@@ -29,13 +29,13 @@
     />
     <img
       class="wingull-frame wingull-frame-one"
-      src="assets/research/misc/wingull 1.png"
+      src="assets/research/misc/wingull%201.png"
       alt=""
       aria-hidden="true"
     />
     <img
       class="wingull-frame wingull-frame-two"
-      src="assets/research/misc/wingull 2.png"
+      src="assets/research/misc/wingull%202.png"
       alt=""
       aria-hidden="true"
     />
@@ -89,6 +89,7 @@
         <li><a href="#about">About</a></li>
         <li><a href="#research">Research</a></li>
         <li><a href="#education">Education</a></li>
+        <li><a href="#running-projects">Running Projects</a></li>
         <li><a href="#projects">Projects</a></li>
         <li><a href="#about-me-portal">About me</a></li>
         <li><a href="#contact">Contact</a></li>
@@ -146,7 +147,7 @@
 
       <div class="research-grid">
         <a class="panel research-card topic-tsfm" href="pages/research/tsfm.html">
-          <img src="assets/research/paper-images/time_series_header.png" alt="" aria-hidden="true" />
+          <img src="assets/research/paper-images/tsfm/time_series_header.png" alt="" aria-hidden="true" />
           <div>
             <p class="meta">Current research</p>
             <h3>Time Series Foundation Models</h3>
@@ -159,7 +160,7 @@
         </a>
 
         <a class="panel research-card topic-derma" href="pages/research/derma.html">
-          <img src="assets/research/paper-images/derma-thumbnail.png" alt="" aria-hidden="true" />
+          <img src="assets/research/paper-images/derma/derma-thumbnail.png" alt="" aria-hidden="true" />
           <div>
             <p class="meta">Medical imaging</p>
             <h3>Dermatoscopic Images</h3>
@@ -172,7 +173,7 @@
         </a>
 
         <a class="panel research-card topic-llm" href="pages/research/llm-efficiency.html">
-          <img src="assets/research/paper-images/dynamax.png" alt="" aria-hidden="true" />
+          <img src="assets/research/paper-images/llm-efficiency/dynamax.png" alt="" aria-hidden="true" />
           <div>
             <p class="meta">Efficient AI</p>
             <h3>LLM Efficiency</h3>
@@ -185,7 +186,7 @@
         </a>
 
         <a class="panel research-card topic-pa" href="pages/research/power-amplifiers.html">
-          <img src="assets/research/paper-images/predistortion-header-thumbnail.png" alt="" aria-hidden="true" />
+          <img src="assets/research/paper-images/pa/predistortion-header-thumbnail.png" alt="" aria-hidden="true" />
           <div>
             <p class="meta">Telecommunications</p>
             <h3>Digital Predistortion</h3>
@@ -267,6 +268,63 @@
             <li>Engineering</li>
           </ul>
         </article>
+      </div>
+    </section>
+
+    <section id="running-projects" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Running Projects</p>
+        <h2>Small apps I keep alive and improve over time</h2>
+      </div>
+
+      <div class="running-projects-grid">
+        <a class="panel running-project-card" href="italian/" aria-label="Open Italian Verb Sprint">
+          <div class="running-project-icon" aria-hidden="true">
+            <img src="italian/icons/icon-512.svg" alt="" />
+          </div>
+          <div class="running-project-copy">
+            <p class="meta">Language learning app</p>
+            <h3>Italian Verb Sprint</h3>
+            <p>
+              Mobile-first conjugation practice with user progress, streaks, and offline fallback.
+              The static frontend can run from this site while progress syncs through a Raspberry Pi API.
+            </p>
+            <ul class="tags" aria-label="Italian Verb Sprint technologies">
+              <li>React</li>
+              <li>Vite</li>
+              <li>Raspberry Pi API</li>
+            </ul>
+          </div>
+          <span class="card-link">Open app</span>
+        </a>
+
+        <article class="panel running-project-card running-project-placeholder">
+          <div class="running-project-icon" aria-hidden="true">
+            <span>+</span>
+          </div>
+          <div class="running-project-copy">
+            <p class="meta">Next app slot</p>
+            <h3>More running projects soon</h3>
+            <p>
+              This section is ready for future tools: a card, a route, and a deployment target for
+              each app.
+            </p>
+            <ul class="tags" aria-label="Future app technologies">
+              <li>Frontend</li>
+              <li>Backend</li>
+              <li>Data</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+
+      <div class="panel running-project-note">
+        <h3>Architecture I would use here</h3>
+        <p>
+          Keep the personal website static and deploy each app under its own path, starting with
+          <span class="about-highlight">/italian/</span>. Run app backends on the Raspberry Pi behind
+          Cloudflare Tunnel, then point each frontend to its own API URL at build time.
+        </p>
       </div>
     </section>
 
