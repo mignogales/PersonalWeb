@@ -7,7 +7,7 @@
   <title>Dermatoscopic Images | Miguel Nogales</title>
   <link rel="icon" type="image/png" href="../../assets/research/misc/favicon.png" />
   <link rel="apple-touch-icon" href="../../assets/research/misc/favicon.png" />
-  <link rel="stylesheet" href="../../css/style.css?v=theme-switch-device-mode" />
+  <link rel="stylesheet" href="../../css/style.css?v=abstract-tooltip" />
 </head>
 <body>
   <canvas id="starfield" aria-hidden="true"></canvas>
@@ -70,6 +70,30 @@
               Explores whether representations learned for simpler classification objectives
               still encode information that is useful for melanoma-depth analysis.
             </p>
+            <p class="paper-abstract" hidden>
+              This study aims to analyze dermoscopic images to estimate the Breslow depth of
+              melanoma, which is crucial for diagnosing and treating skin cancer. The study has two
+              objectives: to improve current methods of estimating melanoma depth and to investigate
+              whether dermoscopic features evolve as melanoma thickness increases. To achieve these
+              goals, a Convolutional Neural Network (CNN), with ConvNext as backbone, was designed
+              and trained to predict melanoma thickness. Then, the relationships between the CNN's
+              outputs and the continuous depth values from biopsies were explored to investigate
+              possible gradations in deep features related to melanoma depth. First, statistical
+              analyses were performed in the deep feature spaces. Secondly, deep features were
+              transformed into Principal Component Analysis (PCA) and Uniform Manifold Approximation
+              and Projection (UMAP) spaces. Two main results can be reported. First, the model
+              outperformed existing methods in the literature for classifying melanomas as
+              superficial or deep. It achieved the highest recall (0.79) and F1 score (0.67), a
+              good balance between precision and recall. As for the relationships between deep
+              features and biopsy depth, a moderate correlation was found between melanoma depth
+              and prediction probabilities, which was stronger in deeper melanomas. Both PCA and
+              UMAP analyses revealed that intermediate-depth melanomas have deep features located
+              in intermediate positions in the transformed feature space. These findings highlight
+              the capacity of deep features to distinguish between different depths of melanoma.
+              The study provides new insights into the data distribution and suggests a potential
+              methodology for enhancing the understanding of melanoma classification through deep
+              learning models.
+            </p>
             <div class="paper-links">
               <a href="https://www.sciencedirect.com/science/article/pii/S2590005626001815" target="_blank" rel="noopener noreferrer">ScienceDirect</a>
             </div>
@@ -87,6 +111,30 @@
             <p>
               Compares domain-specific representation learning with general ImageNet transfer
               for dermatological diagnosis under limited and specialized medical data.
+            </p>
+            <p class="paper-abstract" hidden>
+              Deep learning has transformed computer vision but relies heavily on large labeled
+              datasets and computational resources. Transfer learning, particularly fine-tuning
+              pretrained models, offers a practical alternative; however, models pretrained on
+              natural image datasets such as ImageNet may fail to capture domain-specific
+              characteristics in medical imaging. This study introduces an unsupervised learning
+              framework that extracts high-value dermatological features instead of relying solely
+              on ImageNet-based pretraining. We employ a Variational Autoencoder (VAE) trained from
+              scratch on a proprietary dermatological dataset, allowing the model to learn a
+              structured and clinically relevant latent space. This self-supervised feature
+              extractor is then compared to an ImageNet-pretrained backbone under identical
+              classification conditions, highlighting the trade-offs between general-purpose and
+              domain-specific pretraining. Our results reveal distinct learning patterns. The
+              self-supervised model achieves a final validation loss of 0.110 (-33.33%), while the
+              ImageNet-pretrained model stagnates at 0.100 (-16.67%), indicating overfitting.
+              Accuracy trends confirm this: the self-supervised model improves from 45% to 65%
+              (+44.44%) with a near-zero overfitting gap, whereas the ImageNet-pretrained model
+              reaches 87% (+50.00%) but plateaus at 75% (+19.05%), with its overfitting gap
+              increasing to +0.060. These findings suggest that while ImageNet pretraining
+              accelerates convergence, it also amplifies overfitting on non-clinically relevant
+              features. In contrast, self-supervised learning achieves steady improvements,
+              stronger generalization, and superior adaptability, underscoring the importance of
+              domain-specific feature extraction in medical imaging.
             </p>
             <div class="paper-links">
               <a href="https://arxiv.org/pdf/2505.16773" target="_blank" rel="noopener noreferrer">arXiv</a>
@@ -106,6 +154,31 @@
               Uses domain-specific distillation to make dermatological models more compact
               while preserving signals connected to melanoma-depth estimation.
             </p>
+            <p class="paper-abstract" hidden>
+              Melanoma, a highly aggressive form of skin cancer, is primarily assessed by its depth
+              of invasion (Breslow thickness), a key prognostic factor influencing clinical
+              management. Deep learning has shown promising results in dermatological image
+              analysis, yet its effectiveness is often hindered by overfitting due to limited and
+              imbalanced datasets. Knowledge Distillation (KD) has emerged as a potential solution,
+              enabling the transfer of knowledge from a large, complex teacher model to a smaller,
+              more efficient student model. However, the impact of using domain-specific datasets
+              for distillation remains underexplored in medical imaging. In this study, we
+              investigate the role of dataset specificity in knowledge distillation for melanoma
+              depth classification. We compare two KD approaches: one using a general-purpose
+              dataset (ImageNet) and another using a dermatology-specific dataset. Performance is
+              evaluated through classification metrics, feature visualization techniques (UMAP and
+              t-SNE), Grad-CAM interpretability maps, and robustness tests under image
+              perturbations. Our findings reveal that while ImageNet-distilled models achieve
+              slightly better classification performance, the dermatology-specific distillation
+              provides more structured feature representations, suggesting improved task-specific
+              knowledge retention. Additionally, models trained with domain-specific KD demonstrate
+              enhanced resilience to real-world variations, such as image noise and brightness
+              changes. These results highlight the potential of tailored knowledge distillation
+              strategies in medical imaging, suggesting that leveraging domain-specific datasets
+              can improve model interpretability and robustness while mitigating overfitting.
+              Future work will explore hybrid distillation techniques and domain adaptation
+              strategies to further enhance deep learning applications in dermatological oncology.
+            </p>
             <div class="paper-links">
               <a href="https://ieeexplore.ieee.org/document/11165955" target="_blank" rel="noopener noreferrer">IEEE</a>
             </div>
@@ -119,6 +192,6 @@
     <p>&copy; <span id="year"></span> Miguel Nogales. Built with semantic HTML, CSS, and JavaScript. (it was LLM made, i didnt do anything)</p>
   </footer>
 
-  <script src="../../js/script.js?v=paper-tooltip-v3"></script>
+  <script src="../../js/script.js?v=paper-tooltip-v4"></script>
 </body>
 </html>

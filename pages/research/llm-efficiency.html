@@ -7,7 +7,7 @@
   <title>LLM Efficiency | Miguel Nogales</title>
   <link rel="icon" type="image/png" href="../../assets/research/misc/favicon.png" />
   <link rel="apple-touch-icon" href="../../assets/research/misc/favicon.png" />
-  <link rel="stylesheet" href="../../css/style.css?v=theme-switch-device-mode" />
+  <link rel="stylesheet" href="../../css/style.css?v=abstract-tooltip" />
 </head>
 <body>
   <canvas id="starfield" aria-hidden="true"></canvas>
@@ -69,6 +69,26 @@
               Studies adaptive computation for Transformer and state-space architectures,
               aiming to reduce inference cost through input-dependent execution.
             </p>
+            <p class="paper-abstract" hidden>
+              Early exits (EEs) offer a promising approach to reducing computational costs and
+              latency by dynamically terminating inference once a satisfactory prediction
+              confidence on a data sample is achieved. Although many works integrate EEs into
+              encoder-only Transformers, their application to decoder-only architectures and, more
+              importantly, Mamba models, a novel family of state-space architectures in the LLM
+              realm, remains insufficiently explored. This work introduces DYNAMAX, the first
+              framework to exploit the unique properties of Mamba architectures for early exit
+              mechanisms. We not only integrate EEs into Mamba but also repurpose Mamba as an
+              efficient EE classifier for both Mamba-based and transformer-based LLMs, showcasing
+              its versatility. Our experiments employ the Mistral 7B transformer compared to the
+              Codestral 7B Mamba model, using data sets such as TruthfulQA, CoQA, and TriviaQA to
+              evaluate computational savings, accuracy, and consistency. The results highlight the
+              adaptability of Mamba as a powerful EE classifier and its efficiency in balancing
+              computational cost and performance quality across NLP tasks. By leveraging Mamba's
+              inherent design for dynamic processing, we open pathways for scalable and efficient
+              inference in embedded applications and resource-constrained environments. This study
+              underscores the transformative potential of Mamba in redefining dynamic computing
+              paradigms for LLMs.
+            </p>
             <div class="paper-links">
               <a href="https://ieeexplore.ieee.org/document/11228828" target="_blank" rel="noopener noreferrer">IEEE</a>
             </div>
@@ -82,6 +102,6 @@
     <p>&copy; <span id="year"></span> Miguel Nogales. Built with semantic HTML, CSS, and JavaScript. (it was LLM made, i didnt do anything)</p>
   </footer>
 
-  <script src="../../js/script.js?v=paper-tooltip-v3"></script>
+  <script src="../../js/script.js?v=paper-tooltip-v4"></script>
 </body>
 </html>

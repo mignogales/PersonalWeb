@@ -1143,9 +1143,9 @@ if (paperTooltip) {
 }
 
 function getPaperDescription(card) {
-  return card
+  return (card.querySelector(".paper-abstract") || card
     .querySelector(".paper-card-body > p:not(.meta, .venue)")
-    ?.textContent
+  )?.textContent
     .replace(/\s+/g, " ")
     .trim();
 }

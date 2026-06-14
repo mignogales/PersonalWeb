@@ -7,7 +7,7 @@
   <title>Digital Predistortion | Miguel Nogales</title>
   <link rel="icon" type="image/png" href="../../assets/research/misc/favicon.png" />
   <link rel="apple-touch-icon" href="../../assets/research/misc/favicon.png" />
-  <link rel="stylesheet" href="../../css/style.css?v=theme-switch-device-mode" />
+  <link rel="stylesheet" href="../../css/style.css?v=abstract-tooltip" />
 </head>
 <body>
   <canvas id="starfield" aria-hidden="true"></canvas>
@@ -69,6 +69,16 @@
               Improves the numerical stability of regression models used to linearize
               RF power amplifiers.
             </p>
+            <p class="paper-abstract" hidden>
+              This work presents insights into the regression of power amplifier behavioral models
+              and digital predistorters. First, the least squares regression equation is split into
+              its basic terms and these are analyzed from a correlation approach. Techniques such
+              as normalization, whitening, coefficient selection, coefficient exclusion and Ridge
+              regularization and their effect on the condition number are discussed. Experimental
+              results highlight how these techniques affect the performance of the predistortion of
+              a class J PA working in its saturation regime in a dual band scenario, concluding that
+              the presented methods are beneficial in the regression.
+            </p>
             <div class="paper-links">
               <a href="https://ieeexplore.ieee.org/document/9719703" target="_blank" rel="noopener noreferrer">IEEE</a>
             </div>
@@ -85,6 +95,19 @@
             <p>
               Selects compact behavioral-model terms with sparse regression while
               preserving model fidelity.
+            </p>
+            <p class="paper-abstract" hidden>
+              This work presents the sparse regression of Volterra-based behavioral models and
+              digital predistorters (DPDs) through a Stagewise Doubly Orthogonal Matching Pursuit
+              (StDOMP). First, the general sparse regression framework is presented. The StDOMP is
+              formulated by applying the stagewise strategy to the DOMP algorithm, i.e., allowing
+              the technique to select a block of components in each iteration without the need to
+              perform one iteration per atom. The block selection approach allows to reduce the
+              computational complexity up to a certain point where the performance is expected to
+              be degraded. Experimental results highlight the behavior of the technique in the
+              predistortion of a class AB power amplifier (PA) working in its nonlinear regime,
+              concluding that the StDOMP is able to reduce runtime while still holding the
+              performance level with respect to the DOMP.
             </p>
             <div class="paper-links">
               <a href="https://ieeexplore.ieee.org/document/10046270" target="_blank" rel="noopener noreferrer">IEEE</a>
@@ -105,6 +128,31 @@
               device-specific regressors for wideband PA predistortion without fixed
               model-structure assumptions.
             </p>
+            <p class="paper-abstract" hidden>
+              High-efficiency power amplifiers (PAs) exhibit pronounced nonlinear and memory
+              effects when driven by wideband signals. Classical Volterra-based behavioral models,
+              including generalized memory polynomial (GMP) and dynamic deviation reduction (DDR)
+              structures, tackle the combinatorial growth of the Volterra series by imposing
+              predefined structural constraints. However, these fixed model forms often fail to
+              capture hardware-specific impairments, while unconstrained Volterra expansions remain
+              computationally prohibitive. This work introduces the genetic-based Volterra-subspace
+              generator (GVG), a novel framework that shifts the paradigm from coefficient
+              selection within predefined models to data-driven structure discovery. The proposed
+              approach relies on a canonical Volterra formulation in which regressors are
+              decomposed into delayed input, conjugate, and envelope components. A genetic
+              algorithm is employed to systematically explore the search space, evolving candidate
+              regressors through crossover and mutation operators. The fitness of each regressor is
+              evaluated using doubly orthogonal matching pursuit (DOMP), ensuring sparsity and
+              numerical robustness. Unlike conventional approaches, the GVG does not impose a
+              priori structural constraints on the model. Instead, it autonomously discovers
+              complex cross-terms and novel basis functions tailored to the device under test,
+              including those required to compensate for I/Q impairments. Experimental validation
+              is conducted on three scenarios: a Doherty PA with I/Q impairments, a high-efficiency
+              integrated PA module (PAM), and a high-power multiband (MB) PA, demonstrating that
+              the proposed GVG technique achieves superior performance across all cases. These
+              results demonstrate the capability of the proposed framework to identify the most
+              relevant features without prior knowledge of the system.
+            </p>
             <div class="paper-links">
               <a href="../../papers/pa/Canonical-Volterra-Based_Model_Generation_for_Digital_Predistortion_of_Wideband_PAs.pdf" target="_blank" rel="noopener noreferrer">PDF</a>
               <a href="https://doi.org/10.1109/TMTT.2026.3700764" target="_blank" rel="noopener noreferrer">DOI</a>
@@ -119,6 +167,6 @@
     <p>&copy; <span id="year"></span> Miguel Nogales. Built with semantic HTML, CSS, and JavaScript. (it was LLM made, i didnt do anything)</p>
   </footer>
 
-  <script src="../../js/script.js?v=paper-tooltip-v3"></script>
+  <script src="../../js/script.js?v=paper-tooltip-v4"></script>
 </body>
 </html>
