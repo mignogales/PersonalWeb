@@ -32,6 +32,7 @@ const SCROLL_PARALLAX_FACTOR = 0.12;
 const SCROLL_PARALLAX_EASE = 0.08;
 const SCROLL_ANIMATION_PAUSE_DURATION = 150;
 const SCROLL_CANVAS_RENDER_INTERVAL = 90;
+const MOBILE_VIEWPORT_RESIZE_TOLERANCE = 2;
 const CLOUD_DEPTH_LAYERS = [0.22, 0.38, 0.56, 0.74, 0.92];
 const CLOUD_DEPTH_JITTER = 0.045;
 const STAR_DEPTH_LAYERS = [0.18, 0.34, 0.58, 0.84, 1];
@@ -112,6 +113,8 @@ let stars = [];
 let width = 0;
 let height = 0;
 let dpr = 1;
+let mobileStableViewportWidth = 0;
+let mobileStableViewportHeight = 0;
 let animationFrameId = null;
 let currentTheme = THEMES.LIGHT;
 let sceneTime = 0;
@@ -244,10 +247,52 @@ function createStars() {
   });
 }
 
+function getCanvasViewportSize() {
+  const rawWidth = Math.round(window.innerWidth);
+  const rawHeight = Math.round(window.innerHeight);
+
+  if (getDeviceMode() !== DEVICE_MODES.MOBILE) {
+    mobileStableViewportWidth = 0;
+    mobileStableViewportHeight = 0;
+    return {
+      width: rawWidth,
+      height: rawHeight
+    };
+  }
+
+  const isNewMobileWidth =
+    mobileStableViewportWidth === 0 ||
+    Math.abs(rawWidth - mobileStableViewportWidth) > MOBILE_VIEWPORT_RESIZE_TOLERANCE;
+
+  if (isNewMobileWidth) {
+    mobileStableViewportWidth = rawWidth;
+    mobileStableViewportHeight = rawHeight;
+  } else {
+    mobileStableViewportHeight = Math.max(mobileStableViewportHeight, rawHeight);
+  }
+
+  return {
+    width: rawWidth,
+    height: mobileStableViewportHeight
+  };
+}
+
 function resizeCanvas() {
+  const previousWidth = width;
+  const previousHeight = height;
+  const viewportSize = getCanvasViewportSize();
+  const shouldRebuildScene =
+    clouds.length === 0 ||
+    stars.length === 0 ||
+    Math.abs(viewportSize.width - previousWidth) > MOBILE_VIEWPORT_RESIZE_TOLERANCE ||
+    (
+      getDeviceMode() !== DEVICE_MODES.MOBILE &&
+      Math.abs(viewportSize.height - previousHeight) > MOBILE_VIEWPORT_RESIZE_TOLERANCE
+    );
+
   dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
-  width = window.innerWidth;
-  height = window.innerHeight;
+  width = viewportSize.width;
+  height = viewportSize.height;
 
   canvas.width = Math.floor(width * dpr);
   canvas.height = Math.floor(height * dpr);
@@ -257,8 +302,10 @@ function resizeCanvas() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.imageSmoothingEnabled = false;
 
-  createClouds();
-  createStars();
+  if (shouldRebuildScene) {
+    createClouds();
+    createStars();
+  }
 }
 
 function wrapPosition(value, max) {
@@ -736,10 +783,10 @@ function getSavedTheme() {
       return savedTheme;
     }
   } catch {
-    // Keep the default light theme.
+    // Keep the device default theme.
   }
 
-  return THEMES.LIGHT;
+  return null;
 }
 
 function saveTheme(theme) {
@@ -830,6 +877,12 @@ function getDeviceMode() {
 
 function updateDeviceMode() {
   document.documentElement.dataset.device = getDeviceMode();
+}
+
+function getDefaultTheme() {
+  return getDeviceMode() === DEVICE_MODES.MOBILE
+    ? THEMES.LIGHT
+    : THEMES.DARK;
 }
 
 function getSavedMusicState() {
@@ -1165,14 +1218,7 @@ function getPaperTooltipDetails(card) {
 }
 
 function createAbstractParagraphs(text) {
-  const sentences = text.match(/[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$/g) || [text];
-  const groups = [];
-
-  for (let index = 0; index < sentences.length; index += 2) {
-    groups.push(sentences.slice(index, index + 2).join(" ").replace(/\s+/g, " ").trim());
-  }
-
-  return groups.filter(Boolean);
+  return [text.replace(/\s+/g, " ").trim()].filter(Boolean);
 }
 
 function setPaperTooltipContent(details) {
@@ -1562,5 +1608,5 @@ window.addEventListener("blur", handlePointerLeave);
 
 updateDeviceMode();
 resizeCanvas();
-applyTheme(getSavedTheme(), false);
+applyTheme(getSavedTheme() || getDefaultTheme(), false);
 animationFrameId = requestAnimationFrame(animate);

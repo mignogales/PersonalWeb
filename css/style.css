@@ -1559,7 +1559,7 @@ h1 {
   right: 0;
   bottom: 24px;
   z-index: 40;
-  width: min(456px, calc(100vw - 18px));
+  width: min(520px, calc(100vw - 18px));
   overflow: auto;
   padding: 20px 22px 22px;
   border: 1px solid var(--tooltip-border, rgba(255, 255, 255, 0.24));
@@ -1637,14 +1637,16 @@ h1 {
 }
 
 .paper-tooltip-text {
+  max-width: 66ch;
   color: var(--tooltip-muted, currentColor);
   font-size: 0.88rem;
-  font-weight: 700;
-  line-height: 1.55;
+  font-weight: 650;
+  line-height: 1.65;
+  text-wrap: pretty;
 }
 
 .paper-tooltip-text p {
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
 
 .paper-tooltip-text p:last-child {
@@ -2153,13 +2155,46 @@ a.running-project-card:focus-visible {
 }
 
 @media (max-width: 700px) {
+  :root {
+    --header-height: 64px;
+  }
+
   .research-grid,
   .paper-grid {
     grid-template-columns: 1fr;
   }
 
+  body {
+    font-size: 0.97rem;
+  }
+
+  #starfield {
+    min-height: 100svh;
+  }
+
+  main::after {
+    height: 58vh;
+  }
+
+  .site-header {
+    box-shadow: 0 12px 38px rgba(40, 116, 160, 0.12);
+  }
+
+  :root[data-theme="dark"] .site-header {
+    box-shadow: 0 12px 38px rgba(0, 0, 0, 0.28);
+  }
+
+  .nav {
+    gap: 14px;
+  }
+
+  .brand {
+    font-size: 0.98rem;
+  }
+
   .nav-toggle {
-    display: block;
+    display: grid;
+    background: var(--toggle-bg);
   }
 
   .nav-links {
@@ -2170,10 +2205,11 @@ a.running-project-card:focus-visible {
     display: none;
     flex-direction: column;
     align-items: stretch;
-    padding: 12px;
+    gap: 4px;
+    padding: 10px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    background: rgba(255, 255, 255, 0.96);
+    background: var(--panel-strong);
     box-shadow: 0 24px 80px var(--shadow);
     backdrop-filter: blur(18px);
   }
@@ -2196,15 +2232,33 @@ a.running-project-card:focus-visible {
 
   .nav-links a {
     justify-content: center;
+    min-height: 44px;
   }
 
   .section {
-    padding: 58px 0;
+    padding: 52px 0;
+  }
+
+  .section-heading {
+    margin-bottom: 18px;
+  }
+
+  .section-heading h2,
+  .about-me-cue h2,
+  .random-stuff-heading h2 {
+    font-size: clamp(1.72rem, 9vw, 2.5rem);
+    text-wrap: balance;
+  }
+
+  .panel {
+    box-shadow: 0 18px 54px var(--shadow);
   }
 
   .running-project-card {
     grid-template-columns: 1fr;
     align-items: start;
+    gap: 14px;
+    padding: 18px;
   }
 
   .running-project-card .card-link {
@@ -2212,21 +2266,103 @@ a.running-project-card:focus-visible {
   }
 
   .hero {
-    min-height: auto;
-    padding-top: 52px;
+    min-height: calc(100svh - var(--header-height));
+    align-items: start;
+    padding-top: 28px;
+    padding-bottom: 30px;
   }
 
   #hero .hero-panel {
+    display: grid;
     width: 100%;
     max-width: 100%;
+    justify-items: start;
+    overflow: hidden;
     padding: 22px;
+    background:
+      linear-gradient(160deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.58) 52%, rgba(255, 213, 142, 0.18)),
+      var(--panel);
+  }
+
+  :root[data-theme="dark"] #hero .hero-panel {
+    background:
+      linear-gradient(160deg, rgba(20, 33, 56, 0.9), rgba(10, 14, 23, 0.64) 58%, rgba(47, 217, 190, 0.1)),
+      var(--panel);
   }
 
   .hero-profile-photo {
     position: static;
-    width: clamp(104px, 34vw, 136px);
-    margin-bottom: 6px;
+    width: clamp(112px, 36vw, 148px);
+    margin-bottom: 14px;
     transform: none;
+    box-shadow:
+      0 16px 34px rgba(40, 116, 160, 0.22),
+      0 0 0 6px rgba(255, 255, 255, 0.34);
+  }
+
+  h1 {
+    font-size: clamp(3.05rem, 16vw, 4.8rem);
+  }
+
+  .role {
+    margin-bottom: 14px;
+  }
+
+  .tagline {
+    margin-bottom: 24px;
+    text-wrap: pretty;
+  }
+
+  .hero-actions {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hero-actions .primary {
+    grid-column: 1 / -1;
+  }
+
+  .button {
+    min-height: 46px;
+    padding: 0 13px;
+    text-align: center;
+  }
+
+  .research-card {
+    display: grid;
+    grid-template-columns: minmax(88px, 28vw) minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+    padding: 14px;
+  }
+
+  .research-card img {
+    height: 100%;
+    min-height: 112px;
+    aspect-ratio: 1;
+  }
+
+  .research-card h3 {
+    font-size: 1.06rem;
+  }
+
+  .research-card p {
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+
+  .research-card .card-link {
+    grid-column: 2;
+    margin-top: -4px;
+  }
+
+  .project-card {
+    padding: 20px;
+  }
+
+  .about-me-portal-section {
+    min-height: 56vh;
   }
 
   .about-timeline {
@@ -2250,6 +2386,10 @@ a.running-project-card:focus-visible {
     --collage-columns: 2;
   }
 
+  .contact-link-featured .contact-title {
+    font-size: clamp(1.55rem, 9vw, 2.35rem);
+  }
+
 }
 
 @media (max-width: 480px) {
@@ -2263,22 +2403,24 @@ a.running-project-card:focus-visible {
   }
 
   .music-toggle {
-    right: 14px;
-    bottom: 14px;
-    width: 50px;
-    height: 50px;
+    top: 11px;
+    right: 126px;
+    bottom: auto;
+    width: 42px;
+    height: 42px;
   }
 
   .theme-toggle {
-    right: 14px;
-    bottom: 76px;
-    width: 50px;
-    height: 50px;
+    top: 11px;
+    right: 76px;
+    bottom: auto;
+    width: 42px;
+    height: 42px;
   }
 
   .music-toggle-icon,
   .theme-toggle-icon {
-    width: 38px;
+    width: 32px;
   }
 
   .earth-portal {
@@ -2318,11 +2460,25 @@ a.running-project-card:focus-visible {
   }
 
   .hero-actions {
-    padding-right: 68px;
+    padding-right: 0;
   }
 
   .button {
     width: 100%;
+  }
+
+  .research-card {
+    grid-template-columns: 1fr;
+  }
+
+  .research-card img {
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+
+  .research-card .card-link {
+    grid-column: 1;
+    margin-top: 0;
   }
 }
 
