@@ -61,7 +61,9 @@ const HISTORY_CITY_IMAGES = {
     { file: "edificio.jpeg", alt: "Building in Sevilla" },
     { file: "feria.jpeg", alt: "Feria scene in Sevilla" }
   ],
-  Milano: [],
+  Milano: [
+    { file: "duomo.jpg", alt: "Duomo di Milano" }
+  ],
   Lugano: [
     { file: "uni.jpeg", alt: "University building in Lugano" },
     { file: "noche.jpeg", alt: "Lugano at night" },
@@ -132,6 +134,7 @@ let parallax = {
   targetY: 0
 };
 let slideCards = [];
+let slideCardsDisabled = false;
 let prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 let spaceshipBoostTimeoutId = null;
 let spaceshipFlightComplete = false;
@@ -612,10 +615,31 @@ function getSlideProgress(distanceFromCenter) {
   );
 }
 
-function updateSlideCards() {
-  if (prefersReducedMotion) {
+function setSlideCardsDisabled(disabled) {
+  if (slideCardsDisabled === disabled) {
     return;
   }
+
+  slideCardsDisabled = disabled;
+
+  if (disabled) {
+    slideCards.forEach((card) => {
+      card.style.setProperty("--scroll-slide-x", "0px");
+    });
+  }
+}
+
+function updateSlideCards() {
+  const shouldDisableSlideCards =
+    prefersReducedMotion ||
+    getDeviceMode() === DEVICE_MODES.MOBILE;
+
+  if (shouldDisableSlideCards) {
+    setSlideCardsDisabled(true);
+    return;
+  }
+
+  setSlideCardsDisabled(false);
 
   const viewportCenter = window.innerHeight / 2;
   const viewportWidth = window.innerWidth;
@@ -1211,14 +1235,22 @@ function getPaperDescription(card) {
 }
 
 function getPaperTooltipDetails(card) {
+  const poster = card.dataset.poster || card.querySelector(".paper-poster")?.getAttribute("src");
+
   return {
     description: getPaperDescription(card),
+    poster,
+    posterRatio: card.dataset.posterRatio,
     title: card.querySelector("h3")?.textContent.replace(/\s+/g, " ").trim()
   };
 }
 
 function createAbstractParagraphs(text) {
   return [text.replace(/\s+/g, " ").trim()].filter(Boolean);
+}
+
+function isPdfPoster(src) {
+  return /\.pdf(?:[?#].*)?$/i.test(src);
 }
 
 function setPaperTooltipContent(details) {
@@ -1228,9 +1260,10 @@ function setPaperTooltipContent(details) {
 
   const fragment = document.createDocumentFragment();
 
+  const hasPoster = Boolean(details.poster);
   const label = document.createElement("div");
   label.className = "paper-tooltip-label";
-  label.textContent = "Abstract";
+  label.textContent = hasPoster ? "Poster" : "Abstract";
   fragment.appendChild(label);
 
   if (details.title) {
@@ -1240,14 +1273,38 @@ function setPaperTooltipContent(details) {
     fragment.appendChild(title);
   }
 
-  const description = document.createElement("div");
-  description.className = "paper-tooltip-text";
-  createAbstractParagraphs(details.description).forEach((paragraphText) => {
-    const paragraph = document.createElement("p");
-    paragraph.textContent = paragraphText;
-    description.appendChild(paragraph);
-  });
-  fragment.appendChild(description);
+  paperTooltip.classList.toggle("has-poster", hasPoster);
+  paperTooltip.style.removeProperty("--poster-ratio");
+  if (details.posterRatio) {
+    paperTooltip.style.setProperty("--poster-ratio", details.posterRatio);
+  }
+
+  if (hasPoster) {
+    if (isPdfPoster(details.poster)) {
+      const posterFrame = document.createElement("iframe");
+      posterFrame.className = "paper-tooltip-poster paper-tooltip-poster-frame";
+      posterFrame.src = `${details.poster}#toolbar=0&navpanes=0`;
+      posterFrame.title = details.title ? `${details.title} poster` : "Paper poster";
+      posterFrame.loading = "lazy";
+      fragment.appendChild(posterFrame);
+    } else {
+      const poster = document.createElement("img");
+      poster.className = "paper-tooltip-poster";
+      poster.src = details.poster;
+      poster.alt = "";
+      poster.loading = "lazy";
+      fragment.appendChild(poster);
+    }
+  } else {
+    const description = document.createElement("div");
+    description.className = "paper-tooltip-text";
+    createAbstractParagraphs(details.description).forEach((paragraphText) => {
+      const paragraph = document.createElement("p");
+      paragraph.textContent = paragraphText;
+      description.appendChild(paragraph);
+    });
+    fragment.appendChild(description);
+  }
   paperTooltip.replaceChildren(fragment);
 }
 
@@ -1289,7 +1346,7 @@ function showPaperTooltip(card) {
 
   const details = getPaperTooltipDetails(card);
 
-  if (!details.description) {
+  if (!details.description && !details.poster) {
     return;
   }
 

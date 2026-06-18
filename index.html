@@ -10,7 +10,7 @@
   <title>Miguel Nogales | PhD Student in AI</title>
   <link rel="icon" type="image/png" href="assets/research/misc/favicon.png" />
   <link rel="apple-touch-icon" href="assets/research/misc/favicon.png" />
-  <link rel="stylesheet" href="css/style.css?v=theme-switch-device-mode" />
+  <link rel="stylesheet" href="css/style.css?v=mobile-polish" />
 </head>
 <body>
   <canvas id="starfield" aria-hidden="true"></canvas>
@@ -90,7 +90,7 @@
         <li><a href="#research">Research</a></li>
         <li><a href="#education">Education</a></li>
         <li><a href="#running-projects">Running Projects</a></li>
-        <li><a href="#projects">Projects</a></li>
+        <li><a href="#projects">Experience</a></li>
         <li><a href="#about-me-portal">About me</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
@@ -303,21 +303,22 @@
           <span class="card-link">Open app</span>
         </a>
 
-        <article class="panel running-project-card running-project-placeholder">
-          <div class="running-project-icon" aria-hidden="true">
-            <span>+</span>
+        <article class="panel running-project-card calorie-tracker-card">
+          <div class="running-project-icon calorie-tracker-icon" aria-hidden="true">
+            <span>kcal</span>
           </div>
           <div class="running-project-copy">
-            <p class="meta">Next app slot</p>
-            <h3>More running projects soon</h3>
+            <p class="meta">Self-hosted health tracking app</p>
+            <h3>Voice Calorie &amp; Weight Tracker</h3>
             <p>
-              This section is ready for future tools: a card, a route, and a deployment target for
-              each app.
+              Voice and text logging for meals and body weight, designed around local ASR,
+              grammar-constrained extraction, deterministic nutrition lookup, and SQLite analytics.
             </p>
-            <ul class="tags" aria-label="Future app technologies">
-              <li>Frontend</li>
-              <li>Backend</li>
-              <li>Data</li>
+            <ul class="tags" aria-label="Voice Calorie and Weight Tracker technologies">
+              <li>Whisper.cpp</li>
+              <li>llama.cpp</li>
+              <li>SQLite</li>
+              <li>Cloudflare Tunnel</li>
             </ul>
           </div>
         </article>
@@ -327,47 +328,49 @@
 
     <section id="projects" class="section">
       <div class="section-heading">
-        <p class="eyebrow">Projects / Technical Work</p>
-        <h2>Implementations, systems, and applied machine learning</h2>
+        <p class="eyebrow">Experience</p>
+        <h2>Research, technical projects, and teaching</h2>
       </div>
 
       <div class="project-grid">
         <article class="panel project-card">
-          <h3>Spatiotemporal Graph Learning</h3>
+          <h3>Research Experience</h3>
           <p>
-            Researching machine learning methods for graph-structured data evolving over time,
-            with emphasis on generalization, robustness, and structured prediction.
+            Research work at Universidad de Sevilla on AI-to-image methods for dermatology,
+            alongside an AICIA project studying emotions with applied artificial intelligence.
           </p>
           <ul class="tags" aria-label="Project technologies">
-            <li>Graphs</li>
-            <li>Time Series</li>
-            <li>GNNs</li>
+            <li>Medical AI</li>
+            <li>Dermatology</li>
+            <li>AICIA</li>
+            <li>Emotion Analysis</li>
           </ul>
         </article>
 
         <article class="panel project-card">
-          <h3>AI and Telecommunications</h3>
+          <h3>Hardware &amp; Signal Processing</h3>
           <p>
-            Combining artificial intelligence with telecommunications engineering, including
-            signal processing, sparse regression, and data-driven modeling for communication systems.
+            Raspberry Pi and hardware projects around SDR, electronics, radio systems,
+            and signal processing.
           </p>
           <ul class="tags" aria-label="Project technologies">
-            <li>AI</li>
-            <li>Telecommunications</li>
+            <li>Raspberry Pi</li>
+            <li>SDR</li>
+            <li>Electronics</li>
             <li>Signal Processing</li>
+            <li>Radio</li>
           </ul>
         </article>
 
         <article class="panel project-card">
-          <h3>Scientific Machine Learning</h3>
+          <h3>Teaching Experience</h3>
           <p>
-            Developing machine learning systems for structured scientific data, with interest
-            in models that remain reliable under distribution shift and changing environments.
+            Teaching support across applied technology, entrepreneurship, and machine learning courses.
           </p>
-          <ul class="tags" aria-label="Project technologies">
-            <li>Machine Learning</li>
-            <li>Generalization</li>
-            <li>Forecasting</li>
+          <ul>
+            <li>Introduction to FinTech (2025 Fall)</li>
+            <li>Founders II (2025 Fall)</li>
+            <li>Machine Learning (2026 Spring)</li>
           </ul>
         </article>
       </div>
