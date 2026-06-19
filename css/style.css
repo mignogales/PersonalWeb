@@ -679,7 +679,8 @@ h1 {
 
 :root:not([data-theme="dark"]) body.about-me-page .site-header,
 :root:not([data-theme="dark"]) body.about-me-page .history-card,
-:root:not([data-theme="dark"]) body.about-me-page .random-stuff-card {
+:root:not([data-theme="dark"]) body.about-me-page .random-stuff-card,
+:root:not([data-theme="dark"]) body.about-me-page .about-story-hero {
   --border: rgba(52, 116, 168, 0.18);
   --text: #10243a;
   --muted: #36566d;
@@ -748,12 +749,12 @@ h1 {
   max-width: 820px;
   padding: clamp(22px, 4vw, 34px);
   margin-bottom: clamp(32px, 6vw, 58px);
-  border: 1px solid rgba(216, 229, 244, 0.24);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   background:
-    linear-gradient(135deg, rgba(8, 17, 31, 0.78), rgba(13, 28, 49, 0.62)),
-    rgba(8, 17, 31, 0.68);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.26);
+    linear-gradient(135deg, var(--panel-strong), var(--panel)),
+    var(--panel);
+  box-shadow: 0 24px 80px var(--shadow);
   backdrop-filter: blur(12px);
 }
 
@@ -766,7 +767,7 @@ h1 {
 .about-story-hero p:not(.eyebrow) {
   max-width: 680px;
   margin-bottom: 0;
-  color: #d8e5f4;
+  color: var(--muted);
   font-size: clamp(1.02rem, 2vw, 1.22rem);
 }
 
@@ -2700,7 +2701,7 @@ a.running-project-card:focus-visible {
 
   .about-story-hero {
     margin-bottom: 28px;
-    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.32);
+    text-shadow: none;
   }
 
   .about-story-hero h1 {
@@ -2708,7 +2709,7 @@ a.running-project-card:focus-visible {
   }
 
   .about-story-hero p:not(.eyebrow) {
-    color: #f4f8ff;
+    color: var(--muted);
   }
 
   .about-timeline {
