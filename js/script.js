@@ -62,7 +62,18 @@ const HISTORY_CITY_IMAGES = {
     { file: "feria.jpeg", alt: "Feria scene in Sevilla" }
   ],
   Milano: [
-    { file: "duomo.jpg", alt: "Duomo di Milano" }
+    { file: "duomo.jpg", alt: "Duomo di Milano" },
+    { file: "duomo_full.jpeg", alt: "Full view of the Duomo di Milano" },
+    { file: "duomo_side.jpeg", alt: "Side view of the Duomo di Milano" },
+    { file: "galerias_center.jpeg", alt: "Central gallery in Milano" },
+    { file: "galerias_corridor.jpeg", alt: "Gallery corridor in Milano" },
+    { file: "galerias_front.jpeg", alt: "Front of the Galleria Vittorio Emanuele II in Milano" },
+    { file: "galerias_mid.jpeg", alt: "Galleria Vittorio Emanuele II interior in Milano" },
+    { file: "galerias_mid_corridor.jpeg", alt: "Mid-corridor view of the Galleria Vittorio Emanuele II" },
+    { file: "galerias_out.jpeg", alt: "Outside the Galleria Vittorio Emanuele II in Milano" },
+    { file: "galerias_outside.jpeg", alt: "Exterior of the Galleria Vittorio Emanuele II in Milano" },
+    { file: "games.jpeg", alt: "Games scene in Milano" },
+    { file: "opera.jpeg", alt: "Opera house in Milano" }
   ],
   Lugano: [
     { file: "uni.jpeg", alt: "University building in Lugano" },
@@ -1424,10 +1435,35 @@ function whenHistoryImageReady(image, index) {
 }
 
 function shuffleHistoryImages(images) {
-  return images
-    .map((image) => ({ image, sort: Math.random() }))
-    .sort((a, b) => a.sort - b.sort)
-    .map(({ image }) => image);
+  const shuffled = [...images];
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+  }
+
+  return shuffled;
+}
+
+function assignHistoryTileRole(image, index) {
+  if (index === 0) {
+    image.dataset.tile = "feature";
+  } else if (index % 5 === 0) {
+    image.dataset.tile = "large";
+  } else if (index % 3 === 0) {
+    image.dataset.tile = "wide";
+  } else {
+    image.dataset.tile = "standard";
+  }
+}
+
+function setHistoryPreviewImage(previewImage, image, fallbackAlt) {
+  if (!previewImage || !image?.src) {
+    return;
+  }
+
+  previewImage.src = image.src;
+  previewImage.alt = image.alt || fallbackAlt;
 }
 
 function getHistoryCollageColumnCount(grid, imageCount) {
@@ -1444,11 +1480,13 @@ function getHistoryCollageColumnCount(grid, imageCount) {
   return width > 920 ? 4 : 3;
 }
 
-function layoutHistoryCollage(grid) {
-  const images = Array.from(grid.querySelectorAll("img"));
+function layoutHistoryCollage(grid, shouldShuffle = false) {
+  const images = shouldShuffle
+    ? shuffleHistoryImages(Array.from(grid.querySelectorAll("img")))
+    : Array.from(grid.querySelectorAll("img"));
 
   if (!images.length || grid.hidden || grid.clientWidth === 0) {
-    return;
+    return images;
   }
 
   const columnCount = getHistoryCollageColumnCount(grid, images.length);
@@ -1461,10 +1499,11 @@ function layoutHistoryCollage(grid) {
     return column;
   });
 
-  images.forEach((image) => {
+  images.forEach((image, index) => {
     const ratio = Number.parseFloat(image.style.getPropertyValue("--tile-ratio")) || 1;
     const targetColumn = columnHeights.indexOf(Math.min(...columnHeights));
 
+    assignHistoryTileRole(image, index);
     columns[targetColumn].appendChild(image);
     columnHeights[targetColumn] += columnWidth / ratio + gap;
   });
@@ -1472,6 +1511,8 @@ function layoutHistoryCollage(grid) {
   grid.style.setProperty("--collage-columns", String(columnCount));
   grid.replaceChildren(...columns);
   grid.classList.add("is-packed");
+
+  return images;
 }
 
 function layoutHistoryCollages() {
@@ -1493,22 +1534,20 @@ function initHistoryCollages() {
       src: assetPath(`assets/about/${city}/${image.file}`)
     }));
     const hasCollage = images.length > 1;
-    const preview = images[0] || {
+    const randomizedImages = shuffleHistoryImages(images);
+    const preview = randomizedImages[0] || {
       src: placeholder,
       alt: fallbackAlt
     };
 
-    if (previewImage && preview.src) {
-      previewImage.src = preview.src;
-      previewImage.alt = preview.alt || fallbackAlt;
-    }
+    setHistoryPreviewImage(previewImage, preview, fallbackAlt);
 
     if (grid) {
-      const gridImages = shuffleHistoryImages(images).map((image, index) => {
+      const gridImages = randomizedImages.map((image, index) => {
         const gridImage = document.createElement("img");
         gridImage.src = image.src;
         gridImage.alt = image.alt || fallbackAlt;
-        gridImage.dataset.tile = index === 0 ? "feature" : "standard";
+        assignHistoryTileRole(gridImage, index);
         return gridImage;
       });
 
@@ -1562,7 +1601,8 @@ function initHistoryCollages() {
       if (details.open && grid) {
         window.requestAnimationFrame(() => {
           if (grid.dataset.ready === "true") {
-            layoutHistoryCollage(grid);
+            const arrangedImages = layoutHistoryCollage(grid, true);
+            setHistoryPreviewImage(previewImage, arrangedImages[0], fallbackAlt);
           }
         });
       }
