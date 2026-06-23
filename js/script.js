@@ -527,6 +527,12 @@ function drawSpaceBackground() {
 }
 
 function updateCanvasParallax() {
+  if (getDeviceMode() === DEVICE_MODES.MOBILE) {
+    parallax.targetY = 0;
+    parallax.y = 0;
+    return;
+  }
+
   parallax.targetY = -window.scrollY * SCROLL_PARALLAX_FACTOR;
   parallax.y += (parallax.targetY - parallax.y) * SCROLL_PARALLAX_EASE;
 }
@@ -1247,10 +1253,12 @@ function getPaperDescription(card) {
 
 function getPaperTooltipDetails(card) {
   const poster = card.dataset.poster || card.querySelector(".paper-poster")?.getAttribute("src");
+  const posterPdf = card.dataset.posterPdf || (poster && isPdfPoster(poster) ? poster : "");
 
   return {
     description: getPaperDescription(card),
     poster,
+    posterPdf,
     posterRatio: card.dataset.posterRatio,
     title: card.querySelector("h3")?.textContent.replace(/\s+/g, " ").trim()
   };
@@ -1274,7 +1282,7 @@ function setPaperTooltipContent(details) {
   const hasPoster = Boolean(details.poster);
   const label = document.createElement("div");
   label.className = "paper-tooltip-label";
-  label.textContent = hasPoster ? "Poster" : "Abstract";
+  label.textContent = hasPoster && details.description ? "Poster & abstract" : hasPoster ? "Poster" : "Abstract";
   fragment.appendChild(label);
 
   if (details.title) {
@@ -1291,14 +1299,7 @@ function setPaperTooltipContent(details) {
   }
 
   if (hasPoster) {
-    if (isPdfPoster(details.poster)) {
-      const posterFrame = document.createElement("iframe");
-      posterFrame.className = "paper-tooltip-poster paper-tooltip-poster-frame";
-      posterFrame.src = `${details.poster}#toolbar=0&navpanes=0`;
-      posterFrame.title = details.title ? `${details.title} poster` : "Paper poster";
-      posterFrame.loading = "lazy";
-      fragment.appendChild(posterFrame);
-    } else {
+    if (!isPdfPoster(details.poster)) {
       const poster = document.createElement("img");
       poster.className = "paper-tooltip-poster";
       poster.src = details.poster;
@@ -1306,7 +1307,21 @@ function setPaperTooltipContent(details) {
       poster.loading = "lazy";
       fragment.appendChild(poster);
     }
-  } else {
+    if (details.posterPdf) {
+      const actions = document.createElement("div");
+      actions.className = "paper-tooltip-actions";
+
+      const posterLink = document.createElement("a");
+      posterLink.href = details.posterPdf;
+      posterLink.target = "_blank";
+      posterLink.rel = "noopener noreferrer";
+      posterLink.textContent = "Open poster PDF";
+      actions.appendChild(posterLink);
+      fragment.appendChild(actions);
+    }
+  }
+
+  if (details.description) {
     const description = document.createElement("div");
     description.className = "paper-tooltip-text";
     createAbstractParagraphs(details.description).forEach((paragraphText) => {
@@ -1325,13 +1340,18 @@ function syncPaperTooltipTheme(card) {
   }
 
   const styles = getComputedStyle(card);
+  const textColor = styles.getPropertyValue("--paper-text").trim();
   paperTooltip.style.setProperty("--tooltip-panel", styles.getPropertyValue("--paper-panel"));
   paperTooltip.style.setProperty("--tooltip-panel-strong", styles.getPropertyValue("--paper-panel-strong"));
   paperTooltip.style.setProperty("--tooltip-border", styles.getPropertyValue("--paper-metal"));
-  paperTooltip.style.setProperty("--tooltip-text", styles.getPropertyValue("--paper-text"));
+  paperTooltip.style.setProperty("--tooltip-text", textColor);
   paperTooltip.style.setProperty("--tooltip-muted", styles.getPropertyValue("--paper-muted"));
   paperTooltip.style.setProperty("--tooltip-holo", styles.getPropertyValue("--paper-holo-a"));
   paperTooltip.style.setProperty("--tooltip-holo-soft", styles.getPropertyValue("--paper-holo-soft-b"));
+  paperTooltip.style.setProperty(
+    "--tooltip-readable-panel",
+    textColor === "#1d1605" ? "rgba(255, 248, 217, 0.9)" : "rgba(7, 8, 18, 0.62)"
+  );
 }
 
 function positionPaperTooltip() {
