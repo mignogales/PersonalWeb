@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="Shared office calendar for marking planned in-office days."
+  />
+  <title>Office Scheduler | Miguel Nogales</title>
+  <link rel="icon" type="image/png" href="../../assets/research/misc/favicon.png" />
+  <link rel="apple-touch-icon" href="../../assets/research/misc/favicon.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="office-app">
+    <section class="office-shell" aria-labelledby="office-title">
+      <header class="office-header">
+        <a class="back-link" href="../../#running-projects">Apps</a>
+        <div>
+          <p class="eyebrow">Shared calendar</p>
+          <h1 id="office-title">Office Scheduler</h1>
+        </div>
+        <button id="logout-button" class="ghost-button" type="button" hidden>Sign out</button>
+      </header>
+
+      <section id="login-view" class="login-grid">
+        <form id="login-form" class="panel login-panel">
+          <div class="form-heading">
+            <p class="eyebrow">Private access</p>
+            <h2>Sign in</h2>
+            <p>Demo: <strong>demo</strong> / <strong>office123</strong></p>
+          </div>
+
+          <label>
+            <span>Name</span>
+            <input id="name-input" name="name" autocomplete="username" required />
+          </label>
+
+          <label>
+            <span>Password</span>
+            <input id="password-input" name="password" type="password" autocomplete="current-password" required />
+          </label>
+
+          <button class="primary-button" type="submit">Sign in</button>
+        </form>
+
+        <aside class="panel status-panel">
+          <p class="eyebrow">Today</p>
+          <h2 id="today-label">Loading...</h2>
+          <p id="login-status" class="status-text" role="status">Backend waiting for sign in.</p>
+        </aside>
+      </section>
+
+      <section id="calendar-view" class="scheduler-grid" hidden>
+        <section class="panel calendar-panel" aria-labelledby="calendar-title">
+          <div class="calendar-toolbar">
+            <button id="previous-month" class="icon-button" type="button" aria-label="Previous month">‹</button>
+            <h2 id="calendar-title">Month</h2>
+            <button id="next-month" class="icon-button" type="button" aria-label="Next month">›</button>
+          </div>
+
+          <div class="weekday-row" aria-hidden="true">
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+            <span>Sun</span>
+          </div>
+
+          <div id="calendar-grid" class="calendar-grid" aria-live="polite"></div>
+        </section>
+
+        <aside class="side-stack">
+          <section class="panel profile-panel">
+            <p class="eyebrow">Signed in</p>
+            <h2 id="signed-in-name">Name</h2>
+            <p id="selection-summary">0 office days selected.</p>
+            <button id="save-button" class="primary-button" type="button">Save days</button>
+            <p id="calendar-status" class="status-text" role="status">Calendar loaded.</p>
+          </section>
+
+          <section class="panel month-panel">
+            <div class="section-row">
+              <p class="eyebrow">Office days</p>
+              <span id="month-count">0</span>
+            </div>
+            <div id="month-list" class="month-list"></div>
+          </section>
+        </aside>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    window.OFFICE_SCHEDULER_CONFIG = window.OFFICE_SCHEDULER_CONFIG || {};
+  </script>
+  <script src="config.js"></script>
+  <script src="app.js" type="module"></script>
+</body>
+</html>

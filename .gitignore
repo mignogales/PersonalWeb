@@ -36,3 +36,11 @@ temp/
 .env
 .env.*
 !.env.example
+
+
+# add folder backend_secrets
+backend_secrets/
+
+# Local app runtime config
+apps/office-scheduler/config.js
+apps/office-scheduler/config.json

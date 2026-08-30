@@ -1,4 +1,4 @@
-const CACHE_NAME = "italian-verb-sprint-v1";
+const CACHE_NAME = "italian-verb-sprint-v2";
 
 self.addEventListener("install", (event) => {
   const scope = new URL(self.registration.scope);

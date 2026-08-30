@@ -192,9 +192,9 @@ function App() {
   const formCount = verbBank.reduce((total, verb) => total + verb.forms.length, 0);
 
   return (
-    <main className="min-h-screen px-4 pb-6 pt-[max(1rem,env(safe-area-inset-top))] text-slate-950">
-      <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-md flex-col gap-4">
-        <header className="flex items-center justify-between gap-3">
+    <main className="app-viewport text-slate-950">
+      <div className="app-shell mx-auto flex w-full max-w-md flex-col gap-3">
+        <header className="app-header flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-teal-700">Italian Verb Sprint</p>
             <h1 className="truncate text-2xl font-black">Ciao, {user.name}</h1>
@@ -219,7 +219,7 @@ function App() {
           </div>
         </header>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="view-tabs grid grid-cols-2 gap-2">
           <button
             onClick={() => setView("practice")}
             className={`flex min-h-12 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-bold transition ${
@@ -248,12 +248,12 @@ function App() {
           <StatsPanel formCount={formCount} progress={progress} stats={stats} />
         ) : (
           <>
-            <section className="grid grid-cols-2 gap-2">
+            <section className="mode-controls grid grid-cols-4 gap-2">
               {(["daily", "irregular", "tense", "weakness"] as Mode[]).map((option) => (
                 <button
                   key={option}
                   onClick={() => setMode(option)}
-                  className={`min-h-12 rounded-lg border px-3 text-sm font-bold transition ${
+                  className={`mode-button min-h-11 rounded-lg border px-2 text-sm font-bold leading-tight transition ${
                     mode === option
                       ? "border-teal-700 bg-teal-700 text-white"
                       : "border-slate-200 bg-white text-slate-700 shadow-sm"
@@ -265,10 +265,11 @@ function App() {
             </section>
 
             {mode === "daily" && (
-              <section className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+              <section className="daily-settings relative rounded-lg border border-slate-200 bg-white px-3 py-1 shadow-sm">
                 <button
                   type="button"
                   onClick={() => setShowOptions((value) => !value)}
+                  aria-expanded={showOptions}
                   className="flex min-h-10 w-full items-center justify-between gap-3 text-left text-sm font-black text-slate-800"
                 >
                   <span className="flex items-center gap-2">
@@ -281,7 +282,7 @@ function App() {
                 </button>
 
                 {showOptions && (
-                  <div className="mt-3 space-y-3">
+                  <div className="daily-options-panel space-y-3">
                     <div className="flex gap-2">
                       <button
                         type="button"
@@ -290,8 +291,15 @@ function App() {
                       >
                         All
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowOptions(false)}
+                        className="min-h-10 flex-1 rounded-lg bg-slate-950 px-3 text-sm font-black text-white"
+                      >
+                        Done
+                      </button>
                     </div>
-                    <div className="grid gap-2">
+                    <div className="daily-options-grid grid grid-cols-2 gap-2">
                       {tenseOptions.map((option) => {
                         const checked = dailyTenses.includes(option);
                         return (
@@ -332,11 +340,11 @@ function App() {
               </label>
             )}
 
-            <div className="h-3 overflow-hidden rounded-full bg-slate-200">
+            <div className="progress-track h-2 overflow-hidden rounded-full bg-slate-200">
               <div className="h-full rounded-full bg-red-500 transition-all" style={{ width: `${roundProgress}%` }} />
             </div>
 
-            <section className="flex flex-1 flex-col rounded-lg border border-slate-200 bg-white p-5 shadow-soft">
+            <section className="practice-card flex min-h-0 flex-1 flex-col rounded-lg border border-slate-200 bg-white p-4 shadow-soft">
               {completed ? (
                 <div className="flex flex-1 flex-col justify-center gap-5 text-center">
                   <div>
@@ -356,7 +364,7 @@ function App() {
                 </div>
               ) : (
                 current && (
-                  <div className="flex flex-1 flex-col gap-5">
+                  <div className="question-layout flex min-h-0 flex-1 flex-col gap-3">
                     <div className="flex items-center justify-between text-sm font-bold text-slate-500">
                       <span>
                         {index + 1}/{queue.length}
@@ -364,22 +372,22 @@ function App() {
                       <span>{current.irregular ? "irregular" : "regular"}</span>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="question-copy space-y-2">
                       <p className="text-sm font-bold uppercase tracking-[0.16em] text-teal-700">{current.tense}</p>
                       <div>
-                        <h2 className="text-5xl font-black leading-none">{current.lemma}</h2>
-                        <p className="mt-2 text-base text-slate-600">{current.english}</p>
+                        <h2 className="verb-title text-4xl font-black leading-none">{current.lemma}</h2>
+                        <p className="mt-1 text-sm text-slate-600">{current.english}</p>
                       </div>
-                      <div className="rounded-lg bg-slate-100 p-4">
+                      <div className="conjugation-prompt rounded-lg bg-slate-100 p-3">
                         <p className="text-sm font-bold text-slate-500">Conjugate for</p>
-                        <p className="mt-1 text-2xl font-black">{current.person}</p>
+                        <p className="mt-0.5 text-xl font-black">{current.person}</p>
                         {current.genderNumber && (
                           <p className="mt-1 text-sm font-bold text-red-600">{genderLabels[current.genderNumber]}</p>
                         )}
                       </div>
                     </div>
 
-                    <form onSubmit={submit} className="mt-auto space-y-3">
+                    <form onSubmit={submit} className="answer-form mt-auto space-y-2">
                       <input
                         ref={inputRef}
                         value={answer}
@@ -388,7 +396,7 @@ function App() {
                         autoCorrect="off"
                         spellCheck={false}
                         placeholder="Answer"
-                        className="min-h-16 w-full rounded-lg border-2 border-slate-200 px-4 text-2xl font-black outline-none transition focus:border-teal-700"
+                        className="answer-input min-h-12 w-full rounded-lg border-2 border-slate-200 px-4 text-xl font-black outline-none transition focus:border-teal-700"
                       />
 
                       {feedback && (
@@ -405,7 +413,7 @@ function App() {
                         <button
                           type="button"
                           onClick={nextQuestion}
-                          className="flex min-h-14 w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-lg font-black text-white"
+                          className="answer-button flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-base font-black text-white"
                         >
                           Next
                           <ArrowRight className="h-5 w-5" />
@@ -413,7 +421,7 @@ function App() {
                       ) : (
                         <button
                           type="submit"
-                          className="flex min-h-14 w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 text-lg font-black text-white disabled:opacity-50"
+                          className="answer-button flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 text-base font-black text-white disabled:opacity-50"
                           disabled={!answer.trim()}
                         >
                           Check
@@ -426,17 +434,17 @@ function App() {
               )}
             </section>
 
-            <footer className="grid grid-cols-3 gap-2 text-center text-xs font-bold text-slate-600">
-              <div className="rounded-lg bg-white p-3 shadow-sm">
-                <p className="text-lg text-slate-950">{bankCount}</p>
+            <footer className="app-footer grid grid-cols-3 gap-2 text-center text-[0.7rem] font-bold text-slate-600">
+              <div className="rounded-lg bg-white px-2 py-1.5 shadow-sm">
+                <p className="text-base leading-tight text-slate-950">{bankCount}</p>
                 verbs
               </div>
-              <div className="rounded-lg bg-white p-3 shadow-sm">
-                <p className="text-lg text-slate-950">{formCount}</p>
+              <div className="rounded-lg bg-white px-2 py-1.5 shadow-sm">
+                <p className="text-base leading-tight text-slate-950">{formCount}</p>
                 forms
               </div>
-              <div className="rounded-lg bg-white p-3 shadow-sm">
-                <p className="flex items-center justify-center gap-1 text-lg text-slate-950">
+              <div className="rounded-lg bg-white px-2 py-1.5 shadow-sm">
+                <p className="flex items-center justify-center gap-1 text-base leading-tight text-slate-950">
                   <Check className="h-4 w-4 text-teal-700" />
                   {roundCorrect}
                 </p>
@@ -460,8 +468,8 @@ function LoginScreen({ users, onLogin }: { users: UserProfile[]; onLogin: (name:
   }
 
   return (
-    <main className="min-h-screen px-4 pb-6 pt-[max(1rem,env(safe-area-inset-top))] text-slate-950">
-      <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-md flex-col justify-center gap-4">
+    <main className="app-viewport text-slate-950">
+      <div className="login-shell mx-auto flex h-full w-full max-w-md flex-col justify-center gap-4">
         <header>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-teal-700">Italian Verb Sprint</p>
           <h1 className="mt-2 text-4xl font-black leading-none">Who is practicing?</h1>
@@ -530,8 +538,8 @@ function StatsPanel({
     .slice(0, 4);
 
   return (
-    <section className="flex flex-1 flex-col gap-4">
-      <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft">
+    <section className="stats-panel grid min-h-0 flex-1 gap-3">
+      <div className="stats-summary rounded-lg border border-slate-200 bg-white p-4 shadow-soft">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.16em] text-teal-700">Stats</p>
@@ -539,7 +547,7 @@ function StatsPanel({
           </div>
           <Trophy className="h-8 w-8 text-red-500" />
         </div>
-        <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-200">
+        <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200">
           <div className="h-full rounded-full bg-teal-700" style={{ width: `${stats.coverage}%` }} />
         </div>
         <p className="mt-2 text-sm font-bold text-slate-600">
@@ -547,7 +555,7 @@ function StatsPanel({
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 text-center text-sm font-bold text-slate-600">
+      <div className="stats-grid grid grid-cols-3 gap-2 text-center text-xs font-bold text-slate-600">
         <StatCard label="Attempts" value={stats.attempts} />
         <StatCard label="Correct" value={stats.correct} />
         <StatCard label="Mastered" value={stats.masteredForms} />
@@ -556,10 +564,10 @@ function StatsPanel({
         <StatCard label="Best streak" value={progress.bestStreak} />
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="needs-practice min-h-0 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
         <h3 className="text-sm font-black uppercase tracking-[0.16em] text-slate-500">Needs practice</h3>
         {weakest.length > 0 ? (
-          <div className="mt-3 space-y-2">
+          <div className="weakest-grid mt-2 grid grid-cols-2 gap-2">
             {weakest.map(({ item, form }) => (
               <div key={item.id} className="flex items-center justify-between gap-3 rounded-lg bg-slate-100 p-3">
                 <div className="min-w-0">
@@ -584,8 +592,8 @@ function StatsPanel({
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg bg-white p-3 shadow-sm">
-      <p className="text-2xl font-black text-slate-950">{value}</p>
+    <div className="rounded-lg bg-white px-2 py-1.5 shadow-sm">
+      <p className="text-xl font-black leading-tight text-slate-950">{value}</p>
       {label}
     </div>
   );

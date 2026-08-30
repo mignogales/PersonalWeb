@@ -887,10 +887,21 @@ function updatePortalThemeImage() {
   }
 }
 
+function updateAboutMeFlightLink() {
+  if (!aboutMeFlightLink) {
+    return;
+  }
+
+  const destination = currentTheme === THEMES.DARK ? "earth" : "sun";
+  const label = `Fly to the ${destination}!`;
+  aboutMeFlightLink.textContent = label;
+}
+
 function applyTheme(theme, shouldSave = true) {
   currentTheme = Object.values(THEMES).includes(theme) ? theme : THEMES.LIGHT;
   document.documentElement.dataset.theme = currentTheme;
   updatePortalThemeImage();
+  updateAboutMeFlightLink();
   updateThemeToggle();
   updateSpaceshipThemeLabel();
   pointerTrail = [];
@@ -1099,6 +1110,7 @@ const spaceship = document.querySelector(".spaceship");
 const musicToggle = createMusicToggleButton();
 const themeToggle = createThemeToggleButton();
 const earthPortal = document.querySelector(".earth-portal");
+const aboutMeFlightLink = document.querySelector(".about-me-flight-link");
 const aboutMePortalSection = document.querySelector(".about-me-portal-section");
 const paperCards = document.querySelectorAll(".paper-card");
 const researchCards = document.querySelectorAll(".research-card");
@@ -1272,6 +1284,20 @@ function isPdfPoster(src) {
   return /\.pdf(?:[?#].*)?$/i.test(src);
 }
 
+function isPaperTooltipEnabled() {
+  return getDeviceMode() === DEVICE_MODES.DESKTOP;
+}
+
+function syncPaperTooltipAvailability() {
+  if (!paperTooltip || isPaperTooltipEnabled()) {
+    return;
+  }
+
+  paperTooltip.classList.remove("is-visible");
+  paperTooltip.setAttribute("aria-hidden", "true");
+  activePaperTooltipCard = null;
+}
+
 function setPaperTooltipContent(details) {
   if (!paperTooltip) {
     return;
@@ -1355,7 +1381,7 @@ function syncPaperTooltipTheme(card) {
 }
 
 function positionPaperTooltip() {
-  if (!paperTooltip || !activePaperTooltipCard) {
+  if (!paperTooltip || !activePaperTooltipCard || !isPaperTooltipEnabled()) {
     return;
   }
 
@@ -1367,7 +1393,7 @@ function positionPaperTooltip() {
 }
 
 function showPaperTooltip(card) {
-  if (!paperTooltip) {
+  if (!paperTooltip || !isPaperTooltipEnabled()) {
     return;
   }
 
@@ -1385,6 +1411,7 @@ function showPaperTooltip(card) {
   setPaperTooltipContent(details);
   syncPaperTooltipTheme(card);
   paperTooltip.classList.add("is-visible");
+  paperTooltip.setAttribute("aria-hidden", "false");
   window.requestAnimationFrame(positionPaperTooltip);
 }
 
@@ -1394,6 +1421,7 @@ function hidePaperTooltip(card) {
   }
 
   paperTooltip.classList.remove("is-visible");
+  paperTooltip.setAttribute("aria-hidden", "true");
   activePaperTooltipCard = null;
 }
 
@@ -1631,7 +1659,7 @@ function initHistoryCollages() {
 }
 
 function handlePaperTooltipMove(event) {
-  if (!paperTooltip) {
+  if (!paperTooltip || !isPaperTooltipEnabled()) {
     return;
   }
 
@@ -1717,7 +1745,10 @@ updateEarthPortalFocus();
 window.addEventListener("resize", handleResize, { passive: true });
 window.addEventListener("scroll", handleScroll, { passive: true });
 window.addEventListener("resize", layoutHistoryCollages, { passive: true });
-window.addEventListener("resize", positionPaperTooltip, { passive: true });
+window.addEventListener("resize", () => {
+  syncPaperTooltipAvailability();
+  positionPaperTooltip();
+}, { passive: true });
 window.addEventListener("scroll", positionPaperTooltip, { passive: true });
 window.addEventListener("pointermove", handlePointerMove, { passive: true });
 window.addEventListener("pointerleave", handlePointerLeave, { passive: true });

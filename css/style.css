@@ -772,6 +772,14 @@ h1 {
   font-size: clamp(1.02rem, 2vw, 1.22rem);
 }
 
+.hobbies-under-construction {
+  display: block;
+  width: min(100%, 520px);
+  height: auto;
+  margin-top: clamp(22px, 4vw, 32px);
+  border-radius: var(--radius);
+}
+
 .about-timeline {
   position: relative;
   z-index: 2;
@@ -1071,6 +1079,8 @@ h1 {
 .about-me-cue {
   position: relative;
   z-index: 2;
+  display: grid;
+  justify-items: start;
   max-width: 760px;
   margin-bottom: 24px;
 }
@@ -1081,6 +1091,30 @@ h1 {
   font-size: clamp(1.8rem, 4vw, 3rem);
   line-height: 1.12;
   letter-spacing: 0;
+}
+
+.about-me-flight-link {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 18px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-color: color-mix(in srgb, var(--accent-strong) 42%, var(--border));
+  border-radius: var(--radius);
+  color: var(--text);
+  background:
+    radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.62), transparent 36%),
+    rgba(255, 255, 255, 0.58);
+  box-shadow: 0 16px 42px var(--portal-glow-strong);
+  font-weight: 700;
+}
+
+:root[data-theme="dark"] .about-me-flight-link {
+  background:
+    radial-gradient(circle at 18% 24%, rgba(197, 227, 255, 0.16), transparent 36%),
+    rgba(255, 255, 255, 0.07);
 }
 
 .publication-list {
@@ -1642,6 +1676,13 @@ h1 {
   transform: translate3d(0, 0, 0);
 }
 
+@media (max-width: 760px), (hover: none), (pointer: coarse) {
+  .paper-tooltip,
+  .paper-tooltip.is-visible {
+    display: none;
+  }
+}
+
 .paper-tooltip.has-poster {
   bottom: auto;
   width: min(520px, calc(100vw - 18px));
@@ -1782,7 +1823,7 @@ h1 {
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
   align-items: stretch;
 }
@@ -1838,6 +1879,12 @@ a.running-project-card:focus-visible {
 .calorie-tracker-icon {
   background:
     linear-gradient(135deg, rgba(47, 217, 190, 0.18), rgba(255, 157, 47, 0.2)),
+    var(--panel-strong);
+}
+
+.office-scheduler-icon {
+  background:
+    linear-gradient(135deg, rgba(22, 132, 199, 0.18), rgba(47, 217, 190, 0.18)),
     var(--panel-strong);
 }
 

@@ -4,6 +4,13 @@ import { getFormProgress } from "./progress";
 
 export const verbBank = verbs as VerbEntry[];
 
+// The generator places the 160 unique entries from COMMON_FIRST at the start
+// of the bank, ordered from the most broadly useful verbs onward.
+const COMMON_VERB_COUNT = 160;
+const frequencyWeightByVerb = new Map(
+  verbBank.map((verb, rank) => [verb.id, frequencyWeightForRank(rank)]),
+);
+
 export const allItems: PracticeItem[] = verbBank.flatMap((verb) =>
   verb.forms.map((form, index) => ({
     ...form,
@@ -37,18 +44,13 @@ export function buildQueue(
     });
   }
 
-  const scored = candidates.map((item) => {
+  return buildWeightedQueue(candidates, mode === "daily" ? 20 : 30, (item) => {
     const form = getFormProgress(progress, item.id);
     const isDue = Date.parse(form.dueAt) <= now ? 40 : 0;
     const weakness = form.attempts ? (1 - form.correct / form.attempts) * 55 : 18;
     const freshness = form.lastPracticed ? Math.min(25, (now - Date.parse(form.lastPracticed)) / 86_400_000) : 25;
-    return { item, score: isDue + weakness + freshness + Math.random() * 18 };
+    return isDue + weakness + freshness;
   });
-
-  return scored
-    .sort((a, b) => b.score - a.score)
-    .map(({ item }) => item)
-    .slice(0, mode === "daily" ? 20 : 30);
 }
 
 export function fallbackQueue(mode: Mode, tense?: string, dailyTenses: string[] = tenseOptions): PracticeItem[] {
@@ -56,7 +58,7 @@ export function fallbackQueue(mode: Mode, tense?: string, dailyTenses: string[] 
   if (mode === "daily") candidates = filterByTenses(candidates, dailyTenses);
   if (mode === "irregular") candidates = candidates.filter((item) => item.irregular);
   if (mode === "tense" && tense) candidates = candidates.filter((item) => item.tense === tense);
-  return shuffle(candidates).slice(0, mode === "daily" ? 20 : 30);
+  return buildWeightedQueue(candidates, mode === "daily" ? 20 : 30);
 }
 
 function filterByTenses(items: PracticeItem[], selectedTenses: string[]): PracticeItem[] {
@@ -64,6 +66,64 @@ function filterByTenses(items: PracticeItem[], selectedTenses: string[]): Practi
   return items.filter((item) => selected.has(item.tense));
 }
 
-function shuffle<T>(items: T[]): T[] {
-  return [...items].sort(() => Math.random() - 0.5);
+function buildWeightedQueue(
+  candidates: PracticeItem[],
+  limit: number,
+  learningPriority: (item: PracticeItem) => number = () => 0,
+): PracticeItem[] {
+  const byVerb = new Map<string, PracticeItem[]>();
+
+  for (const item of candidates) {
+    const forms = byVerb.get(item.verbId);
+    if (forms) forms.push(item);
+    else byVerb.set(item.verbId, [item]);
+  }
+
+  const rankedVerbs = Array.from(byVerb.entries())
+    .map(([verbId, forms]) => {
+      const rankedForms = forms
+        .map((item) => {
+          const priority = learningPriority(item);
+          return { item, priority, score: priority / 18 + gumbelNoise() };
+        })
+        .sort((a, b) => b.score - a.score);
+      const best = rankedForms[0];
+      const frequencyWeight = frequencyWeightByVerb.get(verbId) ?? 1;
+
+      return {
+        best: best.item,
+        remaining: rankedForms.slice(1).map(({ item }) => item),
+        score: best.priority / 25 + Math.log(frequencyWeight) + gumbelNoise(),
+      };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  const selected = rankedVerbs.slice(0, limit).map(({ best }) => best);
+  if (selected.length >= limit) return selected;
+
+  const extras = rankedVerbs
+    .flatMap(({ remaining }) => remaining)
+    .map((item) => ({
+      item,
+      score:
+        learningPriority(item) / 25 +
+        Math.log(frequencyWeightByVerb.get(item.verbId) ?? 1) +
+        gumbelNoise(),
+    }))
+    .sort((a, b) => b.score - a.score)
+    .map(({ item }) => item);
+
+  return [...selected, ...extras].slice(0, limit);
+}
+
+function frequencyWeightForRank(rank: number): number {
+  if (rank >= COMMON_VERB_COUNT) return 1;
+  if (rank < 25) return 6;
+  if (rank < 75) return 3;
+  return 1.75;
+}
+
+function gumbelNoise(): number {
+  const uniform = Math.min(1 - Number.EPSILON, Math.max(Number.EPSILON, Math.random()));
+  return -Math.log(-Math.log(uniform));
 }
