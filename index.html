@@ -10,7 +10,7 @@
   <title>Miguel Nogales | PhD Student in AI</title>
   <link rel="icon" type="image/png" href="assets/research/misc/favicon.png" />
   <link rel="apple-touch-icon" href="assets/research/misc/favicon.png" />
-  <link rel="stylesheet" href="css/style.css?v=mobile-polish" />
+  <link rel="stylesheet" href="css/style.css?v=apps-card-polish" />
 </head>
 <body>
   <canvas id="starfield" aria-hidden="true"></canvas>
@@ -283,32 +283,15 @@
       </div>
 
       <div class="running-projects-grid">
-        <a class="panel running-project-card" href="apps/office-scheduler/" aria-label="Open Office Scheduler">
-          <div class="running-project-icon office-scheduler-icon" aria-hidden="true">
-            <span>31</span>
-          </div>
-          <div class="running-project-copy">
-            <p class="meta">Self-hosted office calendar</p>
-            <h3>Office Scheduler</h3>
-            <p>
-              Password-protected shared calendar for marking planned office days,
-              backed by a local Raspberry Pi API and private user credentials.
-            </p>
-            <ul class="tags" aria-label="Office Scheduler technologies">
-              <li>Static app</li>
-              <li>Node API</li>
-              <li>Local users</li>
-            </ul>
-          </div>
-          <span class="card-link">Open app</span>
-        </a>
-
         <a class="panel running-project-card" href="italian/" aria-label="Open Italian Verb Sprint">
           <div class="running-project-icon" aria-hidden="true">
             <img src="italian/icons/icon-512.svg" alt="" />
           </div>
           <div class="running-project-copy">
-            <p class="meta">Language learning app</p>
+            <div class="running-project-meta">
+              <p class="meta">Language learning app</p>
+              <span class="project-status project-status-live">Available</span>
+            </div>
             <h3>Italian Verb Sprint</h3>
             <p>
               Mobile-first conjugation practice with user progress, streaks, and offline fallback.
@@ -323,12 +306,37 @@
           <span class="card-link">Open app</span>
         </a>
 
+        <article class="panel running-project-card">
+          <div class="running-project-icon office-scheduler-icon" aria-hidden="true">
+            <span>31</span>
+          </div>
+          <div class="running-project-copy">
+            <div class="running-project-meta">
+              <p class="meta">Self-hosted office calendar</p>
+              <span class="project-status">In development</span>
+            </div>
+            <h3>Office Scheduler</h3>
+            <p>
+              Password-protected shared calendar for marking planned office days,
+              backed by a local Raspberry Pi API and private user credentials.
+            </p>
+            <ul class="tags" aria-label="Office Scheduler technologies">
+              <li>Static app</li>
+              <li>Node API</li>
+              <li>Local users</li>
+            </ul>
+          </div>
+        </article>
+
         <article class="panel running-project-card calorie-tracker-card">
           <div class="running-project-icon calorie-tracker-icon" aria-hidden="true">
             <span>kcal</span>
           </div>
           <div class="running-project-copy">
-            <p class="meta">Self-hosted health tracking app</p>
+            <div class="running-project-meta">
+              <p class="meta">Self-hosted health tracking app</p>
+              <span class="project-status">In development</span>
+            </div>
             <h3>Voice Calorie &amp; Weight Tracker</h3>
             <p>
               Voice and text logging for meals and body weight, designed around local ASR,

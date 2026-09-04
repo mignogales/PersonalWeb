@@ -27,6 +27,7 @@
   --research-card-hover-bg: rgba(255, 255, 255, 0.82);
   --research-card-hover-border: rgba(22, 132, 199, 0.28);
   --research-card-hover-shadow: rgba(40, 116, 160, 0.2);
+  --app-card-bg: rgba(250, 253, 255, 0.94);
 }
 
 :root[data-theme="dark"] {
@@ -54,6 +55,7 @@
   --research-card-hover-bg: rgba(18, 29, 49, 0.84);
   --research-card-hover-border: rgba(197, 227, 255, 0.24);
   --research-card-hover-shadow: rgba(0, 0, 0, 0.42);
+  --app-card-bg: rgba(13, 20, 34, 0.94);
 }
 
 * {
@@ -641,6 +643,18 @@ h1 {
   font-size: clamp(1.8rem, 4vw, 3rem);
   line-height: 1.12;
   letter-spacing: 0;
+}
+
+#running-projects .section-heading {
+  padding: 12px 28px 12px 0;
+}
+
+#running-projects .section-heading::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, var(--bg) 0%, var(--bg) 68%, transparent 100%);
 }
 
 .section > .panel {
@@ -1824,17 +1838,18 @@ h1 {
   z-index: 2;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  gap: 20px;
   align-items: stretch;
 }
 
 .running-project-card {
-  display: grid;
+  display: flex;
   min-height: 100%;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 18px;
-  align-items: center;
-  padding: 22px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  padding: 24px;
+  background: var(--app-card-bg);
   transition:
     transform 180ms ease,
     border-color 180ms ease,
@@ -1846,13 +1861,13 @@ a.running-project-card:hover,
 a.running-project-card:focus-visible {
   transform: translateY(-2px);
   border-color: var(--research-card-hover-border);
-  background: var(--research-card-hover-bg);
+  background: var(--app-card-bg);
   box-shadow: 0 26px 84px var(--research-card-hover-shadow);
 }
 
 .running-project-icon {
   display: grid;
-  width: 82px;
+  width: 68px;
   aspect-ratio: 1;
   place-items: center;
   overflow: hidden;
@@ -1871,7 +1886,7 @@ a.running-project-card:focus-visible {
 
 .running-project-icon span {
   color: var(--accent-strong);
-  font-size: 2.4rem;
+  font-size: 2rem;
   font-weight: 800;
   line-height: 1;
 }
@@ -1895,15 +1910,56 @@ a.running-project-card:focus-visible {
 }
 
 .running-project-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   min-width: 0;
+}
+
+.running-project-meta {
+  margin-bottom: 8px;
+}
+
+.running-project-meta .meta {
+  margin-bottom: 0;
+}
+
+.project-status {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  padding: 3px 9px;
+  border: 1px solid rgba(255, 157, 47, 0.38);
+  border-radius: 999px;
+  color: var(--accent-strong);
+  background: rgba(255, 157, 47, 0.11);
+  font-size: 0.76rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.project-status-live {
+  border-color: rgba(25, 154, 117, 0.34);
+  color: #147a5c;
+  background: rgba(25, 154, 117, 0.1);
+}
+
+:root[data-theme="dark"] .project-status-live {
+  color: #76e2bf;
+}
+
+.running-project-copy h3 {
+  margin-bottom: 10px;
+  color: var(--text);
+  font-size: 1.3rem;
+  line-height: 1.25;
 }
 
 .running-project-copy p:last-of-type {
   margin-bottom: 16px;
-}
-
-.calorie-tracker-card {
-  grid-template-columns: auto minmax(0, 1fr);
 }
 
 .running-project-spec {
@@ -2574,10 +2630,14 @@ a.running-project-card:focus-visible {
   }
 
   .running-project-card {
-    grid-template-columns: 1fr;
     align-items: start;
     gap: 14px;
     padding: 18px;
+  }
+
+  .project-status {
+    top: 18px;
+    right: 18px;
   }
 
   .running-project-card .card-link {
