@@ -13,6 +13,7 @@ export async function handleItalian(request, env) {
   for (const name of ["Authorization", "Content-Type"]) {
     if (request.headers.has(name)) headers.set(name, request.headers.get(name));
   }
+  let upstreamStatus;
   try {
     let body;
     if (request.method !== "GET") {
@@ -42,6 +43,7 @@ export async function handleItalian(request, env) {
       redirect: "error",
       signal: AbortSignal.timeout(15000),
     });
+    upstreamStatus = response.status;
     if (!response.headers.get("Content-Type")?.includes("application/json")) throw new Error("Invalid upstream response");
     return new Response(response.body, {
       status: response.status,
@@ -49,7 +51,7 @@ export async function handleItalian(request, env) {
     });
   } catch {
     return Response.json({ error: "Sync is temporarily unavailable. Your progress stays on this device." }, {
-      status: 503, headers: { "Cache-Control": "no-store" },
+      status: 503, headers: { "Cache-Control": "no-store", "X-Italian-Upstream-Status": String(upstreamStatus || "network-error") },
     });
   }
 }
