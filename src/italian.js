@@ -49,9 +49,10 @@ export async function handleItalian(request, env) {
       status: response.status,
       headers: { "Content-Type": "application/json", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" },
     });
-  } catch {
+  } catch (error) {
+    const category = /redirect|abortsignal|timeout|dns|resolve|loop|internal error|unimplemented/i.exec(String(error?.message))?.[0]?.toLowerCase() || "fetch";
     return Response.json({ error: "Sync is temporarily unavailable. Your progress stays on this device." }, {
-      status: 503, headers: { "Cache-Control": "no-store", "X-Italian-Upstream-Status": String(upstreamStatus || "network-error") },
+      status: 503, headers: { "Cache-Control": "no-store", "X-Italian-Upstream-Status": String(upstreamStatus || "network-error"), "X-Italian-Error-Category": category },
     });
   }
 }
