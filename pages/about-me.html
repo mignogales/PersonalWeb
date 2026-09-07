@@ -1,163 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta
-    name="description"
-    content="Personal background page for Miguel Nogales."
-  />
-  <title>About Me | Miguel Nogales</title>
-  <link rel="icon" type="image/png" href="../assets/research/misc/favicon.png" />
-  <link rel="apple-touch-icon" href="../assets/research/misc/favicon.png" />
-  <link rel="stylesheet" href="../css/style.css?v=mobile-polish" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="A little village of the places I call home. Explore Badajoz, Sevilla, Milano and Lugano, and the stories in between.">
+<title>A little village | Miguel Nogales</title>
+<link rel="icon" type="image/png" href="../assets/research/misc/favicon.png">
+<link rel="apple-touch-icon" href="../assets/research/misc/favicon.png">
+<link rel="stylesheet" href="../css/village.css?v=7">
+<script type="module" src="../js/village.js?v=7"></script>
 </head>
-<body class="about-me-page">
-  <canvas id="starfield" aria-hidden="true"></canvas>
-
-  <header class="site-header">
-    <nav class="nav container" aria-label="Primary navigation">
-      <a class="brand" href="../index.html#about" aria-label="Back to Miguel Nogales homepage">
-        Miguel Nogales
-      </a>
-      <ul class="nav-links about-nav-links">
-        <li><a href="../index.html#about">Home</a></li>
-        <li><a href="#history">History</a></li>
-        <li><a href="#random-stuff">Random stuff</a></li>
-      </ul>
-    </nav>
-  </header>
-
-  <main class="container about-me-shell" aria-label="About me page background">
-    <section class="about-story-hero">
-      <p class="eyebrow">About me</p>
-      <h1>My history, one city at a time</h1>
-      <p>
-        A small map of the places that shaped me: born in Extremadura, trained in
-        Sevilla, stretched by Milano, and now working from Lugano.
-      </p>
-    </section>
-
-    <section id="history" class="about-timeline" aria-label="Miguel Nogales personal history">
-      <article class="panel history-card">
-        <details
-          class="history-collage"
-          data-history-city="Badajoz"
-          data-history-placeholder="../assets/about/badajoz-placeholder.svg"
-          data-history-alt="Badajoz"
-        >
-          <summary aria-label="Show Badajoz photo collage">
-            <img src="../assets/about/badajoz-placeholder.svg" alt="Badajoz" />
-            <div>
-              <p class="meta">Born here</p>
-              <h2>
-                <a href="https://en.wikipedia.org/wiki/Badajoz" target="_blank" rel="noopener noreferrer">
-                  Badajoz
-                </a>
-              </h2>
-              <p>
-                I was born in Badajoz, a city in Extremadura that most people outside
+<body>
+<a class="skip-link" href="#city-cards">Skip to city stories</a>
+<main>
+<div class="village-page">
+<nav class="outside-bar" aria-label="Primary navigation"><a href="../index.html#about">← Back to website</a><span>A little village</span></nav>
+<section class="village-frame" aria-label="Miguel’s village">
+<div class="world" id="village-world">
+<img class="world-art" id="village-art" src="../assets/village/village-background-v3.png" width="1586" height="992" fetchpriority="high" alt="A small lakeside pixel-art village. Puerta de Palmas stands by a river bridge, the Duomo overlooks a flower-filled square, and Torre del Oro sits beside a promenade leading to Lake Lugano.">
+<canvas id="village-residents" aria-hidden="true" hidden></canvas>
+<div class="people-layer" id="village-people" role="group" aria-label="Village residents" hidden></div>
+<button class="landmark" data-city="badajoz" aria-label="Visit Badajoz" hidden></button>
+<button class="landmark" data-city="sevilla" aria-label="Visit Sevilla" hidden></button>
+<button class="landmark" data-city="milano" aria-label="Visit Milano" hidden></button>
+<button class="landmark" data-city="lugano" aria-label="Visit Lugano" hidden></button>
+</div>
+<aside class="city-sidebar" aria-labelledby="village-title">
+<header><h1 id="village-title">A few places I call home</h1></header>
+<nav class="city-cards" id="city-cards" aria-label="City stories"><a class="city-card" href="#badajoz" data-chapter="badajoz"><span class="city-thumb thumb-badajoz" aria-hidden="true"></span><span><strong>Badajoz</strong><small>Where it began</small></span></a>
+<a class="city-card" href="#sevilla" data-chapter="sevilla"><span class="city-thumb thumb-sevilla" aria-hidden="true"></span><span><strong>Sevilla</strong><small>University years</small></span></a>
+<a class="city-card" href="#milano" data-chapter="milano"><span class="city-thumb thumb-milano" aria-hidden="true"></span><span><strong>Milano</strong><small>A new perspective</small></span></a>
+<a class="city-card" href="#lugano" data-chapter="lugano"><span class="city-thumb thumb-lugano" aria-hidden="true"></span><span><strong>Lugano</strong><small>The current chapter</small></span></a></nav>
+<nav class="sidebar-links" aria-label="More about me"><a href="hobbies.html">Hobbies</a><a href="#random-stuff" data-chapter="random-stuff">Other chapters</a></nav>
+</aside>
+</section>
+<div class="frame-caption"><p>Badajoz · Sevilla · Milano · Lugano <a class="art-credit" href="#art-credits" data-chapter="art-credits">Art credits</a></p><button class="motion-toggle" id="motion-toggle" type="button" aria-pressed="false" hidden>Pause village</button></div>
+<p class="sr-only" id="village-announcement" aria-live="polite"></p>
+</div>
+<div class="journal" id="journal"><article class="chapter" id="badajoz"><p class="chapter-meta">Born here</p><h2>Badajoz</h2><p>I was born in Badajoz, a city in Extremadura that most people outside
                 Spain have never heard of, which is exactly why it deserves the link.
-                It is the first point on the map.
-              </p>
-            </div>
-          </summary>
-          <div class="history-collage-grid" aria-label="Badajoz photo collage"></div>
-        </details>
-      </article>
-
-      <article class="panel history-card">
-        <details
-          class="history-collage"
-          data-history-city="Sevilla"
-          data-history-placeholder="../assets/about/sevilla-placeholder.svg"
-          data-history-alt="Sevilla"
-        >
-          <summary aria-label="Show Sevilla photo collage">
-            <img src="../assets/about/sevilla-placeholder.svg" alt="Sevilla" />
-            <div>
-              <p class="meta">Bachelor's and Master's</p>
-              <h2>
-                <a href="https://en.wikipedia.org/wiki/Seville" target="_blank" rel="noopener noreferrer">
-                  Sevilla
-                </a>
-              </h2>
-              <p>
-                Sevilla is where I went to university for my Bachelor's and Master's,
+                It is the first point on the map.</p><div class="chapter-photos"><figure><img src="../assets/about/Badajoz/alcazaba.png" alt="Badajoz Alcazaba at sunset" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Badajoz/puerta palma.jpeg" alt="Puerta de Palmas in Badajoz" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Badajoz/rio.jpeg" alt="Guadiana river in Badajoz" loading="lazy" decoding="async"></figure></div></article>
+<article class="chapter" id="sevilla"><p class="chapter-meta">Bachelor’s and Master’s</p><h2>Sevilla</h2><p>Sevilla is where I went to university for my Bachelor's and Master's,
                 building the engineering foundations that later pulled me toward AI,
-                telecommunications, and research.
-              </p>
-            </div>
-          </summary>
-          <div class="history-collage-grid" aria-label="Sevilla photo collage"></div>
-        </details>
-      </article>
-
-      <article class="panel history-card">
-        <details
-          class="history-collage"
-          data-history-city="Milano"
-          data-history-placeholder="../assets/about/milano-placeholder.svg"
-          data-history-alt="Milano"
-        >
-          <summary aria-label="Show Milano photo collage">
-            <img src="../assets/about/milano-placeholder.svg" alt="Milano" />
-            <div>
-              <p class="meta">Politecnico di Milano</p>
-              <h2>
-                <a href="https://en.wikipedia.org/wiki/Milan" target="_blank" rel="noopener noreferrer">
-                  Milano
-                </a>
-              </h2>
-              <p>
-                Milano came next through Polimi, where I studied Artificial Intelligence
+                telecommunications, and research.</p><div class="chapter-photos"><figure><img src="../assets/about/Sevilla/torre del oro.jpeg" alt="Torre del Oro in Sevilla" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Sevilla/portada.jpeg" alt="Sevilla street view" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Sevilla/fachada.jpeg" alt="Historic facade in Sevilla" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Sevilla/catedral.jpeg" alt="Sevilla cathedral" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Sevilla/edificio.jpeg" alt="Building in Sevilla" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Sevilla/feria.jpeg" alt="Feria scene in Sevilla" loading="lazy" decoding="async"></figure></div></article>
+<article class="chapter" id="milano"><p class="chapter-meta">Politecnico di Milano</p><h2>Milano</h2><p>Milano came next through Polimi, where I studied Artificial Intelligence
                 and joined a faster, more international rhythm of computer science and
-                machine learning.
-              </p>
-            </div>
-          </summary>
-          <div class="history-collage-grid" aria-label="Milano photo collage"></div>
-        </details>
-      </article>
-
-      <article class="panel history-card">
-        <details
-          class="history-collage"
-          data-history-city="Lugano"
-          data-history-placeholder="../assets/about/lugano-placeholder.svg"
-          data-history-alt="Lugano"
-        >
-          <summary aria-label="Show Lugano photo collage">
-            <img src="../assets/about/lugano-placeholder.svg" alt="Lugano" />
-            <div>
-              <p class="meta">Now</p>
-              <h2>
-                <a href="https://en.wikipedia.org/wiki/Lugano" target="_blank" rel="noopener noreferrer">
-                  Lugano
-                </a>
-              </h2>
-              <p>
-                Now I am in Lugano for the PhD chapter, working on AI research at USI
-                and IDSIA while living between mountains, lakes, code, and papers.
-              </p>
-            </div>
-          </summary>
-          <div class="history-collage-grid" aria-label="Lugano photo collage"></div>
-        </details>
-      </article>
-    </section>
-
-    <section id="random-stuff" class="random-stuff-section" aria-labelledby="random-stuff-title">
+                machine learning.</p><div class="chapter-photos"><figure><img src="../assets/about/Milano/duomo.jpg" alt="Duomo di Milano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Milano/duomo_full.jpeg" alt="Full view of the Duomo di Milano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Milano/duomo_side.jpeg" alt="Side view of the Duomo di Milano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Milano/galerias_center.jpeg" alt="Central gallery in Milano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Milano/galerias_corridor.jpeg" alt="Gallery corridor in Milano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Milano/galerias_front.jpeg" alt="Front of the Galleria Vittorio Emanuele II in Milano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Milano/galerias_mid.jpeg" alt="Galleria Vittorio Emanuele II interior in Milano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Milano/galerias_mid_corridor.jpeg" alt="Mid-corridor view of the Galleria Vittorio Emanuele II" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Milano/galerias_out.jpeg" alt="Outside the Galleria Vittorio Emanuele II in Milano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Milano/galerias_outside.jpeg" alt="Exterior of the Galleria Vittorio Emanuele II in Milano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Milano/games.jpeg" alt="Games scene in Milano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Milano/opera.jpeg" alt="Opera house in Milano" loading="lazy" decoding="async"></figure></div></article>
+<article class="chapter" id="lugano"><p class="chapter-meta">USI · IDSIA</p><h2>Lugano</h2><p>Now I am in Lugano for the PhD chapter, working on AI research at USI
+                and IDSIA while living between mountains, lakes, code, and papers.</p><div class="chapter-photos"><figure><img src="../assets/about/Lugano/uni.jpeg" alt="University building in Lugano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Lugano/noche.jpeg" alt="Lugano at night" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Lugano/nevado.jpeg" alt="Snowy Lugano view" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Lugano/noche 2.jpeg" alt="Night lights in Lugano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Lugano/patos.jpeg" alt="Ducks by the water in Lugano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Lugano/corno.jpeg" alt="Mountain view near Lugano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Lugano/otono.jpeg" alt="Autumn in Lugano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Lugano/grulla.jpeg" alt="Bird by the water in Lugano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Lugano/morcote.jpeg" alt="Morcote near Lugano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Lugano/carretera.jpeg" alt="Road near Lugano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Lugano/parque.jpeg" alt="Park in Lugano" loading="lazy" decoding="async"></figure>
+<figure><img src="../assets/about/Lugano/rio.jpeg" alt="Waterfront in Lugano" loading="lazy" decoding="async"></figure></div></article>
+<article id="random-stuff" class="chapter">
       <div class="random-stuff-heading">
         <p class="eyebrow">Random stuff</p>
         <h2 id="random-stuff-title">Other chapters, less official</h2>
       </div>
 
-      <div class="random-stuff-list">
-        <a class="panel random-stuff-card random-stuff-link" href="hobbies.html">
+      <div class="other-chapters">
+        <a class="other-chapter" href="hobbies.html">
           <div class="random-stuff-photo random-stuff-photo--image random-stuff-photo--photo" aria-hidden="true">
-            <img src="../assets/about%20me/imgs/hobbies/thumbnail.jpeg" alt="" onerror="this.remove()" />
-            <span>Photo soon</span>
+            <img src="../assets/about%20me/imgs/hobbies/thumbnail.jpeg" alt="" loading="lazy" decoding="async" />
+
           </div>
           <div>
             <p class="meta">Hobbies</p>
@@ -171,14 +101,14 @@
         </a>
 
         <a
-          class="panel random-stuff-card random-stuff-link"
+          class="other-chapter"
           href="https://etsi.us.es/en/news/current-students/rohde-schwarz-engineering-competition-2023"
           target="_blank"
           rel="noopener noreferrer"
         >
           <div class="random-stuff-photo random-stuff-photo--image random-stuff-photo--logo" aria-hidden="true">
-            <img src="../assets/about%20me/imgs/rohde-schwarz-logo.png" alt="" onerror="this.remove()" />
-            <span>Photo soon</span>
+            <img src="../assets/about%20me/imgs/rohde-schwarz-logo.png" alt="" loading="lazy" decoding="async" />
+
           </div>
           <div>
             <p class="meta">Engineering competition</p>
@@ -191,14 +121,14 @@
         </a>
 
         <a
-          class="panel random-stuff-card random-stuff-link"
+          class="other-chapter"
           href="https://sport.usi.ch/it/fit-challenge-2026-the-winners-are?utm_source=newsletter&utm_medium=email&utm_campaign=20260611&utm_content=Newsletter_SP2026_3"
           target="_blank"
           rel="noopener noreferrer"
         >
           <div class="random-stuff-photo random-stuff-photo--image random-stuff-photo--photo" aria-hidden="true">
-            <img src="../assets/about%20me/imgs/cut-men-2026.png" alt="" onerror="this.remove()" />
-            <span>Photo soon</span>
+            <img src="../assets/about%20me/imgs/cut-men-2026.png" alt="" loading="lazy" decoding="async" />
+
           </div>
           <div>
             <p class="meta">Fitness challenge</p>
@@ -210,9 +140,22 @@
           </div>
         </a>
       </div>
-    </section>
-  </main>
-
-  <script src="../js/script.js?v=history-collage-shuffle"></script>
+    </article>
+<article class="chapter" id="art-credits"><h2>Art credits</h2>
+<p>The village background was created with image generation, inspired by the places I call home.</p>
+<p><a href="https://opengameart.org/content/universal-lpc-sprite-male-01" target="_blank" rel="noopener noreferrer">Universal LPC sprite male 01</a> — Gaurav Munjal, Stephen Challener and the <a href="../assets/village/LPC-AUTHORS.txt">LPC contributors</a>. Used unmodified under <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0</a>.</p>
+<p><a href="https://opengameart.org/content/lpc-sara" target="_blank" rel="noopener noreferrer">LPC Sara</a> — Stephen “Redshrike” Challener, William.Thompsonj and Mandi Paugh, creator of Sara, the <a href="https://opengameart.org/" target="_blank" rel="noopener noreferrer">OpenGameArt</a> mascot. Used unmodified under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>. <a href="../assets/village/SARA-CREDITS.txt">Original credit notice</a>.</p>
+<p><a href="https://opengameart.org/content/alternate-lpc-character-sprites-george" target="_blank" rel="noopener noreferrer">George</a> — sheep / Radomir Dopieralski. Used unmodified under <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener noreferrer">CC BY 3.0</a>.</p>
+<p>The fisherman and Hugo combine <a href="https://opengameart.org/content/lpc-character-bases" target="_blank" rel="noopener noreferrer">LPC character bases</a>, <a href="https://opengameart.org/content/lpc-gentleman" target="_blank" rel="noopener noreferrer">LPC Gentleman clothing</a> and brown shoes by Johannes Sjölund and David Conway Jr. Artwork by bluecarrot16, Stephen Challener and the <a href="../assets/village/LPC-RESIDENT-CREDITS.txt">credited LPC contributors</a>. Layers are assembled for animation under <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0</a>.</p>
+<p>Félix and Tomás use <a href="https://opengameart.org/content/lpc-revised-character-basics" target="_blank" rel="noopener noreferrer">LPC Revised Character Basics</a> by Eliza Wyatt, based on Stephen Challener’s LPC art, under <a href="https://static.opengameart.org/OGA-BY-3.0.txt" target="_blank" rel="noopener noreferrer">OGA-BY 3.0</a>. Rosa combines the <a href="https://opengameart.org/content/lpc-2-characters" target="_blank" rel="noopener noreferrer">LPC Irish dress</a> and red ponytail artwork under CC BY-SA 3.0. <a href="../assets/village/LPC-OUTFIT-CREDITS.txt">Full outfit credits and sources</a>.</p>
+<p><a href="https://opengameart.org/content/lpc-hand-tools" target="_blank" rel="noopener noreferrer">LPC fishing rod</a> and <a href="https://opengameart.org/content/lpc-cats-and-dogs" target="_blank" rel="noopener noreferrer">dog</a> — bluecarrot16. Rod under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>; dog under <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener noreferrer">CC BY 3.0</a>. <a href="../assets/village/LPC-HAND-TOOLS-CREDITS.txt">Original tool credits</a>.</p>
+<p><a href="https://opengameart.org/content/ducks-0" target="_blank" rel="noopener noreferrer">Ducks</a> — Julie Damsgaard / Spring Spring / Spring Enterprises. <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener noreferrer">CC0 1.0</a>. Swimming frames decoded without changing the artwork.</p>
+</article>
+</div>
+</main>
+<dialog class="chapter-dialog" id="chapter-dialog" aria-labelledby="chapter-dialog-title">
+<div class="dialog-bar"><span id="chapter-dialog-title">From the village</span><button type="button" id="close-chapter" aria-label="Close city story">Close ×</button></div>
+<div class="dialog-content" id="dialog-content"></div>
+</dialog>
 </body>
 </html>

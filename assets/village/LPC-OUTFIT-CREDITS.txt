@@ -1,0 +1,44 @@
+DISTINCT VILLAGE OUTFITS AND SEATED POSES
+
+Source PNG layers in residents/ are supplied unchanged. Runtime composition
+stacks original layers without retouching or recoloring. Frame selection for
+walking, standing and sitting follows each source's documented conventions.
+
+ROSA — GREEN IRISH DRESS AND RED PONYTAIL
+Files: residents/rosa-dress-full.png, residents/rosa-hair-full.png.
+The dress sheet includes the body and head; the ponytail is layered above it.
+CC BY-SA 3.0: https://creativecommons.org/licenses/by-sa/3.0/
+
+Dress: Thane Brimhall (pennomi), laetissima, Matthew Krohn (makrohn),
+Stephen Challener (Redshrike).
+https://opengameart.org/content/lpc-2-characters
+https://opengameart.org/sites/default/files/irishdress.png
+
+Ponytail: original artist Manuel Riecke (MrBeast); repository recolors/edits
+by Joe White, David Conway Jr. (JaidynReiman), and Gaurav Munjal.
+https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles
+https://github.com/makrohn/Universal-LPC-spritesheet/blob/master/hair/female/ponytail/redhead.png
+
+FELIX AND TOMAS — MATCHING WALKING, IDLE AND CHAIR-SITTING OUTFITS
+Source: LPC Revised Character Basics by Eliza Wyatt (ElizaWy / Death's Darling).
+https://opengameart.org/content/lpc-revised-character-basics
+https://opengameart.org/users/deaths-darling
+Used under OGA-BY 3.0: https://static.opengameart.org/OGA-BY-3.0.txt
+
+Bodies and heads: Stephen Challener (Redshrike), Eliza Wyatt.
+Clothing, shoes and selected hairstyles: Eliza Wyatt.
+Complete original archive credits, including contributors to unused animations,
+are preserved in residents/CREDITS-revised-body.txt,
+residents/CREDITS-revised-clothing.txt and residents/CREDITS-revised-hair.txt.
+
+Shared body: Masculine, Thin; head: Head 02 - Masculine; shoes: Shoes 01, Brown.
+Felix: Shirt 01 - Longsleeve Shirt, Cream; Pants 05 - Overalls, Blue;
+Hair Short 02 - Parted, Brown.
+Tomas: Shirt 01 - Longsleeve Shirt, Red; Pants 03 - Pants, Navy;
+Hair Short 06 - Balding, Gray.
+
+For each outfit the layer order is body, shoes, shirt, pants/overalls, head, hair.
+All source cells are 64x64, with direction rows north, west, south, east.
+Walking uses eight columns 0–7. Idle holds column 0. Sitting holds only column 2,
+the actual chair/bench pose with bent knees. Sitting columns 0–1 are ground
+postures and are not used. The frame anchor is (32,62), with hips near (32,46).

@@ -1,0 +1,96 @@
+LPC VILLAGE RESIDENTS — ARTWORK ATTRIBUTION
+
+The source PNG layers are supplied unchanged. village-sprites.mjs assembles
+and rearranges their frames at runtime into walking and fishing animations.
+The assembled resident artwork is licensed under CC BY-SA 3.0:
+https://creativecommons.org/licenses/by-sa/3.0/
+This artwork license applies to the assembled character art, not the site code.
+
+BODY AND HEAD
+lpc-body-walk.png, lpc-body-thrust.png, lpc-head-walk.png, lpc-head-thrust.png.
+Source: https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator
+Paths: spritesheets/body/bodies/male/{walk,thrust}.png and
+spritesheets/head/heads/human/male/{walk,thrust}.png.
+See full contributor attribution below.
+
+CLOTHING
+lpc-pants.png, lpc-shirt.png, lpc-jacket-brown.png, lpc-jacket-tan.png,
+lpc-hat.png and lpc-hat-front.png.
+LPC Gentleman by bluecarrot16, based on work by pennomi, laetissima,
+Matthew Krohn (makrohn), and Stephen Challener (Redshrike).
+Source: https://opengameart.org/content/lpc-gentleman
+CC BY-SA 3.0. The two bowler layers are stacked as instructed by the author.
+
+BROWN SHOES
+lpc-shoes-brown.png. Original art by Johannes Sjölund (wulax), brown sheet
+by David Conway Jr. CC BY-SA 3.0.
+https://opengameart.org/content/lpc-medieval-fantasy-character-sprites
+https://github.com/makrohn/Universal-LPC-spritesheet/blob/master/feet/shoes/male/brown_shoes_male.png
+
+FISHING ROD
+lpc-rod-bg.png and lpc-rod-fg.png by bluecarrot16.
+https://opengameart.org/content/lpc-hand-tools
+Used under CC BY 4.0, as listed for the fishing rod in the upstream hand-tool
+credits. Original notices preserved in LPC-HAND-TOOLS-CREDITS.txt and
+LPC-FISHING-CREDITS.txt. The character thrust frames are reordered using
+the author's documented 13-frame mapping, then layered between rod-bg and rod-fg.
+
+DOG
+dog-lpc-v1.png by bluecarrot16, CC BY 3.0. Unmodified source PNG.
+https://opengameart.org/content/lpc-cats-and-dogs
+
+body-definition.json ATTRIBUTION
+{
+  "file": "body/bodies/male",
+  "notes": "see details at https://opengameart.org/content/lpc-character-bases; 'Thick' Male Revised Run/Climb by JaidynReiman (based on ElizaWy's LPC Revised)",
+  "authors": [
+    "bluecarrot16",
+    "JaidynReiman",
+    "Benjamin K. Smith (BenCreating)",
+    "Evert",
+    "Eliza Wyatt (ElizaWy)",
+    "TheraHedwig",
+    "MuffinElZangano",
+    "Durrani",
+    "Johannes Sj\u00f6lund (wulax)",
+    "Stephen Challener (Redshrike)"
+  ],
+  "licenses": [
+    "OGA-BY 3.0",
+    "CC-BY-SA 3.0",
+    "GPL 3.0"
+  ],
+  "urls": [
+    "https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles",
+    "https://opengameart.org/content/lpc-medieval-fantasy-character-sprites",
+    "https://opengameart.org/content/lpc-male-jumping-animation-by-durrani",
+    "https://opengameart.org/content/lpc-runcycle-and-diagonal-walkcycle",
+    "https://opengameart.org/content/lpc-revised-character-basics",
+    "https://opengameart.org/content/lpc-be-seated",
+    "https://opengameart.org/content/lpc-runcycle-for-male-muscular-and-pregnant-character-bases-with-modular-heads",
+    "https://opengameart.org/content/lpc-jump-expanded",
+    "https://opengameart.org/content/lpc-character-bases"
+  ]
+}
+
+
+head-definition.json ATTRIBUTION
+{
+  "file": "head/heads/human/male",
+  "notes": "original head by Redshrike, tweaks by BenCreating, modular version by bluecarrot16",
+  "authors": [
+    "bluecarrot16",
+    "Benjamin K. Smith (BenCreating)",
+    "Stephen Challener (Redshrike)"
+  ],
+  "licenses": [
+    "OGA-BY 3.0",
+    "CC-BY-SA 3.0",
+    "GPL 3.0"
+  ],
+  "urls": [
+    "https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles",
+    "https://opengameart.org/content/lpc-character-bases"
+  ]
+}
+
