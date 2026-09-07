@@ -40,10 +40,11 @@ export async function handleItalian(request, env) {
       method: request.method,
       headers,
       body,
-      redirect: "error",
+      redirect: "manual",
       signal: AbortSignal.timeout(15000),
     });
     upstreamStatus = response.status;
+    if (response.status >= 300 && response.status < 400) throw new Error("Unexpected upstream redirect");
     if (!response.headers.get("Content-Type")?.includes("application/json")) throw new Error("Invalid upstream response");
     return new Response(response.body, {
       status: response.status,
