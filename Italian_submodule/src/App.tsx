@@ -1,8 +1,10 @@
 import {
+  Activity,
   ArrowRight,
   BarChart3,
   Check,
   Flame,
+  History,
   LogOut,
   RotateCcw,
   Settings2,
@@ -18,10 +20,13 @@ import {
   loadUserProgress,
   loadUserProgressRemote,
   markAttempt,
-  saveUserProgressRemote,
+  saveUserProgress,
 } from "./lib/progress";
-import { loadActiveUser, loadUsers, loadUsersRemote, saveActiveUser, upsertUserRemote } from "./lib/users";
-import type { Mode, PracticeItem, ProgressState, UserProfile } from "./types";
+import { getLearningStats } from "./lib/stats";
+import { loadActiveUser, loadUsers, logout, upsertUserRemote } from "./lib/users";
+import { ApiError } from "./lib/api";
+import type { BreakdownStat } from "./lib/stats";
+import type { AttemptRecord, Mode, PracticeItem, ProgressState, UserProfile } from "./types";
 
 const modeLabels: Record<Mode, string> = {
   daily: "Daily Sprint",
@@ -40,7 +45,7 @@ const genderLabels: Record<string, string> = {
 const DAILY_TENSES_KEY = "italian-verb-sprint-daily-tenses";
 
 type View = "practice" | "stats";
-type SyncStatus = "loading" | "ready" | "offline";
+type SyncStatus = "loading" | "ready" | "offline" | "expired";
 
 function App() {
   const [user, setUser] = useState<UserProfile | null>(() => loadActiveUser());
@@ -60,72 +65,71 @@ function App() {
   const [lastCorrect, setLastCorrect] = useState("");
   const [roundCorrect, setRoundCorrect] = useState(0);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
-  const hasHydrated = useRef(false);
+  const activeName = useRef(user?.name);
+  activeName.current = user?.name;
   const inputRef = useRef<HTMLInputElement>(null);
 
   const current = queue[index];
   const completed = index >= queue.length;
-  const stats = useMemo(() => getStats(progress), [progress]);
+  const stats = useMemo(() => getLearningStats(progress), [progress]);
 
   useEffect(() => {
+    if (!user) return;
     let cancelled = false;
-
-    async function hydrate() {
-      const savedUser = loadActiveUser();
-      const savedUsers = await loadUsersRemote();
+    const name = user.name;
+    const sync = async () => {
+      if (document.visibilityState === "hidden") return;
+      setSyncStatus("loading");
+      try {
+        await loadUserProgressRemote(name);
+        if (!cancelled && activeName.current === name) {
+          setProgress(loadUserProgress(name));
+          setSyncStatus("ready");
+        }
+      } catch (error) {
+        if (!cancelled) setSyncStatus(error instanceof ApiError && error.status === 401 ? "expired" : "offline");
+      }
+    };
+    const refresh = () => {
       if (cancelled) return;
-
-      setUsers(savedUsers);
-      setUser(savedUser);
-
-      if (savedUser) {
-        const savedProgress = await loadUserProgressRemote(savedUser.name);
-        if (!cancelled) setProgress(savedProgress);
-      }
-
-      if (!cancelled) {
-        hasHydrated.current = true;
-        setSyncStatus("ready");
-      }
-    }
-
-    hydrate().catch(() => {
-      if (!cancelled) {
-        hasHydrated.current = true;
-        setSyncStatus("offline");
-      }
-    });
-
+      const active = loadActiveUser();
+      if (active?.name !== name) {
+        setUser(active);
+        setProgress(loadUserProgress(active?.name ?? "guest"));
+      } else setProgress(loadUserProgress(name));
+    };
+    void sync();
+    const timer = window.setInterval(sync, 15000);
+    window.addEventListener("online", sync);
+    window.addEventListener("focus", sync);
+    window.addEventListener("italian-progress", sync);
+    window.addEventListener("storage", refresh);
     return () => {
       cancelled = true;
+      window.clearInterval(timer);
+      window.removeEventListener("online", sync);
+      window.removeEventListener("focus", sync);
+      window.removeEventListener("italian-progress", sync);
+      window.removeEventListener("storage", refresh);
     };
-  }, []);
-
-  useEffect(() => {
-    if (!user || !hasHydrated.current) return;
-    saveUserProgressRemote(user.name, progress).catch(() => setSyncStatus("offline"));
-  }, [progress, user]);
+  }, [user]);
 
   useEffect(() => {
     localStorage.setItem(DAILY_TENSES_KEY, JSON.stringify(dailyTenses));
     startRound(mode, tense, dailyTenses);
   }, [mode, tense, user, dailyTenses]);
 
-  async function handleLogin(name: string) {
-    setSyncStatus("loading");
-    const selected = await upsertUserRemote(name);
-    const selectedProgress = await loadUserProgressRemote(selected.name);
-    const nextUsers = await loadUsersRemote();
-    hasHydrated.current = true;
-    setUsers(nextUsers);
+  async function handleLogin(name: string, password: string, register: boolean) {
+    const selected = await upsertUserRemote(name, password, register);
+    setUsers(loadUsers());
+    setProgress(loadUserProgress(selected.name));
     setUser(selected);
-    setProgress(selectedProgress);
     setView("practice");
-    setSyncStatus("ready");
+    setSyncStatus("loading");
   }
 
   function handleLogout() {
-    saveActiveUser(null);
+    logout();
     setUser(null);
     setView("practice");
     setProgress(loadUserProgress("guest"));
@@ -153,7 +157,12 @@ function App() {
     setLastCorrect(current.accepted[0]);
     setFeedback(wasCorrect ? "correct" : "wrong");
     if (wasCorrect) setRoundCorrect((value) => value + 1);
-    setProgress((state) => markAttempt(state, current, wasCorrect));
+    if (user) {
+      const next = markAttempt(loadUserProgress(user.name), current, wasCorrect, { answer, mode });
+      saveUserProgress(user.name, next);
+      setProgress(next);
+      window.dispatchEvent(new Event("italian-progress"));
+    }
 
     if (!wasCorrect) {
       setQueue((items) => {
@@ -198,11 +207,9 @@ function App() {
           <div className="min-w-0">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-teal-700">Italian Verb Sprint</p>
             <h1 className="truncate text-2xl font-black">Ciao, {user.name}</h1>
-            {syncStatus !== "ready" && (
-              <p className="mt-1 text-xs font-bold text-slate-500">
-                {syncStatus === "loading" ? "Syncing..." : "Offline"}
-              </p>
-            )}
+            <p className="mt-1 text-xs font-bold text-slate-500" role="status">
+              {syncStatus === "loading" ? "Syncing…" : syncStatus === "ready" ? "Synced across devices" : syncStatus === "expired" ? "Sign in again to sync · progress saved here" : "Offline · progress saved on this device"}
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 rounded-full bg-white px-3 py-2 text-sm font-bold shadow-sm">
@@ -372,13 +379,13 @@ function App() {
                       <span>{current.irregular ? "irregular" : "regular"}</span>
                     </div>
 
-                    <div className="question-copy space-y-2">
+                    <div className="question-copy flex min-h-0 flex-1 flex-col justify-center gap-4 text-center">
                       <p className="text-sm font-bold uppercase tracking-[0.16em] text-teal-700">{current.tense}</p>
                       <div>
                         <h2 className="verb-title text-4xl font-black leading-none">{current.lemma}</h2>
                         <p className="mt-1 text-sm text-slate-600">{current.english}</p>
                       </div>
-                      <div className="conjugation-prompt rounded-lg bg-slate-100 p-3">
+                      <div className="conjugation-prompt mx-auto w-full max-w-sm rounded-lg bg-slate-100 p-3">
                         <p className="text-sm font-bold text-slate-500">Conjugate for</p>
                         <p className="mt-0.5 text-xl font-black">{current.person}</p>
                         {current.genderNumber && (
@@ -458,13 +465,22 @@ function App() {
   );
 }
 
-function LoginScreen({ users, onLogin }: { users: UserProfile[]; onLogin: (name: string) => void }) {
+function LoginScreen({ users, onLogin }: { users: UserProfile[]; onLogin: (name: string, password: string, register: boolean) => Promise<void> }) {
   const [name, setName] = useState("");
   const cleanName = name.trim();
+  const [password, setPassword] = useState("");
+  const [register, setRegister] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (cleanName) onLogin(cleanName);
+    if (!cleanName || busy) return;
+    setBusy(true);
+    setError("");
+    try { await onLogin(cleanName, password, register); }
+    catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to sign in. Please retry."); }
+    finally { setBusy(false); }
   }
 
   return (
@@ -472,7 +488,8 @@ function LoginScreen({ users, onLogin }: { users: UserProfile[]; onLogin: (name:
       <div className="login-shell mx-auto flex h-full w-full max-w-md flex-col justify-center gap-4">
         <header>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-teal-700">Italian Verb Sprint</p>
-          <h1 className="mt-2 text-4xl font-black leading-none">Who is practicing?</h1>
+          <h1 className="mt-2 text-4xl font-black leading-none">{register ? "Save your progress" : "Welcome back"}</h1>
+          <p className="mt-3 text-sm text-slate-600">Sign in on any device to continue practicing. If you practiced here before, create an account with the same name to keep your progress.</p>
         </header>
 
         <form onSubmit={submit} className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft">
@@ -485,29 +502,41 @@ function LoginScreen({ users, onLogin }: { users: UserProfile[]; onLogin: (name:
               id="name"
               value={name}
               onChange={(event) => setName(event.target.value)}
-              autoComplete="name"
+              autoComplete="username"
+              maxLength={60}
+              required
               placeholder="Miguel"
               className="min-h-14 flex-1 bg-transparent text-xl font-black outline-none"
             />
           </div>
+          <label className="mt-4 block text-sm font-bold text-slate-600" htmlFor="password">Password</label>
+          <input id="password" type="password" required minLength={10} maxLength={256}
+            autoComplete={register ? "new-password" : "current-password"} value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            className="mt-2 min-h-12 w-full rounded-lg border-2 border-slate-200 px-3 outline-none focus:border-teal-700" />
+          {register && <p className="mt-2 text-xs text-slate-500">At least 10 characters. Save it in your password manager.</p>}
+          {error && <p role="alert" className="mt-3 text-sm font-bold text-red-700">{error}</p>}
           <button
             type="submit"
-            disabled={!cleanName}
+            disabled={!cleanName || password.length < 10 || busy}
             className="mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 text-lg font-black text-white disabled:opacity-50"
           >
-            Start
+            {busy ? "Connecting…" : register ? "Create account" : "Sign in"}
             <ArrowRight className="h-5 w-5" />
+          </button>
+          <button type="button" disabled={busy} onClick={() => { setRegister(!register); setError(""); }} className="mt-4 w-full text-sm font-bold text-teal-700">
+            {register ? "Already registered? Sign in" : "New here? Create account"}
           </button>
         </form>
 
         {users.length > 0 && (
           <section className="space-y-2">
-            <p className="text-sm font-bold text-slate-600">Existing users</p>
+            <p className="text-sm font-bold text-slate-600">Names on this device</p>
             <div className="grid gap-2">
               {users.map((profile) => (
                 <button
                   key={profile.name.toLocaleLowerCase()}
-                  onClick={() => onLogin(profile.name)}
+                  onClick={() => setName(profile.name)}
                   className="flex min-h-12 items-center justify-between rounded-lg border border-slate-200 bg-white px-4 text-left font-bold shadow-sm"
                 >
                   <span>{profile.name}</span>
@@ -529,7 +558,7 @@ function StatsPanel({
 }: {
   formCount: number;
   progress: ProgressState;
-  stats: ReturnType<typeof getStats>;
+  stats: ReturnType<typeof getLearningStats>;
 }) {
   const weakest = allItems
     .map((item) => ({ item, form: getFormProgress(progress, item.id) }))
@@ -537,8 +566,14 @@ function StatsPanel({
     .sort((a, b) => a.form.mastery - b.form.mastery || b.form.attempts - a.form.attempts)
     .slice(0, 4);
 
+  const mostMissedVerb = stats.verbs.find((item) => item.failures > 0);
+  const mostMissedTense = stats.tenses.find((item) => item.failures > 0);
+  const mostMissedPerson = stats.persons.find((item) => item.failures > 0);
+  const irregular = stats.regularity.find((item) => item.key === "irregular");
+  const regular = stats.regularity.find((item) => item.key === "regular");
+
   return (
-    <section className="stats-panel grid min-h-0 flex-1 gap-3">
+    <section className="stats-panel min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
       <div className="stats-summary rounded-lg border border-slate-200 bg-white p-4 shadow-soft">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -558,11 +593,62 @@ function StatsPanel({
       <div className="stats-grid grid grid-cols-3 gap-2 text-center text-xs font-bold text-slate-600">
         <StatCard label="Attempts" value={stats.attempts} />
         <StatCard label="Correct" value={stats.correct} />
-        <StatCard label="Mastered" value={stats.masteredForms} />
+        <StatCard label="Misses" value={stats.failures} accent />
         <StatCard label="Due now" value={stats.dueForms} />
-        <StatCard label="Days" value={progress.practicedDays.length} />
+        <StatCard label="Mastered" value={stats.masteredForms} />
         <StatCard label="Best streak" value={progress.bestStreak} />
       </div>
+
+      <div>
+        <div className="mb-2 flex items-center gap-2 px-1">
+          <Activity className="h-4 w-4 text-red-500" />
+          <h3 className="text-sm font-black uppercase tracking-[0.16em] text-slate-500">Failure patterns</h3>
+        </div>
+        <div className="failure-patterns grid gap-2 sm:grid-cols-3">
+          <PatternCard eyebrow="Verb failed most" stat={mostMissedVerb} />
+          <PatternCard eyebrow="Tense failed most" stat={mostMissedTense} />
+          <PatternCard eyebrow="Person failed most" stat={mostMissedPerson} />
+        </div>
+      </div>
+
+      <div className="breakdown-grid grid gap-3 sm:grid-cols-2">
+        <BreakdownList title="Most missed verbs" items={stats.verbs.filter((item) => item.failures > 0).slice(0, 5)} />
+        <BreakdownList title="Tenses" items={stats.tenses.slice(0, 6)} />
+      </div>
+
+      <div>
+        <div className="mb-2 flex items-center gap-2 px-1">
+          <History className="h-4 w-4 text-teal-700" />
+          <h3 className="text-sm font-black uppercase tracking-[0.16em] text-slate-500">Fresh signals</h3>
+        </div>
+        <div className="insight-grid grid gap-2 sm:grid-cols-3">
+          <InsightCard
+            label="Last 20"
+            value={stats.recentAccuracy === null ? "—" : `${stats.recentAccuracy}%`}
+            detail={formatTrend(stats.recentDelta)}
+          />
+          <InsightCard
+            label="Recovered"
+            value={stats.recoveredForms.toString()}
+            detail="missed forms now correct"
+          />
+          <InsightCard
+            label="Repeated miss"
+            value={stats.commonWrongAnswer?.answer ?? "—"}
+            detail={stats.commonWrongAnswer ? `${stats.commonWrongAnswer.count} times` : "tracked from now on"}
+          />
+        </div>
+      </div>
+
+      {(irregular || regular) && (
+        <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+          <h3 className="text-sm font-black uppercase tracking-[0.16em] text-slate-500">Regular vs irregular</h3>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <AccuracyComparison label="Regular" stat={regular} />
+            <AccuracyComparison label="Irregular" stat={irregular} />
+          </div>
+        </div>
+      )}
 
       <div className="needs-practice min-h-0 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
         <h3 className="text-sm font-black uppercase tracking-[0.16em] text-slate-500">Needs practice</h3>
@@ -586,17 +672,127 @@ function StatsPanel({
           </p>
         )}
       </div>
+
+      {stats.recentMisses.length > 0 && <RecentMisses attempts={stats.recentMisses} />}
     </section>
   );
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function StatCard({ label, value, accent = false }: { label: string; value: number; accent?: boolean }) {
   return (
     <div className="rounded-lg bg-white px-2 py-1.5 shadow-sm">
-      <p className="text-xl font-black leading-tight text-slate-950">{value}</p>
+      <p className={`text-xl font-black leading-tight ${accent ? "text-red-600" : "text-slate-950"}`}>{value}</p>
       {label}
     </div>
   );
+}
+
+function PatternCard({ eyebrow, stat }: { eyebrow: string; stat?: BreakdownStat }) {
+  return (
+    <div className="rounded-lg border border-red-100 bg-red-50 p-3">
+      <p className="text-[0.65rem] font-black uppercase leading-tight tracking-[0.12em] text-red-600">{eyebrow}</p>
+      <p className="mt-2 truncate text-lg font-black text-slate-950">{stat?.label ?? "—"}</p>
+      <p className="mt-0.5 text-xs font-bold text-slate-600">
+        {stat ? `${stat.failures} ${stat.failures === 1 ? "miss" : "misses"} · ${stat.accuracy}% correct` : "No misses yet"}
+      </p>
+    </div>
+  );
+}
+
+function BreakdownList({ title, items }: { title: string; items: BreakdownStat[] }) {
+  const maxFailures = Math.max(1, ...items.map((item) => item.failures));
+
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+      <h3 className="text-sm font-black uppercase tracking-[0.16em] text-slate-500">{title}</h3>
+      {items.length > 0 ? (
+        <div className="mt-3 space-y-3">
+          {items.map((item) => (
+            <div key={item.key}>
+              <div className="flex items-end justify-between gap-2 text-sm">
+                <span className="truncate font-black text-slate-900">{item.label}</span>
+                <span className="shrink-0 text-xs font-bold text-slate-500">
+                  {item.failures} missed · {item.accuracy}%
+                </span>
+              </div>
+              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                <div
+                  className="h-full rounded-full bg-red-500"
+                  style={{ width: `${(item.failures / maxFailures) * 100}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="mt-3 text-sm font-bold text-slate-500">Mistakes will appear here as you practice.</p>
+      )}
+    </div>
+  );
+}
+
+function InsightCard({ label, value, detail }: { label: string; value: string; detail: string }) {
+  return (
+    <div className="min-w-0 rounded-lg border border-teal-100 bg-teal-50 p-3">
+      <p className="text-[0.65rem] font-black uppercase tracking-[0.12em] text-teal-700">{label}</p>
+      <p className="mt-1 truncate text-xl font-black text-slate-950">{value}</p>
+      <p className="mt-0.5 text-xs font-bold leading-tight text-slate-600">{detail}</p>
+    </div>
+  );
+}
+
+function AccuracyComparison({ label, stat }: { label: string; stat?: BreakdownStat }) {
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-2 text-sm font-black">
+        <span>{label}</span>
+        <span>{stat ? `${stat.accuracy}%` : "—"}</span>
+      </div>
+      <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-100">
+        <div className="h-full rounded-full bg-teal-700" style={{ width: `${stat?.accuracy ?? 0}%` }} />
+      </div>
+      <p className="mt-1 text-xs font-bold text-slate-500">
+        {stat ? `${stat.failures} misses from ${stat.attempts}` : "Not practiced yet"}
+      </p>
+    </div>
+  );
+}
+
+function RecentMisses({ attempts }: { attempts: AttemptRecord[] }) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+      <h3 className="text-sm font-black uppercase tracking-[0.16em] text-slate-500">Recent misses</h3>
+      <div className="mt-2 divide-y divide-slate-100">
+        {attempts.map((attempt, index) => (
+          <div key={`${attempt.attemptedAt}:${attempt.itemId}:${index}`} className="flex items-center justify-between gap-3 py-2">
+            <div className="min-w-0">
+              <p className="truncate font-black">{attempt.lemma}</p>
+              <p className="truncate text-xs font-bold text-slate-500">
+                {attempt.tense} · {attempt.person} · {formatAttemptDate(attempt.attemptedAt)}
+              </p>
+            </div>
+            <p className="max-w-[48%] shrink-0 truncate text-right text-sm font-bold">
+              <span className="text-red-600 line-through">{attempt.answer || "blank"}</span>
+              <span className="mx-1 text-slate-400">→</span>
+              <span className="text-teal-700">{attempt.expected}</span>
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function formatTrend(delta: number | null): string {
+  if (delta === null) return "building a baseline";
+  if (delta === 0) return "same as previous 20";
+  return `${delta > 0 ? "+" : ""}${delta} points vs previous 20`;
+}
+
+function formatAttemptDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "recently";
+  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(date);
 }
 
 function loadDailyTenses(): string[] {
@@ -610,25 +806,6 @@ function loadDailyTenses(): string[] {
   } catch {
     return tenseOptions;
   }
-}
-
-function getStats(progress: ProgressState) {
-  const forms = Object.values(progress.forms);
-  const attempts = forms.reduce((total, form) => total + form.attempts, 0);
-  const correct = forms.reduce((total, form) => total + form.correct, 0);
-  const practicedForms = forms.filter((form) => form.attempts > 0).length;
-  const masteredForms = forms.filter((form) => form.mastery >= 80).length;
-  const dueForms = forms.filter((form) => Date.parse(form.dueAt) <= Date.now()).length;
-
-  return {
-    attempts,
-    correct,
-    practicedForms,
-    masteredForms,
-    dueForms,
-    accuracy: attempts ? Math.round((correct / attempts) * 100) : 0,
-    coverage: Math.round((practicedForms / allItems.length) * 100),
-  };
 }
 
 export default App;

@@ -63,7 +63,8 @@ body {
 }
 
 .stats-panel {
-  grid-template-rows: auto auto minmax(0, 1fr);
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .needs-practice {
@@ -76,7 +77,7 @@ body {
   }
 
   .app-shell {
-    max-width: 42rem;
+    max-width: 30rem;
   }
 
   .practice-card {
@@ -184,10 +185,6 @@ body {
     min-height: 1.9rem;
     padding-inline: 0.5rem;
     font-size: 0.7rem;
-  }
-
-  .stats-panel {
-    gap: 0.4rem;
   }
 
   .stats-summary {

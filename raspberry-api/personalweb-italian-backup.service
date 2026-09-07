@@ -1,0 +1,7 @@
+[Unit]
+Description=Back up Italian learning progress
+
+[Service]
+Type=oneshot
+UMask=0077
+ExecStart=/usr/bin/python3 %h/personalweb-api/backup_italian.py

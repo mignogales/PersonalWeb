@@ -1,6 +1,10 @@
+import { handleItalian } from "./italian.js";
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    if (url.pathname.startsWith("/api/italian/")) return handleItalian(request, env);
 
     if (url.pathname === "/apps/office-scheduler/config.json") {
       return Response.json(

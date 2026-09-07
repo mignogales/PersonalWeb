@@ -17,6 +17,7 @@ Papers/
 
 # Dependencies and build output
 node_modules/
+.python-packages/
 dist/
 build/
 .cache/
@@ -44,3 +45,10 @@ backend_secrets/
 # Local app runtime config
 apps/office-scheduler/config.js
 apps/office-scheduler/config.json
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Private machine connection notes
+raspberry-api/PI_CONNECTION.md

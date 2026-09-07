@@ -4,11 +4,8 @@ import { getFormProgress } from "./progress";
 
 export const verbBank = verbs as VerbEntry[];
 
-// The generator places the 160 unique entries from COMMON_FIRST at the start
-// of the bank, ordered from the most broadly useful verbs onward.
-const COMMON_VERB_COUNT = 160;
 const frequencyWeightByVerb = new Map(
-  verbBank.map((verb, rank) => [verb.id, frequencyWeightForRank(rank)]),
+  verbBank.map((verb) => [verb.id, frequencyWeightForRank(verb.frequencyRank)]),
 );
 
 export const allItems: PracticeItem[] = verbBank.flatMap((verb) =>
@@ -44,7 +41,7 @@ export function buildQueue(
     });
   }
 
-  return buildWeightedQueue(candidates, mode === "daily" ? 20 : 30, (item) => {
+  return buildWeightedQueue(candidates, mode === "daily" ? 20 : 30, mode !== "weakness", (item) => {
     const form = getFormProgress(progress, item.id);
     const isDue = Date.parse(form.dueAt) <= now ? 40 : 0;
     const weakness = form.attempts ? (1 - form.correct / form.attempts) * 55 : 18;
@@ -58,7 +55,7 @@ export function fallbackQueue(mode: Mode, tense?: string, dailyTenses: string[] 
   if (mode === "daily") candidates = filterByTenses(candidates, dailyTenses);
   if (mode === "irregular") candidates = candidates.filter((item) => item.irregular);
   if (mode === "tense" && tense) candidates = candidates.filter((item) => item.tense === tense);
-  return buildWeightedQueue(candidates, mode === "daily" ? 20 : 30);
+  return buildWeightedQueue(candidates, mode === "daily" ? 20 : 30, mode !== "weakness");
 }
 
 function filterByTenses(items: PracticeItem[], selectedTenses: string[]): PracticeItem[] {
@@ -69,6 +66,7 @@ function filterByTenses(items: PracticeItem[], selectedTenses: string[]): Practi
 function buildWeightedQueue(
   candidates: PracticeItem[],
   limit: number,
+  useFrequency: boolean,
   learningPriority: (item: PracticeItem) => number = () => 0,
 ): PracticeItem[] {
   const byVerb = new Map<string, PracticeItem[]>();
@@ -88,7 +86,7 @@ function buildWeightedQueue(
         })
         .sort((a, b) => b.score - a.score);
       const best = rankedForms[0];
-      const frequencyWeight = frequencyWeightByVerb.get(verbId) ?? 1;
+      const frequencyWeight = useFrequency ? (frequencyWeightByVerb.get(verbId) ?? 0.25) : 1;
 
       return {
         best: best.item,
@@ -107,7 +105,7 @@ function buildWeightedQueue(
       item,
       score:
         learningPriority(item) / 25 +
-        Math.log(frequencyWeightByVerb.get(item.verbId) ?? 1) +
+        Math.log(useFrequency ? (frequencyWeightByVerb.get(item.verbId) ?? 0.25) : 1) +
         gumbelNoise(),
     }))
     .sort((a, b) => b.score - a.score)
@@ -116,11 +114,13 @@ function buildWeightedQueue(
   return [...selected, ...extras].slice(0, limit);
 }
 
-function frequencyWeightForRank(rank: number): number {
-  if (rank >= COMMON_VERB_COUNT) return 1;
-  if (rank < 25) return 6;
-  if (rank < 75) return 3;
-  return 1.75;
+export function frequencyWeightForRank(rank?: number): number {
+  if (rank === undefined) return 0.25;
+  if (rank <= 25) return 40;
+  if (rank <= 75) return 18;
+  if (rank <= 150) return 8;
+  if (rank <= 250) return 3.5;
+  return 2;
 }
 
 function gumbelNoise(): number {

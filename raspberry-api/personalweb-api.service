@@ -1,0 +1,21 @@
+[Unit]
+Description=Personal website Raspberry Pi health API
+After=network.target
+
+[Service]
+Type=simple
+DynamicUser=yes
+StateDirectory=personalweb-italian
+Environment=ITALIAN_DATA_DIR=/var/lib/personalweb-italian
+WorkingDirectory=/opt/personalweb-api
+ExecStart=/usr/bin/python3 /opt/personalweb-api/server.py
+Restart=on-failure
+RestartSec=3
+Environment=PYTHONUNBUFFERED=1
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+
+[Install]
+WantedBy=multi-user.target

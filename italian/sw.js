@@ -1,4 +1,4 @@
-const CACHE_NAME = "italian-verb-sprint-v2";
+const CACHE_NAME = "italian-verb-sprint-v7";
 
 self.addEventListener("install", (event) => {
   const scope = new URL(self.registration.scope);
@@ -19,17 +19,20 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const scope = new URL(self.registration.scope);
+  const url = new URL(event.request.url);
+  // API responses and external resources must never enter the app-shell cache.
+  if (url.origin !== scope.origin || !url.pathname.startsWith(scope.pathname) || url.pathname.includes("/api/")) return;
 
   event.respondWith(
     caches.match(event.request).then((cached) => {
-      if (cached) return cached;
+      if (cached && event.request.mode !== "navigate") return cached;
       return fetch(event.request)
         .then((response) => {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
           return response;
         })
-        .catch(() => caches.match(new URL("index.html", scope).href));
+        .catch(() => cached || (event.request.mode === "navigate" ? caches.match(new URL("index.html", scope).href) : Response.error()));
     }),
   );
 });

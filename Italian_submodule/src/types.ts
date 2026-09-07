@@ -13,6 +13,7 @@ export interface VerbEntry {
   lemma: string;
   english: string;
   irregular: boolean;
+  frequencyRank?: number;
   forms: VerbForm[];
 }
 
@@ -39,9 +40,25 @@ export interface ProgressState {
   currentStreak: number;
   bestStreak: number;
   practicedDays: string[];
+  attemptHistory: AttemptRecord[];
+}
+
+export interface AttemptRecord {
+  itemId: string;
+  verbId: string;
+  lemma: string;
+  tense: string;
+  person: Person;
+  irregular: boolean;
+  correct: boolean;
+  answer: string;
+  expected: string;
+  mode: Mode;
+  attemptedAt: string;
 }
 
 export interface UserProfile {
+  id?: string;
   name: string;
   createdAt: string;
   lastSeenAt: string;

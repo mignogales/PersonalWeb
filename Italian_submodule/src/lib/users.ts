@@ -1,5 +1,6 @@
 import type { UserProfile } from "../types";
-import { apiRequest, isApiEnabled } from "./api";
+import { apiRequest, getSession, setSession } from "./api";
+import type { Session } from "./api";
 
 const USERS_KEY = "italian-verb-sprint-users";
 const ACTIVE_USER_KEY = "italian-verb-sprint-active-user";
@@ -26,9 +27,7 @@ export function saveUsers(users: UserProfile[]) {
 }
 
 export function loadActiveUser(): UserProfile | null {
-  const activeKey = localStorage.getItem(ACTIVE_USER_KEY);
-  if (!activeKey) return null;
-  return loadUsers().find((user) => getUserKey(user.name) === activeKey) ?? null;
+  return getSession()?.user ?? null;
 }
 
 export function saveActiveUser(user: UserProfile | null) {
@@ -59,38 +58,20 @@ export function upsertUser(name: string): UserProfile {
   return created;
 }
 
-export async function loadUsersRemote(): Promise<UserProfile[]> {
-  if (!isApiEnabled()) return loadUsers();
-
-  try {
-    const users = await apiRequest<UserProfile[]>("/api/users");
-    saveUsers(users);
-    return users;
-  } catch {
-    return loadUsers();
-  }
+export async function upsertUserRemote(name: string, password: string, register: boolean): Promise<UserProfile> {
+  const session = await apiRequest<Session>(`/auth/${register ? "register" : "login"}`, {
+    method: "POST", body: JSON.stringify({ name, password }),
+  });
+  setSession(session);
+  const users = loadUsers().filter((user) => getUserKey(user.name) !== getUserKey(session.user.name));
+  saveUsers([...users, session.user]);
+  saveActiveUser(session.user);
+  return session.user;
 }
 
-export async function upsertUserRemote(name: string): Promise<UserProfile> {
-  const local = upsertUser(name);
-  if (!isApiEnabled()) return local;
-
-  try {
-    const remote = await apiRequest<UserProfile>("/api/users", {
-      method: "POST",
-      body: JSON.stringify({ name }),
-    });
-    const merged = mergeUsers(loadUsers(), remote);
-    saveUsers(merged);
-    saveActiveUser(remote);
-    return remote;
-  } catch {
-    return local;
-  }
-}
-
-function mergeUsers(users: UserProfile[], profile: UserProfile): UserProfile[] {
-  const key = getUserKey(profile.name);
-  const withoutProfile = users.filter((user) => getUserKey(user.name) !== key);
-  return [...withoutProfile, profile].sort((a, b) => a.name.localeCompare(b.name));
+export function logout() {
+  const token = getSession()?.token;
+  setSession(null);
+  saveActiveUser(null);
+  if (token) void apiRequest("/auth/logout", { method: "POST", body: "{}" }, token).catch(() => {});
 }

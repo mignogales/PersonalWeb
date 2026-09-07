@@ -1,0 +1,15 @@
+[Unit]
+Description=Personal website Raspberry Pi health API
+After=network.target
+
+[Service]
+UMask=0077
+WorkingDirectory=%h/personalweb-api
+ExecStart=/usr/bin/python3 %h/personalweb-api/server.py
+Restart=on-failure
+RestartSec=3
+Environment=PYTHONUNBUFFERED=1
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=default.target

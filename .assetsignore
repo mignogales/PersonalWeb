@@ -11,3 +11,13 @@ Italian_submodule/**
 wrangler.jsonc
 .DS_Store
 **/.DS_Store
+src/**
+tests/**
+backend_secrets/**
+.dev.vars*
+.env*
+**/.env*
+.pnpm-store/**
+*.log
+CHAT_SETUP.md
+raspberry-api/**
