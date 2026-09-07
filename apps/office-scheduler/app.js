@@ -1,8 +1,5 @@
 const LEGACY_API_BASE_KEY = "office-scheduler-api-base";
 const SESSION_KEY = "office-scheduler-session";
-const CONFIG_JSON_PATH = "config.json";
-const LOCAL_API_BASE = "http://127.0.0.1:8789";
-const runtimeConfig = await loadRuntimeConfig();
 
 const loginView = document.getElementById("login-view");
 const calendarView = document.getElementById("calendar-view");
@@ -24,12 +21,16 @@ const monthList = document.getElementById("month-list");
 const monthCount = document.getElementById("month-count");
 
 const state = {
-  apiBase: normalizeApiBase(runtimeConfig.apiBase || getLocalApiFallback()),
+  apiBase: "/api/office",
   token: "",
   userName: "",
   schedule: {},
   selectedDates: new Set(),
   visibleMonth: startOfMonth(new Date()),
+  generation: 0,
+  saving: false,
+  refreshing: false,
+  changes: {},
   dirty: false
 };
 
@@ -37,9 +38,7 @@ todayLabel.textContent = formatLongDate(toDateKey(new Date()));
 clearLegacyApiBase();
 setStatus(
   loginStatus,
-  state.apiBase
-    ? "Backend configured. Sign in when the Pi API is running."
-    : "Backend is not configured yet.",
+  "Sign in to see your team’s plans and choose your office days.",
   state.apiBase ? "" : "error"
 );
 
@@ -52,10 +51,12 @@ loginForm.addEventListener("submit", async (event) => {
   const name = nameInput.value.trim();
   const password = passwordInput.value;
 
+  const submit = loginForm.querySelector("button[type=submit]");
+  submit.disabled = true;
   setStatus(loginStatus, "Signing in...");
 
   try {
-    const result = await apiRequest("/api/login", {
+    const result = await apiRequest("/login", {
       method: "POST",
       body: {
         name,
@@ -64,6 +65,8 @@ loginForm.addEventListener("submit", async (event) => {
       includeAuth: false
     });
 
+    state.changes = {};
+    state.dirty = false;
     state.token = result.token;
     state.userName = result.user.name;
     state.schedule = result.schedule.dates || {};
@@ -74,16 +77,23 @@ loginForm.addEventListener("submit", async (event) => {
     renderShell();
   } catch (error) {
     setStatus(loginStatus, error.message || "Could not sign in.", "error");
+  } finally {
+    submit.disabled = false;
   }
 });
 
-logoutButton.addEventListener("click", () => {
+logoutButton.addEventListener("click", async () => {
+  if (state.dirty && !window.confirm("Sign out and discard your unsaved changes?")) return;
+  try { await apiRequest("/logout", { method: "POST", body: {} }); } catch {
+    setStatus(loginStatus, "Signed out on this device. The server session could not be revoked.");
+  }
   clearSession();
   state.token = "";
   state.userName = "";
   state.schedule = {};
   state.selectedDates = new Set();
   state.dirty = false;
+  state.changes = {};
   renderShell();
 });
 
@@ -106,18 +116,26 @@ nextMonthButton.addEventListener("click", () => {
 });
 
 saveButton.addEventListener("click", async () => {
+  if (state.saving || !state.dirty) return;
+  state.generation += 1;
+  state.saving = true;
+  const token = state.token;
   saveButton.disabled = true;
+  logoutButton.disabled = true;
+  renderCalendar();
   setStatus(calendarStatus, "Saving days...");
 
   try {
-    const result = await apiRequest("/api/schedule/me", {
+    const result = await apiRequest("/schedule/me", {
       method: "PUT",
       body: {
-        dates: Array.from(state.selectedDates).sort()
+        changes: { ...state.changes }
       }
     });
 
+    if (token !== state.token) return;
     state.schedule = result.schedule.dates || {};
+    state.changes = {};
     syncSelectedDatesFromSchedule();
     state.dirty = false;
     setStatus(calendarStatus, "Days saved.", "success");
@@ -125,14 +143,16 @@ saveButton.addEventListener("click", async () => {
   } catch (error) {
     setStatus(calendarStatus, error.message || "Could not save days.", "error");
   } finally {
-    saveButton.disabled = false;
+    state.saving = false;
+    logoutButton.disabled = false;
+    renderCalendar();
   }
 });
 
 calendarGrid.addEventListener("click", (event) => {
   const button = event.target.closest(".day-button");
 
-  if (!button) {
+  if (!button || state.saving) {
     return;
   }
 
@@ -144,29 +164,66 @@ calendarGrid.addEventListener("click", (event) => {
     state.selectedDates.add(dateKey);
   }
 
-  state.dirty = true;
-  setStatus(calendarStatus, "Unsaved changes.");
+  const saved = (state.schedule[dateKey] || []).some(name => isSameName(name, state.userName));
+  if (saved === state.selectedDates.has(dateKey)) delete state.changes[dateKey];
+  else state.changes[dateKey] = state.selectedDates.has(dateKey);
+  state.dirty = Object.keys(state.changes).length > 0;
+  setStatus(calendarStatus, state.dirty ? "Unsaved changes. Save to share with your team." : "All changes saved.");
   renderCalendar();
 });
 
 async function refreshSchedule() {
-  if (!state.token) {
-    return;
-  }
-
+  if (!state.token || state.refreshing || state.saving) return;
+  state.refreshing = true;
+  const generation = state.generation;
+  const token = state.token;
   try {
-    const result = await apiRequest("/api/schedule");
+    const result = await apiRequest("/schedule");
+    if (token !== state.token || state.saving || generation !== state.generation) return;
     state.schedule = result.schedule.dates || {};
     syncSelectedDatesFromSchedule();
-    setStatus(calendarStatus, "Calendar loaded.", "success");
+    setStatus(calendarStatus, state.dirty ? "Team updated. Your unsaved changes are kept." : "Up to date · shared with your team", "success");
   } catch (error) {
-    clearSession();
-    state.token = "";
-    state.userName = "";
-    setStatus(loginStatus, error.message || "Please sign in again.", "error");
+    if (token !== state.token) return;
+    setStatus(calendarStatus, error.message, "error");
+    if (error.status === 401 && !state.dirty) {
+      clearSession();
+      state.token = "";
+      state.userName = "";
+      setStatus(loginStatus, "Your session expired. Please sign in again.", "error");
+    }
+  } finally {
+    state.refreshing = false;
+    renderShell();
   }
+}
 
-  renderShell();
+setInterval(() => { if (!document.hidden) refreshSchedule(); }, 15000);
+window.addEventListener("online", refreshSchedule);
+window.addEventListener("focus", refreshSchedule);
+window.addEventListener("beforeunload", event => {
+  if (state.dirty) { event.preventDefault(); event.returnValue = ""; }
+});
+document.getElementById("today-button").addEventListener("click", () => {
+  state.visibleMonth = startOfMonth(new Date());
+  renderCalendar();
+});
+document.getElementById("refresh-button").addEventListener("click", refreshSchedule);
+document.getElementById("discard-button").addEventListener("click", () => {
+  state.changes = {};
+  state.dirty = false;
+  syncSelectedDatesFromSchedule();
+  setStatus(calendarStatus, "Unsaved changes discarded.");
+  renderCalendar();
+});
+
+function previewSchedule() {
+  const schedule = Object.fromEntries(Object.entries(state.schedule).map(([day, names]) => [day, [...names]]));
+  for (const [day, going] of Object.entries(state.changes)) {
+    schedule[day] = (schedule[day] || []).filter(name => !isSameName(name, state.userName));
+    if (going) schedule[day].push(state.userName);
+  }
+  return schedule;
 }
 
 function renderShell() {
@@ -195,18 +252,21 @@ function renderCalendar() {
   const startOffset = (firstDay.getDay() + 6) % 7;
   const gridStart = new Date(year, month, 1 - startOffset);
 
-  for (let index = 0; index < 42; index += 1) {
+  const preview = previewSchedule();
+  const cells = Math.ceil((startOffset + new Date(year, month + 1, 0).getDate()) / 7) * 7;
+  for (let index = 0; index < cells; index += 1) {
     const date = new Date(
       gridStart.getFullYear(),
       gridStart.getMonth(),
       gridStart.getDate() + index
     );
     const dateKey = toDateKey(date);
-    const names = state.schedule[dateKey] || [];
+    const names = preview[dateKey] || [];
     const isSelected = state.selectedDates.has(dateKey);
     const isCurrentMonth = date.getMonth() === month;
     const button = document.createElement("button");
     button.type = "button";
+    button.disabled = state.saving;
     button.className = [
       "day-button",
       isCurrentMonth ? "" : "is-muted",
@@ -251,15 +311,18 @@ function renderCalendar() {
 }
 
 function renderSummary() {
-  const count = state.selectedDates.size;
-  selectionSummary.textContent = `${count} office ${count === 1 ? "day" : "days"} selected.`;
-  saveButton.textContent = state.dirty ? "Save changes" : "Save days";
+  const prefix = `${state.visibleMonth.getFullYear()}-${String(state.visibleMonth.getMonth() + 1).padStart(2, "0")}`;
+  const count = [...state.selectedDates].filter(day => day.startsWith(prefix)).length;
+  selectionSummary.textContent = `${count} office ${count === 1 ? "day" : "days"} this month.`;
+  saveButton.textContent = state.saving ? "Saving…" : state.dirty ? "Save changes" : "All changes saved";
+  saveButton.disabled = state.saving || !state.dirty;
+  document.getElementById("discard-button").disabled = state.saving || !state.dirty;
 }
 
 function renderMonthList() {
   const year = state.visibleMonth.getFullYear();
   const month = state.visibleMonth.getMonth();
-  const monthDates = Object.entries(state.schedule)
+  const monthDates = Object.entries(previewSchedule())
     .filter(([dateKey, names]) => {
       const date = parseDateKey(dateKey);
       return date.getFullYear() === year && date.getMonth() === month && names.length > 0;
@@ -298,13 +361,12 @@ function syncSelectedDatesFromSchedule() {
       .filter(([, names]) => names.some((name) => isSameName(name, state.userName)))
       .map(([dateKey]) => dateKey)
   );
+  for (const [day, going] of Object.entries(state.changes)) {
+    if (going) state.selectedDates.add(day); else state.selectedDates.delete(day);
+  }
 }
 
 async function apiRequest(path, options = {}) {
-  if (!state.apiBase) {
-    throw new Error(getApiNotConfiguredMessage());
-  }
-
   const includeAuth = options.includeAuth !== false;
   const headers = {
     "Content-Type": "application/json"
@@ -318,12 +380,14 @@ async function apiRequest(path, options = {}) {
 
   try {
     response = await fetch(`${state.apiBase}${path}`, {
+      signal: AbortSignal.timeout(20000),
+      cache: "no-store",
       method: options.method || "GET",
       headers,
       body: options.body ? JSON.stringify(options.body) : undefined
     });
   } catch {
-    throw new Error("Office Scheduler API is not reachable. Start the Pi backend or check the tunnel/config URL.");
+    throw new Error("Cannot reach the shared calendar. Check your connection and try again; unsaved selections are kept.");
   }
 
   let payload = {};
@@ -335,18 +399,20 @@ async function apiRequest(path, options = {}) {
   }
 
   if (!response.ok) {
-    throw new Error(payload.error || `Request failed with ${response.status}.`);
+    const error = new Error(payload.error || `Request failed with ${response.status}.`);
+    error.status = response.status;
+    throw error;
   }
 
   return payload;
 }
 
 function saveSession(expiresAt) {
-  window.localStorage.setItem(SESSION_KEY, JSON.stringify({
+  try { window.localStorage.setItem(SESSION_KEY, JSON.stringify({
     token: state.token,
     userName: state.userName,
     expiresAt
-  }));
+  })); } catch { /* The current session still works without persistent storage. */ }
 }
 
 function restoreSession() {
@@ -368,7 +434,7 @@ function restoreSession() {
 }
 
 function clearSession() {
-  window.localStorage.removeItem(SESSION_KEY);
+  try { window.localStorage.removeItem(SESSION_KEY); } catch {}
 }
 
 function clearLegacyApiBase() {
@@ -377,64 +443,6 @@ function clearLegacyApiBase() {
   } catch {
     // Old editable API values are intentionally ignored now.
   }
-}
-
-async function loadRuntimeConfig() {
-  const inlineConfig = getInlineConfig();
-
-  if (inlineConfig.apiBase) {
-    return inlineConfig;
-  }
-
-  return getCloudflareConfig();
-}
-
-function getInlineConfig() {
-  const config = window.OFFICE_SCHEDULER_CONFIG || {};
-  return {
-    apiBase: config.apiBase || window.OFFICE_API_BASE || ""
-  };
-}
-
-async function getCloudflareConfig() {
-  if (window.location.protocol === "file:") {
-    return {};
-  }
-
-  try {
-    const response = await fetch(CONFIG_JSON_PATH, {
-      cache: "no-store"
-    });
-
-    if (!response.ok) {
-      return {};
-    }
-
-    const config = await response.json();
-    return {
-      apiBase: config.apiBase || ""
-    };
-  } catch {
-    return {};
-  }
-}
-
-function getLocalApiFallback() {
-  const hostname = window.location.hostname;
-  const isLocalPage =
-    window.location.protocol === "file:" ||
-    hostname === "localhost" ||
-    hostname === "127.0.0.1";
-
-  return isLocalPage ? LOCAL_API_BASE : "";
-}
-
-function normalizeApiBase(value) {
-  return String(value || "").trim().replace(/\/+$/, "");
-}
-
-function getApiNotConfiguredMessage() {
-  return "Office Scheduler API is not configured. Add apps/office-scheduler/config.js locally or set OFFICE_SCHEDULER_API_BASE in Cloudflare.";
 }
 
 function setStatus(element, message, kind = "") {

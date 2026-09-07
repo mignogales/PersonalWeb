@@ -1,5 +1,9 @@
 # Raspberry Pi API
 
+The Pi runs both Italian progress sync and the private shared Office Scheduler.
+See [Office Scheduler setup](../apps/office-scheduler/RASPBERRY_PI_SETUP.md) for accounts, storage, and backups.
+
+
 The Pi now also runs authenticated Italian progress sync on the same port. See
 [Italian sync operations](ITALIAN_SYNC.md) for the current production setup.
 The instructions below describe the initial health-check installation.

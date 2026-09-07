@@ -455,3 +455,23 @@ input:focus {
     grid-template-columns: 1fr;
   }
 }
+
+/* Respect native hidden state even when a component uses grid or flex. */
+[hidden] { display: none !important; }
+.calendar-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 20px; }
+.calendar-actions p { flex: 1 1 200px; margin: 0; font-size: .88rem; }
+button:disabled { cursor: default; opacity: .6; }
+button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.day-button { min-width: 0; }
+.day-names { min-width: 0; }
+.month-list { max-height: 480px; overflow-y: auto; }
+.month-item span { overflow-wrap: anywhere; }
+@media (max-width: 480px) {
+  .day-button { padding: 4px; }
+  .person-pill { padding: 2px; font-size: .6rem; }
+  .calendar-toolbar h2 { font-size: 1.15rem; }
+}
+@media (max-width: 680px) {
+  .office-header { grid-template-columns: minmax(0, 1fr) auto; }
+  h1 { font-size: clamp(2rem, 9vw, 3.2rem); overflow-wrap: anywhere; }
+}

@@ -29,17 +29,17 @@
           <div class="form-heading">
             <p class="eyebrow">Private access</p>
             <h2>Sign in</h2>
-            <p>Demo: <strong>demo</strong> / <strong>office123</strong></p>
+            <p>A little planning. More time together.</p>
           </div>
 
           <label>
             <span>Name</span>
-            <input id="name-input" name="name" autocomplete="username" required />
+            <input id="name-input" name="name" maxlength="60" autocomplete="username" required />
           </label>
 
           <label>
             <span>Password</span>
-            <input id="password-input" name="password" type="password" autocomplete="current-password" required />
+            <input id="password-input" name="password" maxlength="256" type="password" autocomplete="current-password" required />
           </label>
 
           <button class="primary-button" type="submit">Sign in</button>
@@ -48,7 +48,8 @@
         <aside class="panel status-panel">
           <p class="eyebrow">Today</p>
           <h2 id="today-label">Loading...</h2>
-          <p id="login-status" class="status-text" role="status">Backend waiting for sign in.</p>
+          <p>Choose the days you’ll be in, see who’s joining, and find time together. Your saved plans are shared across devices.</p>
+          <p id="login-status" class="status-text" role="status">Sign in with the account provided by your office administrator.</p>
         </aside>
       </section>
 
@@ -60,6 +61,7 @@
             <button id="next-month" class="icon-button" type="button" aria-label="Next month">›</button>
           </div>
 
+          <div class="calendar-actions"><p>Tap a day to join or leave. Save to share your plans.</p><button id="today-button" class="ghost-button" type="button">Today</button><button id="refresh-button" class="ghost-button" type="button">Refresh</button></div>
           <div class="weekday-row" aria-hidden="true">
             <span>Mon</span>
             <span>Tue</span>
@@ -79,12 +81,13 @@
             <h2 id="signed-in-name">Name</h2>
             <p id="selection-summary">0 office days selected.</p>
             <button id="save-button" class="primary-button" type="button">Save days</button>
+            <button id="discard-button" class="ghost-button" type="button" disabled>Discard changes</button>
             <p id="calendar-status" class="status-text" role="status">Calendar loaded.</p>
           </section>
 
           <section class="panel month-panel">
             <div class="section-row">
-              <p class="eyebrow">Office days</p>
+              <p class="eyebrow">Who’s coming in</p>
               <span id="month-count">0</span>
             </div>
             <div id="month-list" class="month-list"></div>
@@ -94,10 +97,6 @@
     </section>
   </main>
 
-  <script>
-    window.OFFICE_SCHEDULER_CONFIG = window.OFFICE_SCHEDULER_CONFIG || {};
-  </script>
-  <script src="config.js"></script>
   <script src="app.js" type="module"></script>
 </body>
 </html>

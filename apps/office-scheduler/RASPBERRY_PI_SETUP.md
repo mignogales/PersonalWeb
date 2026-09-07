@@ -1,176 +1,59 @@
-# Office Scheduler Raspberry Pi Setup
+# Shared Office Scheduler
 
-Architecture:
+The website calls `/api/office/*` on its own origin. `src/office.js` forwards
+only login, logout, schedule and personal attendance requests to the existing
+Pi tunnel at `https://api.miguelnogales.com/office/*`. No new tunnel or port is needed.
+The optional Worker variable `OFFICE_SCHEDULER_API_BASE` overrides that origin.
+The old browser `config.js` and separate port 8789 backend are no longer used.
 
-```text
-Cloudflare Pages/custom domain
-  -> static app at /apps/office-scheduler/
-  -> reads /apps/office-scheduler/config.json
-  -> config points to a Cloudflare Tunnel hostname
-  -> tunnel forwards to Raspberry Pi localhost:8789
-  -> Python API stores users and calendar JSON locally
+## Update the Pi
+
+Copy `raspberry-api/server.py`, `italian.py`, `office.py`, and `backup_italian.py`
+to `~/personalweb-api/`, then run `systemctl --user restart personalweb-api`.
+Deploy the website with the updated Worker and `/apps/office-scheduler/` assets.
+The existing Worker asset configuration runs `/api/*` through the Worker first.
+
+## Private accounts
+
+On the Pi, create each account interactively (password input is hidden):
+
+```sh
+cd ~/personalweb-api
+python3 office.py "Miguel"
 ```
 
-## 1. Copy the backend to the Raspberry Pi
+Use 10–256 characters for passwords. There is no public registration or demo
+account. Office accounts are separate from Italian learning accounts. Every
+Office account can see the team's calendar, but can edit only its own attendance.
+Existing data from the old `backend_secrets` demo is not imported automatically.
 
-From your laptop, copy the ignored backend folder to the Pi:
+## Persistence and sharing
 
-```bash
-scp -r backend_secrets/office_scheduler pi@RASPBERRY_PI_IP:/home/pi/office_scheduler
+SQLite database: `~/.local/share/personalweb-office/office.sqlite3`.
+Override with `OFFICE_DATA_DIR` when needed. Database files are private to the
+service user. The existing daily backup timer now backs up both applications;
+Office backups live in the Office data directory's `backups/` folder, retaining
+seven daily snapshots. Copy them off the Pi for hardware-loss recovery.
+
+Passwords use scrypt, sessions are stored as hashes and expire after 30 days,
+and signing out online revokes the session. Saves are transactional, scoped to
+the authenticated account, and send only edited dates. Changes on different
+dates merge across devices; if two devices edit the same date, the last saved
+choice wins. Repeating a save is safe.
+
+The calendar refreshes every 15 seconds while visible and on focus/reconnection.
+Refreshes preserve unsaved selections. Drafts are held in the open tab, with an
+unsaved-changes warning before leaving; they are not durable offline storage.
+If a session expires with a draft, leave the tab open to review your selections
+before signing out and signing in again.
+
+## Verification
+
+```sh
+python3 -m unittest discover -s raspberry-api -p 'test_*.py'
+node --test tests/office.test.mjs
 ```
 
-On the Pi:
-
-```bash
-cd /home/pi/office_scheduler
-python3 --version
-python3 server.py
-```
-
-The API should print:
-
-```text
-Office Scheduler API listening on http://0.0.0.0:8789
-Dummy login: demo / office123
-```
-
-In another Pi terminal:
-
-```bash
-curl http://127.0.0.1:8789/health
-```
-
-Expected:
-
-```json
-{"ok": true, "app": "office-scheduler"}
-```
-
-## 2. Add real users
-
-Still on the Pi:
-
-```bash
-cd /home/pi/office_scheduler
-python3 manage_users.py add "Miguel" "choose-a-password"
-python3 manage_users.py list
-```
-
-The demo user remains available until you remove it:
-
-```bash
-python3 manage_users.py remove "demo"
-```
-
-## 3. Run it as a service
-
-Copy the service file:
-
-```bash
-sudo cp /home/pi/office_scheduler/systemd/office-scheduler.service.example /etc/systemd/system/office-scheduler.service
-sudo systemctl daemon-reload
-sudo systemctl enable --now office-scheduler
-sudo systemctl status office-scheduler
-```
-
-Check logs:
-
-```bash
-journalctl -u office-scheduler -f
-```
-
-## 4. Install and authenticate cloudflared
-
-Install `cloudflared` for your Raspberry Pi OS/architecture from Cloudflare's
-official package instructions or dashboard connector setup.
-
-Then authenticate:
-
-```bash
-cloudflared tunnel login
-```
-
-Create a tunnel:
-
-```bash
-cloudflared tunnel create office-scheduler
-```
-
-Create `/home/pi/.cloudflared/config.yml`:
-
-```yaml
-tunnel: office-scheduler
-credentials-file: /home/pi/.cloudflared/TUNNEL_ID.json
-
-ingress:
-  - hostname: office-api.your-domain.com
-    service: http://127.0.0.1:8789
-  - service: http_status:404
-```
-
-Replace `TUNNEL_ID` with the JSON filename created by `cloudflared tunnel create`.
-
-Route the hostname:
-
-```bash
-cloudflared tunnel route dns office-scheduler office-api.your-domain.com
-```
-
-Run once to test:
-
-```bash
-cloudflared tunnel run office-scheduler
-```
-
-From your laptop:
-
-```bash
-curl https://office-api.your-domain.com/health
-```
-
-## 5. Run cloudflared as a service
-
-On the Pi:
-
-```bash
-sudo cloudflared service install
-sudo systemctl enable --now cloudflared
-sudo systemctl status cloudflared
-```
-
-## 6. Configure Cloudflare Pages/Workers
-
-Set this environment variable for the site:
-
-```text
-OFFICE_SCHEDULER_API_BASE=https://office-api.your-domain.com
-```
-
-Redeploy the site.
-
-The static app reads the value from:
-
-```text
-/apps/office-scheduler/config.json
-```
-
-The repo has both deployment shapes prepared:
-
-- `src/worker.js` for Wrangler Workers with static assets.
-- `functions/apps/office-scheduler/config.json.js` for Cloudflare Pages Functions.
-
-## 7. Final test
-
-Open:
-
-```text
-https://your-domain.com/apps/office-scheduler/
-```
-
-Login:
-
-```text
-demo / office123
-```
-
-Then replace the demo user with real users.
+Use Python with OpenSSL/scrypt (available on the Pi). Test with two accounts in
+separate browsers: save a date, refresh the other browser, and verify both names
+remain after either account updates its own dates.

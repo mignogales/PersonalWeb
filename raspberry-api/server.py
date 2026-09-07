@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlsplit
 from italian import handle, APIError
+from office import handle as handle_office
 
 STARTED = time.monotonic()
 
@@ -31,7 +32,9 @@ class Handler(BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(length) or b"{}")
             if not isinstance(body, dict):
                 raise APIError(400, "Invalid JSON object")
-            status, payload = handle(self.command, urlsplit(self.path).path, self.headers, body)
+            path = urlsplit(self.path).path
+            handler = handle_office if path.startswith("/office/") else handle
+            status, payload = handler(self.command, path, self.headers, body)
         except APIError as error:
             status, payload = error.status, {"error": error.message}
         except (ValueError, UnicodeDecodeError):
@@ -53,7 +56,7 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
-        if urlsplit(self.path).path.startswith("/italian/"):
+        if urlsplit(self.path).path.startswith(("/italian/", "/office/")):
             return self.api()
         healthy = urlsplit(self.path).path == "/health"
         payload = {

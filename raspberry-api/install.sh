@@ -10,6 +10,7 @@ command -v systemctl >/dev/null
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 install -d -m 755 /opt/personalweb-api
 install -m 644 "$script_dir/server.py" /opt/personalweb-api/server.py
+install -m 644 "$script_dir/office.py" /opt/personalweb-api/office.py
 install -m 644 "$script_dir/italian.py" /opt/personalweb-api/italian.py
 install -m 644 "$script_dir/personalweb-api.service" /etc/systemd/system/personalweb-api.service
 systemctl daemon-reload
