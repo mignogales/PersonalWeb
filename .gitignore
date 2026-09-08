@@ -23,6 +23,10 @@ build/
 .cache/
 .parcel-cache/
 .vite/
+.pnpm-store/
+*.tsbuildinfo
+Italian_submodule/vite.config.js
+Italian_submodule/vite.config.d.ts
 
 # Logs and temporary files
 *.log

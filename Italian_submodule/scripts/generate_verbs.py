@@ -146,6 +146,12 @@ REFLEXIVE_PRONOUN_BY_PERSON = {
     "loro": "si",
 }
 
+AFFIRMATIVE_IMPERATIVE_ENCLITIC_BY_PERSON = {
+    "tu": "ti",
+    "noi": "ci",
+    "voi": "vi",
+}
+
 PRONOUN_PREFIXES = (
     "che io ",
     "che tu ",
@@ -328,7 +334,91 @@ COMMON_FIRST = [
     "preoccuparsi",
     "addormentarsi",
     "arrabbiarsi",
+    "accadere",
+    "accettare",
+    "accompagnare",
+    "aggiungere",
+    "alzare",
+    "annunciare",
+    "annoiare",
+    "appartenere",
+    "assicurare",
+    "aumentare",
+    "evitare",
+    "mostrare",
+    "ottenere",
+    "permettere",
+    "incontrare",
+    "raggiungere",
+    "mantenere",
+    "creare",
+    "considerare",
+    "presentare",
+    "esistere",
+    "riguardare",
+    "osservare",
+    "formare",
+    "ricordarsi",
+    "occorrere",
+    "trattare",
+    "rappresentare",
+    "proporre",
+    "sostenere",
+    "risultare",
+    "contare",
+    "compiere",
+    "salutare",
+    "ringraziare",
+    "sperare",
+    "temere",
+    "desiderare",
+    "odiare",
+    "sorridere",
+    "piangere",
+    "togliere",
+    "indossare",
+    "regalare",
+    "prestare",
+    "restituire",
+    "tagliare",
+    "riempire",
+    "svuotare",
+    "salvare",
+    "cancellare",
+    "stampare",
+    "scaricare",
+    "caricare",
+    "cliccare",
+    "rilassarsi",
+    "incontrarsi",
+    "dimenticarsi",
+    "sbagliare",
+    "organizzare",
+    "controllare",
+    "notare",
+    "scusare",
+    "scusarsi",
+    "promettere",
+    "ricominciare",
+    "ripetere",
+    "descrivere",
+    "discutere",
+    "condividere",
+    "partecipare",
+    "funzionare",
+    "dipendere",
+    "significare",
+    "dividere",
+    "unire",
+    "muovere",
+    "girare",
+    "saltare",
+    "rientrare",
 ]
+
+FREQUENCY_RANK_BY_LEMMA = {
+    lemma: rank for rank, lemma in enumerate(dict.fromkeys(COMMON_FIRST), start=1)
+}
 
 
 def reflexive_base(lemma: str) -> str | None:
@@ -378,6 +468,14 @@ def accepted_variants(values: list[str]) -> list[str]:
     return variants
 
 
+def has_valid_past_participle(conjugation: Any) -> bool:
+    """Return whether Verbecc supplies a real past participle for a verb."""
+
+    participles = conjugation.get_data().get("moods", {}).get("participio", {})
+    rows = participles.get("participio-passato", [])
+    return any(accepted_variants(row.get("c", [])) for row in rows)
+
+
 def person_for(form: dict[str, Any]) -> str | None:
     person_code = str(form.get("p", ""))
     number_code = form.get("n", "")
@@ -412,6 +510,111 @@ def participle_variants(participle: str, person: str) -> list[tuple[str, str]]:
     return [(participle, gender_number) for gender_number in gender_numbers]
 
 
+def attach_affirmative_imperative_clitic(value: str, person: str) -> str | None:
+    pronoun = AFFIRMATIVE_IMPERATIVE_ENCLITIC_BY_PERSON.get(person)
+    if not pronoun:
+        return None
+
+    verb = value.strip()
+    if person == "tu":
+        bare_verb = verb.rstrip("'’")
+        normalized_bare_verb = {"dà": "da"}.get(bare_verb, bare_verb)
+        if normalized_bare_verb in {"da", "di", "fa", "sta", "va"}:
+            return f"{normalized_bare_verb}{pronoun[0]}{pronoun}"
+
+    return f"{verb}{pronoun}"
+
+
+def reflexive_accepted_variants(tense: str, person: str, values: list[str]) -> list[str]:
+    pronoun = REFLEXIVE_PRONOUN_BY_PERSON[person]
+    accepted: list[str] = []
+
+    for value in values:
+        prefixed = f"{pronoun} {value}"
+        if prefixed not in accepted:
+            accepted.append(prefixed)
+
+        if tense == "imperativo affermativo":
+            enclitic = attach_affirmative_imperative_clitic(value, person)
+            if enclitic and enclitic not in accepted:
+                accepted.append(enclitic)
+
+        if tense == "imperativo negativo" and person == "tu" and value.endswith("e"):
+            enclitic = f"{value[:-1]}ti"
+            if enclitic not in accepted:
+                accepted.append(enclitic)
+
+    return accepted
+
+
+def repair_negative_imperatives(forms: list[dict[str, Any]], lemma: str) -> list[dict[str, Any]]:
+    """Rebuild Italian negative imperatives from reliable forms.
+
+    Verbecc corrupts this tense for some templates by removing letter sequences
+    from the conjugated form (for example ``sappiamo`` becomes ``siamo``). The
+    negative imperative follows a rule we can derive without trusting that
+    output: ``tu`` uses the infinitive, while the remaining persons use the
+    corresponding affirmative imperative. The app omits the leading ``non``
+    from answers, so it is not included here.
+    """
+
+    affirmative_by_key = {
+        (form["person"], form.get("genderNumber")): form["accepted"]
+        for form in forms
+        if form["tense"] == "imperativo affermativo"
+    }
+    repaired: list[dict[str, Any]] = []
+
+    for form in forms:
+        if form["tense"] != "imperativo negativo":
+            repaired.append(form)
+            continue
+
+        key = (form["person"], form.get("genderNumber"))
+        affirmative = affirmative_by_key.get(key)
+        if not affirmative:
+            # Impersonal/defective verbs can contain a spurious negative row
+            # even though no corresponding imperative exists.
+            continue
+
+        accepted = [lemma] if form["person"] == "tu" else affirmative
+
+        repaired.append({**form, "accepted": list(accepted)})
+
+    return repaired
+
+
+def add_reflexive_imperative_variants(verbs: list[dict[str, Any]]) -> int:
+    updated = 0
+
+    for verb in verbs:
+        if not verb.get("lemma", "").endswith("si"):
+            continue
+        for form in verb.get("forms", []):
+            if form.get("tense") != "imperativo affermativo":
+                continue
+            person = form.get("person", "")
+            pronoun = AFFIRMATIVE_IMPERATIVE_ENCLITIC_BY_PERSON.get(person)
+            if not pronoun:
+                continue
+
+            prefix = f"{REFLEXIVE_PRONOUN_BY_PERSON[person]} "
+            base_values = [value[len(prefix) :] for value in form.get("accepted", []) if value.startswith(prefix)]
+            if not base_values:
+                continue
+
+            accepted = list(form["accepted"])
+            for variant in reflexive_accepted_variants(form["tense"], person, base_values):
+                if variant not in accepted:
+                    accepted.append(variant)
+
+            if accepted != form["accepted"]:
+                form["accepted"] = accepted
+                updated += 1
+
+    return updated
+
+
 def convert_to_essere_compounds(forms: list[dict[str, Any]], reflexive: bool = False) -> list[dict[str, Any]]:
     converted: list[dict[str, Any]] = []
 
@@ -419,7 +622,11 @@ def convert_to_essere_compounds(forms: list[dict[str, Any]], reflexive: bool = F
         tense = form["tense"]
         person = form["person"]
         if tense not in COMPOUND_TENSES:
-            next_form = {**form, "accepted": [f"{REFLEXIVE_PRONOUN_BY_PERSON[person]} {value}" for value in form["accepted"]]} if reflexive else form
+            next_form = (
+                {**form, "accepted": reflexive_accepted_variants(tense, person, form["accepted"])}
+                if reflexive
+                else form
+            )
             converted.append(next_form)
             continue
 
@@ -441,7 +648,7 @@ def convert_to_essere_compounds(forms: list[dict[str, Any]], reflexive: bool = F
         if not accepted:
             next_form = {**form}
             if reflexive:
-                next_form["accepted"] = [f"{REFLEXIVE_PRONOUN_BY_PERSON[person]} {value}" for value in form["accepted"]]
+                next_form["accepted"] = reflexive_accepted_variants(tense, person, form["accepted"])
             converted.append(next_form)
             continue
 
@@ -500,6 +707,7 @@ def flatten_forms(conjugation: Any, lemma: str, reflexive: bool = False) -> list
             item.get("genderNumber", ""),
         ),
     )
+    forms = repair_negative_imperatives(forms, lemma)
     if lemma in ESSERE_AUXILIARY_LEMMAS or reflexive:
         return convert_to_essere_compounds(forms, reflexive=reflexive)
     return forms
@@ -509,7 +717,7 @@ def prioritized_infinitives(all_infinitives: list[str], limit: int | None) -> li
     seen = set()
     ordered: list[str] = []
     available = set(all_infinitives)
-    for lemma in COMMON_FIRST:
+    for lemma in FREQUENCY_RANK_BY_LEMMA:
         base_lemma = reflexive_base(lemma)
         if (lemma in available or (base_lemma and base_lemma in available)) and lemma not in seen:
             ordered.append(lemma)
@@ -546,19 +754,24 @@ def generate(output: Path, limit: int | None) -> list[dict[str, Any]]:
         except Exception as exc:
             skipped.append((lemma, str(exc)))
             continue
+        if not has_valid_past_participle(conjugation):
+            skipped.append((lemma, "missing past participle"))
+            continue
         forms = flatten_forms(conjugation, lemma=base_lemma, reflexive=is_reflexive)
         if not forms:
             continue
 
-        verbs.append(
-            {
-                "id": lemma,
-                "lemma": lemma,
-                "english": translations.get(lemma, ""),
-                "irregular": str(verb.template).startswith(":"),
-                "forms": forms,
-            }
-        )
+        entry = {
+            "id": lemma,
+            "lemma": lemma,
+            "english": translations.get(lemma, ""),
+            "irregular": str(verb.template).startswith(":"),
+            "forms": forms,
+        }
+        frequency_rank = FREQUENCY_RANK_BY_LEMMA.get(lemma)
+        if frequency_rank is not None:
+            entry["frequencyRank"] = frequency_rank
+        verbs.append(entry)
 
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(verbs, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

@@ -1,0 +1,5 @@
+GEMINI_API_KEY=replace-with-your-google-ai-studio-key
+CHAT_TEST_PASSWORD=replace-with-a-long-random-password
+GEMINI_MODEL=gemini-2.5-flash
+PERSONAL_PASSWORD=replace-with-a-unique-password-at-least-20-characters
+PERSONAL_SESSION_SECRET=replace-with-an-independent-random-secret-at-least-32-characters

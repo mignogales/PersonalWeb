@@ -37,9 +37,6 @@ const CLOUD_DEPTH_LAYERS = [0.22, 0.38, 0.56, 0.74, 0.92];
 const CLOUD_DEPTH_JITTER = 0.045;
 const STAR_DEPTH_LAYERS = [0.18, 0.34, 0.58, 0.84, 1];
 const STAR_DEPTH_JITTER = 0.035;
-const SLIDE_CENTER_HOLD = 0.56;
-const SLIDE_MAX_PROGRESS = 1.55;
-const SLIDE_EDGE_GAP = 42;
 const SPACESHIP_BOTTOM_THRESHOLD = 6;
 const SPACESHIP_FLIGHT_DURATION = 12000;
 const SPACESHIP_BOOST_DURATION = 3400;
@@ -144,8 +141,6 @@ let parallax = {
   y: 0,
   targetY: 0
 };
-let slideCards = [];
-let slideCardsDisabled = false;
 let prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 let spaceshipBoostTimeoutId = null;
 let spaceshipFlightComplete = false;
@@ -617,68 +612,210 @@ function animate(time) {
   animationFrameId = requestAnimationFrame(animate);
 }
 
-function getSlideProgress(distanceFromCenter) {
-  const direction = Math.sign(distanceFromCenter);
-  const distance = Math.abs(distanceFromCenter);
+// Recorded mechanical keypresses; audio starts only after a user gesture.
+function createTypingSound() {
+  const button = document.querySelector(".typing-sound-toggle");
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!button || !AudioContextClass) return () => {};
+  // Each visit starts silent; the keyboard control explicitly enables sound.
+  let enabled = false;
+  let context;
+  let buffers = [];
+  let loading = false;
+  let previousSample = -1;
+  let output;
+  let lastTap = -Infinity;
 
-  if (distance <= SLIDE_CENTER_HOLD) {
-    return 0;
+  function updateButton() {
+    button.textContent = enabled ? "KEYS ON" : "KEYS OFF";
+    button.setAttribute("aria-pressed", String(enabled));
+    button.title = enabled ? "Mute keyboard sounds" : "Enable keyboard sounds";
   }
 
-  return direction * clamp(
-    (distance - SLIDE_CENTER_HOLD) / (SLIDE_MAX_PROGRESS - SLIDE_CENTER_HOLD),
-    0,
-    1
-  );
-}
-
-function setSlideCardsDisabled(disabled) {
-  if (slideCardsDisabled === disabled) {
-    return;
-  }
-
-  slideCardsDisabled = disabled;
-
-  if (disabled) {
-    slideCards.forEach((card) => {
-      card.style.setProperty("--scroll-slide-x", "0px");
-    });
-  }
-}
-
-function updateSlideCards() {
-  const shouldDisableSlideCards =
-    prefersReducedMotion ||
-    getDeviceMode() === DEVICE_MODES.MOBILE;
-
-  if (shouldDisableSlideCards) {
-    setSlideCardsDisabled(true);
-    return;
-  }
-
-  setSlideCardsDisabled(false);
-
-  const viewportCenter = window.innerHeight / 2;
-  const viewportWidth = window.innerWidth;
-
-  slideCards.forEach((card) => {
-    if (card.dataset.slideLocked === "true") {
-      card.style.setProperty("--scroll-slide-x", "0px");
-      return;
+  function unlock() {
+    if (!enabled) return;
+    try {
+      if (!context) {
+        context = new AudioContextClass();
+        output = context.createGain();
+        output.gain.value = 0.22;
+        output.connect(context.destination);
+      }
+      if (!loading && !buffers.length) {
+        loading = true;
+        Promise.all([1, 2, 3].map(async (number) => {
+          try {
+            const response = await fetch(`/assets/audio/keyboard/mx-blue-${number}.mp3`);
+            if (!response.ok) return null;
+            return await context.decodeAudioData(await response.arrayBuffer());
+          } catch { return null; }
+        })).then((decoded) => {
+          buffers = decoded.filter(Boolean);
+          loading = false;
+        });
+      }
+      if (context.state === "suspended") context.resume().catch(() => {});
+    } catch {
+      // Audio is optional; text continues if a device or browser rejects it.
     }
+  }
 
-    const rect = card.getBoundingClientRect();
-    const cardCenter = rect.top + rect.height / 2;
-    const normalizedDistance = (cardCenter - viewportCenter) / viewportCenter;
-    const progress = getSlideProgress(normalizedDistance);
-    const travel = viewportWidth / 2 + rect.width / 2 + SLIDE_EDGE_GAP;
-
-    if (progress === 0) {
-      card.dataset.slideLocked = "true";
-    }
-
-    card.style.setProperty("--scroll-slide-x", `${Math.round(progress * travel)}px`);
+  button.hidden = false;
+  updateButton();
+  button.addEventListener("click", () => {
+    enabled = !enabled;
+    if (output) output.gain.value = enabled ? 0.22 : 0;
+    updateButton();
+    if (enabled) unlock();
   });
+  const onGesture = (event) => {
+    if (!button.contains(event.target)) unlock();
+  };
+  document.addEventListener("pointerdown", onGesture, { passive: true });
+  document.addEventListener("keydown", onGesture);
+
+  return () => {
+    if (!enabled || document.hidden || context?.state !== "running" || !buffers.length) return;
+    const now = context.currentTime;
+    // Concurrent cards share the sound, preventing a pile-up or catch-up burst.
+    if (now - lastTap < 0.055) return;
+    lastTap = now;
+    const source = context.createBufferSource();
+    // Rotate between different physical keys without repeating one back-to-back.
+    const sample = buffers.length > 1
+      ? (previousSample + 1 + Math.floor(Math.random() * (buffers.length - 1))) % buffers.length : 0;
+    previousSample = sample;
+    source.buffer = buffers[sample];
+    source.playbackRate.value = 0.97 + Math.random() * 0.06;
+    source.connect(output);
+    source.onended = () => source.disconnect();
+    source.start(now);
+  };
+}
+
+// Reveal text once per visit without changing content, line wrapping or links.
+function initTextReveals() {
+  const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  if (motion.matches || !("IntersectionObserver" in window) ||
+      !window.CSS?.highlights || !("Highlight" in window)) return;
+
+  const playTypingSound = createTypingSound();
+  const mask = new Highlight();
+  CSS.highlights.set("homepage-typewriter", mask);
+  const pending = new Map();
+  const active = new Set();
+  let frame = null;
+  const WORD_MEAN_MS = 85;
+  const WORD_JITTER_MS = 12;
+  const ROW_STAGGER_MS = 650;
+
+  function sampleWordInterval() {
+    // Box–Muller: standard normal noise, with a small timing weight.
+    const normal = Math.sqrt(-2 * Math.log(1 - Math.random())) *
+      Math.cos(2 * Math.PI * Math.random());
+    return clamp(WORD_MEAN_MS + normal * WORD_JITTER_MS, 40, 130);
+  }
+
+  function finish(item) {
+    item.element.dataset.textReveal = "complete";
+    item.parts.forEach(({ range }) => mask.delete(range));
+    pending.delete(item.element);
+    active.delete(item);
+    observer.unobserve(item.element);
+  }
+
+  function tick(now) {
+    active.forEach((item) => {
+      item.started ??= now;
+      const elapsed = now - item.started - item.delay;
+      const previouslyRevealed = item.revealed;
+      while (item.revealed < item.wordTimes.length && elapsed >= item.wordTimes[item.revealed]) {
+        item.revealed += 1;
+      }
+      if (item.revealed > previouslyRevealed) {
+        const bounds = item.element.getBoundingClientRect();
+        if (bounds.bottom > 0 && bounds.top < window.innerHeight &&
+            bounds.right > 0 && bounds.left < window.innerWidth) playTypingSound();
+      }
+      const visible = item.wordEnds[item.revealed - 1] || 0;
+      item.parts.forEach(({ node, range, start, length }) => {
+        range.setStart(node, clamp(visible - start, 0, length));
+      });
+      if (item.revealed >= item.wordEnds.length) finish(item);
+    });
+    frame = active.size ? requestAnimationFrame(tick) : null;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      const item = pending.get(entry.target);
+      if (!item) return;
+      // Measure the displayed row at entry so responsive layouts and horizontal
+      // card scrollers stagger by their current on-screen position.
+      const box = item.element.closest(".panel, .contact-link, .section-heading") || item.element;
+      const section = item.element.closest(".section");
+      const bounds = box.getBoundingClientRect();
+      const sectionBounds = section.getBoundingClientRect();
+      const availableWidth = Math.min(sectionBounds.width, window.innerWidth);
+      item.delay = Math.round(clamp((bounds.left - Math.max(0, sectionBounds.left)) / availableWidth, 0, 1) * ROW_STAGGER_MS);
+      item.element.dataset.textReveal = "typing";
+      active.add(item);
+      observer.unobserve(entry.target);
+    });
+    if (active.size && frame === null) frame = requestAnimationFrame(tick);
+  }, { rootMargin: "0px 0px -24px 0px", threshold: 0 });
+
+  const selector = "h2, h3, h4, p, li, .card-link, .contact-meta, .contact-title, .contact-copy, .contact-cta, .about-me-flight-link";
+  document.querySelectorAll(".pixel-page .section:not(.hero)").forEach((section) => {
+    section.querySelectorAll(selector).forEach((element) => {
+      // A paragraph owns its inline formatting; don't animate descendants twice.
+      if (element.parentElement.closest(selector) || element.closest('[aria-hidden="true"]')) return;
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+      const parts = [];
+      let text = "";
+      let node;
+      while ((node = walker.nextNode())) {
+        if (node.parentElement.closest('[aria-hidden="true"]')) continue;
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        mask.add(range);
+        parts.push({ node, range, start: text.length, length: node.textContent.length });
+        text += node.textContent;
+      }
+      // Tokenize the full block, preserving punctuation and words split by
+      // inline emphasis. Every step reveals a whole word plus its whitespace.
+      const wordEnds = [...text.matchAll(/\S+\s*/gu)].map(match => match.index + match[0].length);
+      if (!wordEnds.length) {
+        parts.forEach(({ range }) => mask.delete(range));
+        return;
+      }
+      // Sample each word once, so its timing is independent of frame rate.
+      let totalTime = 0;
+      const wordTimes = wordEnds.map(() => (totalTime += sampleWordInterval()));
+      const item = { element, parts, wordEnds, wordTimes, revealed: 0, delay: 0 };
+      element.dataset.textReveal = "pending";
+      pending.set(element, item);
+      observer.observe(element);
+    });
+  });
+
+  // Keyboard navigation reveals the focused card immediately.
+  document.addEventListener("focusin", (event) => {
+    const target = event.target.closest("a, button, .panel") || event.target;
+    pending.forEach((item) => {
+      if (target.contains(item.element) || item.element.contains(target)) finish(item);
+    });
+  });
+  const revealAll = () => {
+    pending.forEach(finish);
+    observer.disconnect();
+    if (frame !== null) cancelAnimationFrame(frame);
+    frame = null;
+    CSS.highlights.delete("homepage-typewriter");
+  };
+  motion.addEventListener("change", (event) => { if (event.matches) revealAll(); });
+  window.addEventListener("beforeprint", revealAll, { once: true });
 }
 
 function isAtScrollBottom() {
@@ -1056,7 +1193,6 @@ function toggleBackgroundMusic() {
 
 function handleScroll() {
   scrollPauseUntil = performance.now() + SCROLL_ANIMATION_PAUSE_DURATION;
-  updateSlideCards();
   updateSpaceshipVisibility();
   updateEarthPortalFocus();
 }
@@ -1068,7 +1204,6 @@ function handleResize() {
 
   updateDeviceMode();
   resizeCanvas();
-  updateSlideCards();
   updateSpaceshipVisibility();
   updateEarthPortalFocus();
   renderScene(sceneTime);
@@ -1734,11 +1869,7 @@ if (paperTooltip) {
 
 initHistoryCollages();
 
-slideCards = document.querySelector(".research-page")
-  ? []
-  : Array.from(document.querySelectorAll(".section:not(.hero) .panel"));
-slideCards.forEach((card) => card.classList.add("scroll-slide"));
-updateSlideCards();
+initTextReveals();
 updateSpaceshipVisibility();
 updateEarthPortalFocus();
 

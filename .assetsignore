@@ -20,4 +20,6 @@ backend_secrets/**
 .pnpm-store/**
 *.log
 CHAT_SETUP.md
+PERSONAL_SETUP.md
+apps/dashboard/**
 raspberry-api/**

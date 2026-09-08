@@ -10,9 +10,9 @@
   <title>Miguel Nogales | PhD Student in AI</title>
   <link rel="icon" type="image/png" href="assets/research/misc/favicon.png" />
   <link rel="apple-touch-icon" href="assets/research/misc/favicon.png" />
-  <link rel="stylesheet" href="css/style.css?v=apps-card-polish" />
+  <link rel="stylesheet" href="css/style.css?v=typing-sound" />
 </head>
-<body>
+<body class="pixel-page">
   <canvas id="starfield" aria-hidden="true"></canvas>
   <button class="spaceship" type="button" aria-label="Boost spaceship">
     <img
@@ -68,6 +68,8 @@
       aria-hidden="true"
     />
   </button>
+  <button class="typing-sound-toggle" type="button" aria-label="Keyboard sounds"
+    aria-pressed="false" title="Enable keyboard sounds" hidden>KEYS OFF</button>
   <a class="earth-portal" href="pages/about-me.html" aria-label="Open About Me">
     <img src="assets/research/misc/sun.png" alt="" aria-hidden="true" />
   </a>
@@ -328,28 +330,50 @@
           </div>
         </article>
 
-        <article class="panel running-project-card calorie-tracker-card">
+        <a class="panel running-project-card calorie-tracker-card" href="/calories/" aria-label="Open Calorie and Weight Tracker">
           <div class="running-project-icon calorie-tracker-icon" aria-hidden="true">
             <span>kcal</span>
           </div>
           <div class="running-project-copy">
             <div class="running-project-meta">
               <p class="meta">Self-hosted health tracking app</p>
-              <span class="project-status">In development</span>
+              <span class="project-status project-status-live">Available</span>
             </div>
             <h3>Voice Calorie &amp; Weight Tracker</h3>
             <p>
-              Voice and text logging for meals and body weight, designed around local ASR,
-              grammar-constrained extraction, deterministic nutrition lookup, and SQLite analytics.
+              Log meals by voice or text, track body weight, and follow daily calorie and protein goals.
             </p>
             <ul class="tags" aria-label="Voice Calorie and Weight Tracker technologies">
               <li>Whisper.cpp</li>
-              <li>llama.cpp</li>
               <li>SQLite</li>
               <li>Cloudflare Tunnel</li>
             </ul>
           </div>
-        </article>
+          <span class="card-link">Open app</span>
+        </a>
+        <a class="panel running-project-card" href="/apps/caso-cero/" aria-label="Play Caso Cero">
+          <div class="running-project-icon" aria-hidden="true">
+            <img src="/apps/caso-cero/favicon.svg" alt="" />
+          </div>
+          <div class="running-project-copy">
+            <div class="running-project-meta">
+              <p class="meta">Crime scene logic game</p>
+              <span class="project-status project-status-live">Available</span>
+            </div>
+            <h3>Caso Cero</h3>
+            <p>
+              Place every person, follow their statements, and find who was alone with the victim.
+              Solve a prepared mystery or generate a new one.
+            </p>
+            <ul class="tags" aria-label="Caso Cero features">
+              <li>Logic puzzles</li>
+              <li>English / Español</li>
+              <li>4×4 to 64×64</li>
+            </ul>
+          </div>
+          <span class="card-link">Play game</span>
+        </a>
+
       </div>
 
     </section>
@@ -399,6 +423,8 @@
             <li>Introduction to FinTech (2025 Fall)</li>
             <li>Founders II (2025 Fall)</li>
             <li>Machine Learning (2026 Spring)</li>
+            <li>Graph Deep Learning (2026 Fall)</li>
+            <li>Edge Computing in the IoT (2026 Fall)</li>
           </ul>
         </article>
       </div>
@@ -471,6 +497,6 @@
     <p>&copy; <span id="year"></span> Miguel Nogales. Built with semantic HTML, CSS, and JavaScript. (it was LLM made, i didnt do anything)</p>
   </footer>
 
-  <script src="js/script.js?v=theme-switch-device-mode"></script>
+  <script src="js/script.js?v=keyboard-opt-in"></script>
 </body>
 </html>

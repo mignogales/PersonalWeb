@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="referrer" content="same-origin">
+  <title>Chat Lab · Miguel Nogales</title>
+  <link rel="stylesheet" href="/apps/chat-lab/style.css">
+  <script src="/apps/chat-lab/chat.js" defer></script>
+</head>
+<body>
+  <main>
+    <header><a href="/">Miguel Nogales ↗</a><span class="badge">EXPERIMENTO</span></header>
+    <h1>Chat Lab<span>✳</span></h1>
+    <p class="intro">Un pequeño espacio para conversar y probar Gemini.</p>
+    <label for="password">Contraseña de prueba</label>
+    <input id="password" type="password" autocomplete="off" placeholder="Introduce la contraseña de acceso">
+    <section class="chat" aria-label="Conversación">
+      <div id="messages" role="log" aria-live="polite"><article class="model"><small>ASISTENTE</small><p>Hola. ¿Qué te gustaría probar hoy?</p></article></div>
+      <form id="form">
+        <label for="prompt">Tu mensaje</label>
+        <textarea id="prompt" rows="3" maxlength="2000" required placeholder="Escribe una pregunta…"></textarea>
+        <div class="actions"><button type="button" id="clear">Nueva conversación</button><button id="send" type="submit">Enviar ↗</button></div>
+      </form>
+    </section>
+    <p id="status" role="status"></p>
+    <footer>La conversación se conserva solo en esta pestaña y se envía a Google al preguntar. No incluyas datos sensibles. El nivel gratuito tiene cuotas y Google puede utilizar el contenido para mejorar sus productos.</footer>
+  </main>
+</body>
+</html>

@@ -17,7 +17,10 @@ const emptyProgress = {
   currentStreak: 0,
   bestStreak: 0,
   practicedDays: [],
+  attemptHistory: [],
 };
+
+const HISTORY_LIMIT = 1_000;
 
 const server = createServer(async (request, response) => {
   const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
@@ -146,7 +149,31 @@ function sanitizeProgress(progress) {
     currentStreak: Number(progress.currentStreak) || 0,
     bestStreak: Number(progress.bestStreak) || 0,
     practicedDays: Array.isArray(progress.practicedDays) ? progress.practicedDays.filter(Boolean) : [],
+    attemptHistory: Array.isArray(progress.attemptHistory)
+      ? progress.attemptHistory.slice(-HISTORY_LIMIT).map(sanitizeAttempt).filter(Boolean)
+      : [],
   };
+}
+
+function sanitizeAttempt(attempt) {
+  if (!attempt || typeof attempt !== "object") return null;
+  return {
+    itemId: cleanText(attempt.itemId, 240),
+    verbId: cleanText(attempt.verbId, 120),
+    lemma: cleanText(attempt.lemma, 120),
+    tense: cleanText(attempt.tense, 120),
+    person: cleanText(attempt.person, 40),
+    irregular: Boolean(attempt.irregular),
+    correct: Boolean(attempt.correct),
+    answer: cleanText(attempt.answer, 240),
+    expected: cleanText(attempt.expected, 240),
+    mode: cleanText(attempt.mode, 40),
+    attemptedAt: cleanText(attempt.attemptedAt, 40),
+  };
+}
+
+function cleanText(value, maxLength) {
+  return typeof value === "string" ? value.slice(0, maxLength) : "";
 }
 
 async function readJson(path, fallback) {

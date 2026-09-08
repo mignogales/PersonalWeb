@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Calorie Tracker</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Local Pi-ready prototype</p>
+          <h1>Calorie & Weight Tracker</h1>
+        </div>
+        <div class="status" id="apiStatus">Checking API</div>
+      </header>
+
+      <section class="auth-grid" id="authView">
+        <form class="panel" id="createUserForm">
+          <h2>Create Profile</h2>
+          <label>
+            Username
+            <input name="username" autocomplete="username" placeholder="miguel" required />
+          </label>
+          <label>
+            Password
+            <input name="password" type="password" autocomplete="new-password" minlength="8" required />
+          </label>
+          <label>
+            Daily calorie target
+            <input name="calorie_target" type="number" min="1000" max="6000" value="2200" />
+          </label>
+          <label>
+            Daily protein target
+            <input name="protein_target" type="number" min="20" max="400" value="140" />
+          </label>
+          <button type="submit">Create account</button>
+        </form>
+
+        <form class="panel" id="loginForm">
+          <h2>Log In</h2>
+          <label>
+            Username
+            <input name="username" autocomplete="username" required />
+          </label>
+          <label>
+            Password
+            <input name="password" type="password" autocomplete="current-password" required />
+          </label>
+          <button type="submit">Log in</button>
+        </form>
+
+        <p class="muted auth-message" id="authMessage" aria-live="polite"></p>
+      </section>
+
+      <section class="app-grid hidden" id="appView">
+        <aside class="panel user-panel">
+          <div class="row between">
+            <div>
+              <p class="eyebrow">Signed in</p>
+              <h2 id="username">Profile</h2>
+            </div>
+            <button class="secondary" id="logoutBtn" type="button">Lock</button>
+          </div>
+          <div class="target">
+            <div>
+              <span>Calorie goal</span>
+              <strong id="targetCalories">0 kcal</strong>
+            </div>
+            <div>
+              <span>Protein goal</span>
+              <strong id="targetProtein">0 g</strong>
+            </div>
+          </div>
+          <form class="password-form" id="passwordForm">
+            <label>
+              Account password
+              <input name="password" type="password" autocomplete="new-password" minlength="8" required />
+            </label>
+            <button class="secondary" type="submit" id="savePasswordBtn">Save password</button>
+            <p class="muted" id="passwordState" aria-live="polite"></p>
+          </form>
+          <div class="mini-list">
+            <div><span>Today</span><strong id="todayCalories">0 kcal</strong></div>
+            <div><span>Protein</span><strong id="todayProtein">0 g</strong></div>
+            <div><span>Latest weight</span><strong id="latestWeight">No data</strong></div>
+          </div>
+        </aside>
+
+        <section class="panel logger">
+          <div class="tabs" role="tablist">
+            <button class="tab active" data-tab="food" type="button">Food</button>
+            <button class="tab" data-tab="weight" type="button">Weight</button>
+            <button class="tab" data-tab="voice" type="button">Voice</button>
+          </div>
+
+          <form id="foodForm" class="tab-panel">
+            <label>
+              Meal text
+              <textarea name="text" rows="5" placeholder="100 g patatas crudas y 100 g pechuga de pollo" required></textarea>
+            </label>
+            <button type="submit">Log food</button>
+          </form>
+
+          <form id="weightForm" class="tab-panel hidden">
+            <label>
+              Weight in kg
+              <input name="weight" type="number" min="25" max="250" step="0.1" placeholder="80.0" required />
+            </label>
+            <button type="submit">Log weight</button>
+          </form>
+
+          <div id="voicePanel" class="tab-panel hidden">
+            <div class="recorder">
+              <button type="button" id="recordBtn">Start recording</button>
+              <button type="button" id="stopBtn" class="secondary" disabled>Stop & upload</button>
+            </div>
+            <p class="muted" id="voiceState">Record a short meal with food names and quantities, then review the result. Processing can take around 30 seconds on the Pi.</p>
+          </div>
+
+          <p class="muted processing-state" id="loggerState" aria-live="polite"></p>
+          <pre class="result" id="lastResult">No logs yet.</pre>
+        </section>
+
+        <section class="panel wide">
+          <div class="row between">
+            <h2>Progress</h2>
+            <div class="chart-legend" aria-label="Chart legend">
+              <span><i class="swatch calories"></i>Calories</span>
+              <span><i class="swatch target-line"></i>Goal</span>
+              <span><i class="swatch protein"></i>Protein</span>
+              <span><i class="swatch weight"></i>Weight</span>
+            </div>
+          </div>
+          <div class="chart-grid">
+            <article class="chart-card">
+              <div class="row between chart-head">
+                <div>
+                  <span class="muted">Last 14 days</span>
+                  <strong>Calories</strong>
+                </div>
+                <span class="chart-stat" id="averageCalories">0 kcal avg</span>
+              </div>
+              <div class="chart-wrap" id="calorieChart" aria-label="Daily calories chart"></div>
+            </article>
+            <article class="chart-card">
+              <div class="row between chart-head">
+                <div>
+                  <span class="muted">Last 14 days</span>
+                  <strong>Protein</strong>
+                </div>
+                <span class="chart-stat" id="averageProtein">0 g avg</span>
+              </div>
+              <div class="chart-wrap" id="proteinChart" aria-label="Daily protein chart"></div>
+            </article>
+            <article class="chart-card">
+              <div class="row between chart-head">
+                <div>
+                  <span class="muted">Recent entries</span>
+                  <strong>Weight</strong>
+                </div>
+                <span class="chart-stat" id="weightChange">No trend</span>
+              </div>
+              <div class="chart-wrap" id="weightChart" aria-label="Weight chart"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel wide settings-panel">
+          <div>
+            <h2>Config</h2>
+            <p class="muted">Set the daily calorie and protein goals used by the progress charts and profile summary.</p>
+          </div>
+          <form id="settingsForm" class="inline-form">
+            <label>
+              Daily calorie goal
+              <input name="calorie_target" type="number" min="1000" max="6000" step="50" required />
+            </label>
+            <label>
+              Daily protein goal
+              <input name="protein_target" type="number" min="20" max="400" step="5" required />
+            </label>
+            <button type="submit" id="saveSettingsBtn">Save goal</button>
+            <p class="muted form-state" id="settingsState" aria-live="polite"></p>
+          </form>
+        </section>
+
+        <section class="panel wide">
+          <div class="row between">
+            <h2>Recent Logs</h2>
+            <button class="secondary" id="refreshBtn" type="button">Refresh</button>
+          </div>
+          <div id="logs" class="logs"></div>
+        </section>
+
+        <section class="panel wide">
+          <h2>Daily Summary</h2>
+          <div id="daily" class="summary-grid"></div>
+        </section>
+      </section>
+    </main>
+    <script src="./config.js"></script>
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>

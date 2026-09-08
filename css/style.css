@@ -513,14 +513,6 @@ main::after {
   backdrop-filter: blur(14px);
 }
 
-.scroll-slide {
-  transform:
-    translate3d(var(--scroll-slide-x, 0), var(--card-lift, 0), 0)
-    rotateX(var(--tilt-x, 0deg))
-    rotateY(var(--tilt-y, 0deg));
-  will-change: transform;
-}
-
 #hero .hero-panel {
   width: min(calc(100vw - 96px), 1160px);
   max-width: none;
@@ -643,18 +635,6 @@ h1 {
   font-size: clamp(1.8rem, 4vw, 3rem);
   line-height: 1.12;
   letter-spacing: 0;
-}
-
-#running-projects .section-heading {
-  padding: 12px 28px 12px 0;
-}
-
-#running-projects .section-heading::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(90deg, var(--bg) 0%, var(--bg) 68%, transparent 100%);
 }
 
 .section > .panel {
@@ -1180,7 +1160,6 @@ h1 {
   gap: 18px;
   overflow: hidden;
   padding: 18px;
-  transform: translate3d(var(--scroll-slide-x, 0), 0, 0);
   transition:
     transform 180ms ease,
     border-color 180ms ease,
@@ -2624,11 +2603,6 @@ a.running-project-card:focus-visible {
     box-shadow: 0 18px 54px var(--shadow);
   }
 
-  .scroll-slide {
-    transform: none !important;
-    will-change: auto;
-  }
-
   .running-project-card {
     align-items: start;
     gap: 14px;
@@ -3070,10 +3044,6 @@ a.running-project-card:focus-visible {
     scroll-behavior: auto;
   }
 
-  .scroll-slide {
-    transform: none !important;
-  }
-
   .spaceship-visible .spaceship {
     right: 18px;
     left: auto;
@@ -3121,4 +3091,138 @@ a.running-project-card:focus-visible {
   100% {
     opacity: 1;
   }
+}
+
+/* Pixel typography throughout the home page; card surfaces retain their design. */
+@font-face {
+  font-family: "VT323";
+  src: url("../assets/fonts/VT323-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+.pixel-page {
+  font-family: "VT323", "Courier New", monospace;
+  font-size: 1.25rem;
+  line-height: 1.45;
+}
+
+.pixel-page :is(.research-card, .project-card, .running-project-card, .contact-link) {
+  font-family: inherit;
+  font-size: 1.25rem;
+  line-height: 1.45;
+}
+
+.pixel-page :is(h1, h2, h3, h4, .brand, .role, .eyebrow, .button,
+  .about-me-flight-link, .card-link, .meta, .tags li, .contact-title,
+  .contact-meta, .contact-cta, .status-badge) {
+  font-weight: 400;
+}
+
+.pixel-page :is(.research-card, .project-card, .running-project-card) h3 {
+  font-size: 1.5rem;
+  line-height: 1.15;
+}
+
+.pixel-page :is(.research-card, .project-card, .running-project-card) p {
+  font-size: 1.25rem;
+}
+
+.pixel-page :is(.meta, .card-link, .tags li, .status-badge,
+  .contact-meta, .contact-copy, .contact-cta) {
+  font-size: 1.1rem;
+}
+
+.pixel-page .contact-title { font-size: 1.6rem; }
+.pixel-page .contact-link-featured .contact-title { font-size: clamp(2rem, 3.8vw, 3rem); }
+
+.pixel-page :is(.section-heading h2, .about-me-cue h2, h1) {
+  text-shadow: 3px 3px 0 var(--shadow);
+}
+
+.pixel-page .nav-links a { font-size: 1.2rem; border-radius: 0; }
+.pixel-page .eyebrow { font-size: 1rem; letter-spacing: 0.08em; }
+.pixel-page .tagline { font-size: clamp(1.25rem, 2vw, 1.45rem); }
+.pixel-page .footer { font-size: 1.1rem; }
+.pixel-page .contact-section .section-heading p:not(.eyebrow) { font-size: 1.25rem; }
+
+.pixel-page .site-header {
+  border-bottom: 2px solid var(--accent);
+  box-shadow: 0 4px 0 var(--shadow);
+}
+
+.pixel-page :is(.hero-panel, #about > .panel, .contact-dock) {
+  border: 2px solid var(--accent);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--bg), 8px 8px 0 var(--accent), 12px 12px 0 var(--shadow);
+}
+
+.pixel-page :is(.button, .about-me-flight-link, .nav-toggle, .theme-toggle, .music-toggle) {
+  border: 2px solid var(--accent);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--shadow);
+}
+
+.pixel-page :is(.button, .about-me-flight-link):hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--shadow);
+}
+
+.pixel-page :is(.button, .about-me-flight-link):active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--shadow);
+}
+
+.pixel-page .section-heading::before {
+  content: "";
+  display: block;
+  width: 12px;
+  height: 4px;
+  margin-bottom: 16px;
+  background: var(--accent);
+  box-shadow: 4px -4px 0 var(--accent), 16px 0 0 var(--accent-strong);
+}
+
+/* Highlight ranges mask only unrevealed glyphs: layout, links, selection and
+   screen-reader text remain intact throughout the animation. */
+::highlight(homepage-typewriter) {
+  color: transparent;
+  text-shadow: none;
+}
+
+@media (max-width: 760px) {
+  .pixel-page .nav-links a { font-size: 1.25rem; }
+  .pixel-page :is(.hero-panel, #about > .panel, .contact-dock) {
+    box-shadow: 3px 3px 0 var(--bg), 6px 6px 0 var(--accent);
+  }
+}
+
+/* Element shadows can otherwise show through transparent highlight glyphs. */
+.pixel-page [data-text-reveal]:not([data-text-reveal="complete"]),
+.pixel-page [data-text-reveal]:not([data-text-reveal="complete"]) * {
+  text-shadow: none;
+}
+
+.pixel-page .typing-sound-toggle {
+  position: fixed;
+  bottom: calc(18px + var(--safe-bottom));
+  left: 18px;
+  z-index: 12;
+  min-height: 42px;
+  padding: 6px 12px;
+  border: 2px solid var(--accent);
+  border-radius: 0;
+  color: var(--text);
+  background: var(--toggle-bg);
+  box-shadow: 4px 4px 0 var(--shadow);
+  font: 1.125rem "VT323", monospace;
+  cursor: pointer;
+}
+
+.pixel-page .typing-sound-toggle[hidden] { display: none; }
+.pixel-page .typing-sound-toggle[aria-pressed="false"] { color: var(--muted); }
+.pixel-page .typing-sound-toggle:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 4px;
 }
