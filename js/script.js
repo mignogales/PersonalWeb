@@ -29,9 +29,7 @@ const TRAIL_LIFETIME = 1000;
 const TRAIL_STRENGTH = 0.48;
 const TRAIL_SAMPLE_DISTANCE = 10;
 const SCROLL_PARALLAX_FACTOR = 0.12;
-const SCROLL_PARALLAX_EASE = 0.08;
 const SCROLL_ANIMATION_PAUSE_DURATION = 150;
-const SCROLL_CANVAS_RENDER_INTERVAL = 90;
 const MOBILE_VIEWPORT_RESIZE_TOLERANCE = 2;
 const CLOUD_DEPTH_LAYERS = [0.22, 0.38, 0.56, 0.74, 0.92];
 const CLOUD_DEPTH_JITTER = 0.045;
@@ -130,7 +128,6 @@ let currentTheme = THEMES.LIGHT;
 let sceneTime = 0;
 let lastAnimationTime = null;
 let scrollPauseUntil = 0;
-let lastScrollCanvasRender = 0;
 let pointer = {
   active: false,
   x: 0,
@@ -138,8 +135,7 @@ let pointer = {
 };
 let pointerTrail = [];
 let parallax = {
-  y: 0,
-  targetY: 0
+  y: 0
 };
 let prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 let spaceshipBoostTimeoutId = null;
@@ -522,14 +518,10 @@ function drawSpaceBackground() {
 }
 
 function updateCanvasParallax() {
-  if (getDeviceMode() === DEVICE_MODES.MOBILE) {
-    parallax.targetY = 0;
-    parallax.y = 0;
-    return;
-  }
-
-  parallax.targetY = -window.scrollY * SCROLL_PARALLAX_FACTOR;
-  parallax.y += (parallax.targetY - parallax.y) * SCROLL_PARALLAX_EASE;
+  // Follow the browser's scroll momentum directly, without a catch-up animation.
+  parallax.y = getDeviceMode() === DEVICE_MODES.MOBILE
+    ? 0
+    : -window.scrollY * SCROLL_PARALLAX_FACTOR;
 }
 
 function maskPortalStars() {
@@ -603,12 +595,10 @@ function animate(time) {
 
   if (!isScrollPaused || shouldAnimateDuringScroll) {
     sceneTime += elapsed;
-    renderScene(sceneTime);
-  } else if (time - lastScrollCanvasRender >= SCROLL_CANVAS_RENDER_INTERVAL) {
-    renderScene(sceneTime);
-    lastScrollCanvasRender = time;
   }
 
+  // Keep scroll positions and the portal mask current even while twinkling is paused.
+  renderScene(sceneTime);
   animationFrameId = requestAnimationFrame(animate);
 }
 
