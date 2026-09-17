@@ -21,7 +21,8 @@ with tempfile.TemporaryDirectory(prefix="sso-test-") as root:
     scale_id = auth.create_user("scale_tester", "synthetic-scale-password")
     with auth.connect() as db:
         db.execute("INSERT INTO settings VALUES ('owner_user_id',?)", (scale_id,))
-    auth.grant(scale_id, "scale")
+    for app in auth.APPS:
+        auth.grant(scale_id, app)
     try:
         auth.grant(alice_id, "scale")
         raise AssertionError("Non-owner received Scale grant")
@@ -88,6 +89,13 @@ with tempfile.TemporaryDirectory(prefix="sso-test-") as root:
         bob = login("bob", "synthetic-bob-password")
         charlie = login("charlie", "synthetic-charlie-password")
         scale_tester = login("scale_tester", "synthetic-scale-password")
+        status, _, alice_launcher = request("GET", "/auth/", alice)
+        assert status == 200 and b"<h3>Italian</h3>" in alice_launcher
+        assert b"<h3>Scale</h3>" not in alice_launcher and b"<h3>Calories</h3>" not in alice_launcher
+        status, _, owner_launcher = request("GET", "/auth/", scale_tester)
+        assert status == 200 and owner_launcher.count(b'class="card tone-') == len(auth.APPS)
+        if os.environ.get("LAUNCHER_PREVIEW_PATH"):
+            Path(os.environ["LAUNCHER_PREVIEW_PATH"]).write_bytes(owner_launcher)
         csrf_cookie, csrf = login_form()
         assert request("POST", "/auth/login", cookie=csrf_cookie, body=urlencode({"username": "alice", "password": "wrong", "csrf": csrf}).encode(), content_type="application/x-www-form-urlencoded")[0] == 401
         for route in ("/scale/api/measurements", "/calories/api/logs", "/nightwatch/api/state", "/office/schedule"):
@@ -110,7 +118,12 @@ with tempfile.TemporaryDirectory(prefix="sso-test-") as root:
         assert json.loads(request("GET", "/office/schedule", bob)[2])["schedule"]["dates"]["2026-09-17"] == ["bob"]
         profile = json.loads(request("GET", "/auth/session", alice)[2])
         assert profile["apps"] == ["italian"]
-        assert request("POST", "/auth/logout", alice)[0] == 303
+        status, headers, launcher = request("GET", "/auth/", alice, origin="", host="api.miguelnogales.com")
+        assert status == 200
+        csrf = re.search(rb'name="csrf" value="([A-Za-z0-9_-]+)"', launcher).group(1).decode()
+        csrf_cookie = headers["Set-Cookie"].split(";", 1)[0]
+        logout_form = urlencode({"csrf": csrf}).encode()
+        assert request("POST", "/auth/logout", f"{alice}; {csrf_cookie}", logout_form, "application/x-www-form-urlencoded", origin="", host="api.miguelnogales.com")[0] == 303
         assert request("GET", "/italian/progress", alice)[0] == 401
         alice = login("alice", "synthetic-alice-password")
         auth.reset_password("alice", "synthetic-alice-new-password")
