@@ -28,7 +28,7 @@ test('keeps key server-side, forwards bounded history and handles upstream failu
       assert.equal(JSON.parse(options.body).generationConfig.maxOutputTokens, 512);
       return Response.json({ candidates: [{ content: { parts: [{ text: 'Hola también' }] } }] });
     };
-    const response = await worker.fetch(request(), env);
+    const response = await handleChat(request(), env);
     assert.deepEqual(await response.json(), { text: 'Hola también', model: 'gemini-2.5-flash' });
     assert.equal(response.headers.get('Cache-Control'), 'no-store');
     for (const [upstream, expected] of [[429, 429], [404, 503], [403, 502]]) {
@@ -42,6 +42,23 @@ test('keeps key server-side, forwards bounded history and handles upstream failu
     globalThis.fetch = async () => { throw new Error('secret'); };
     assert.equal((await handleChat(request(), env)).status, 504);
   } finally { globalThis.fetch = original; }
+});
+test('chat worker requires shared grant and injects the server-only test password', async () => {
+  const previous = globalThis.fetch;
+  let apps = null;
+  globalThis.fetch = async (url, options) => {
+    if (String(url).endsWith('/auth/session')) return apps ? Response.json({user:{id:'test',name:'alice'},apps}) : Response.json({error:'Sign in required'},{status:401});
+    assert.equal(options.headers['x-goog-api-key'], env.GEMINI_API_KEY);
+    return Response.json({ candidates: [{ content: { parts: [{ text: 'Hola' }] } }] });
+  };
+  try {
+    const browser = new Request('https://example.com/api/chat', {method:'POST', headers:{Origin:'https://example.com','Content-Type':'application/json',Cookie:'personalweb_session=test'}, body:JSON.stringify({messages:[{role:'user',text:'Hola'}]})});
+    assert.equal((await worker.fetch(browser.clone(),env)).status,401);
+    apps = ['italian'];
+    assert.equal((await worker.fetch(browser.clone(),env)).status,403);
+    apps = ['chat'];
+    assert.equal((await worker.fetch(browser.clone(),env)).status,200);
+  } finally {globalThis.fetch = previous;}
 });
 test('preserves existing worker routes', async () => {
   const config = await worker.fetch(new Request('https://example.com/apps/office-scheduler/config.json'), { OFFICE_SCHEDULER_API_BASE: 'test' });

@@ -5,8 +5,7 @@ import worker from '../src/worker.js';
 const base = 'https://example.com';
 const env = { ASSETS: { fetch: async () => new Response('static frontend') } };
 
-test('calorie frontend stays static while known API routes reach the Pi', async () => {
-  assert.equal(await (await worker.fetch(new Request(base + '/calories/'), env)).text(), 'static frontend');
+test('calorie API forwards only the shared cookie', async () => {
   const original = globalThis.fetch;
   let received;
   globalThis.fetch = async (url, options) => {
@@ -14,10 +13,10 @@ test('calorie frontend stays static while known API routes reach the Pi', async 
     return Response.json({ logs: [] });
   };
   try {
-    const response = await worker.fetch(new Request(base + '/calories/api/logs?limit=20', { headers: { 'X-Access-Token': 'synthetic-token', Cookie: 'private-cookie' } }), env);
+    const response = await worker.fetch(new Request(base + '/calories/api/logs?limit=20', { headers: { 'X-Access-Token': 'synthetic-token', Cookie: 'personalweb_session=test' } }), env);
     assert.equal(received.url, 'https://api.miguelnogales.com/calories/api/logs?limit=20');
-    assert.equal(received.options.headers.get('X-Access-Token'), 'synthetic-token');
-    assert.equal(received.options.headers.has('Cookie'), false);
+    assert.equal(received.options.headers.get('X-Access-Token'), null);
+    assert.equal(received.options.headers.get('Cookie'), 'personalweb_session=test');
     assert.equal(response.headers.get('Cache-Control'), 'no-store');
     assert.deepEqual(await response.json(), { logs: [] });
   } finally { globalThis.fetch = original; }
@@ -72,7 +71,7 @@ test('redirects and non-JSON upstream failures do not leak responses or tokens',
 
 test('deployment keeps API ahead of assets and links both entry points', async () => {
   const config = JSON.parse(await readFile(new URL('../wrangler.jsonc', import.meta.url), 'utf8'));
-  assert.ok(config.assets.run_worker_first.includes('/calories/api/*'));
+  assert.ok(config.assets.run_worker_first.includes('/calories/*'));
   for (const path of ['../index.html', '../src/personal-views.js']) assert.match(await readFile(new URL(path, import.meta.url), 'utf8'), /href="\/calories\/"/);
   assert.match(await readFile(new URL('../calories/config.js', import.meta.url), 'utf8'), /apiBaseUrl: "\/calories"/);
 });

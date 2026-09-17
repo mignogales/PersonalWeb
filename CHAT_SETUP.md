@@ -1,5 +1,9 @@
 # Chat experimental
 
+> El acceso actual usa el inicio de sesión compartido descrito en
+> [SHARED_AUTH.md](SHARED_AUTH.md). La contraseña de prueba queda solo en el
+> Worker y ya no se introduce en la página. El resto describe la versión anterior.
+
 Ruta: `/apps/chat-lab/`. No está enlazada desde la portada; incluye noindex.
 La página es pública, pero `/api/chat` requiere una contraseña de prueba.
 

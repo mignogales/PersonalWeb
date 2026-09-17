@@ -69,6 +69,12 @@ function App() {
   activeName.current = user?.name;
   const inputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    void handleLogin("", "", false).catch(() => {
+      location.replace(`https://api.miguelnogales.com/auth/login?next=${encodeURIComponent(location.href)}`);
+    });
+  }, []);
+
   const current = queue[index];
   const completed = index >= queue.length;
   const stats = useMemo(() => getLearningStats(progress), [progress]);

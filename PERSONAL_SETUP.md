@@ -1,5 +1,9 @@
 # Personal area
 
+> Shared sign-in migration: current account, grant, and deployment steps are
+> in [SHARED_AUTH.md](SHARED_AUTH.md). The single-user password setup below is
+> retained only as rollback history.
+
 The private entrance is `/personal/`; the first tool lives at `/personal/dashboard`.
 There is no link to it on the public portfolio. The old `/apps/dashboard/` address
 requires sign-in and redirects to the private dashboard. The status APIs at

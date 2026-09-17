@@ -17,7 +17,7 @@ export async function handleCalories(request, env) {
   }
   const base = env.CALORIE_TRACKER_API_BASE || "https://api.miguelnogales.com";
   const headers = new Headers({ Accept: "application/json" });
-  for (const name of ["X-Access-Token", "Content-Type"]) {
+  for (const name of ["Cookie", "Origin", "Sec-Fetch-Site", "Content-Type", "X-Expected-User"]) {
     if (request.headers.has(name)) headers.set(name, request.headers.get(name));
   }
   let upstreamStatus;

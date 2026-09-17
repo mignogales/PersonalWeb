@@ -1,5 +1,5 @@
 const state = {
-  token: localStorage.getItem("calorie_token") || "",
+  token: "",
   user: null,
   mediaRecorder: null,
   audioChunks: [],
@@ -7,6 +7,7 @@ const state = {
 };
 
 const config = window.CALORIE_TRACKER_CONFIG || {};
+localStorage.removeItem("calorie_token");
 const fileApiBaseUrl = window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "";
 const apiBaseUrl = (
   localStorage.getItem("calorie_api_base_url") ||
@@ -60,13 +61,14 @@ async function api(path, options = {}) {
   if (!(options.body instanceof Blob)) {
     headers.set("Content-Type", "application/json");
   }
-  if (state.token) {
-    headers.set("X-Access-Token", state.token);
-  }
+  if (state.user?.username) headers.set("X-Expected-User", state.user.username);
   const response = await fetch(`${apiBaseUrl}${path}`, { ...options, headers });
   const payload = await response.json();
   if (!response.ok) {
-    throw new Error(payload.error || payload.message || `Request failed: ${response.status}`);
+    if (response.status === 409) location.reload();
+    const error = new Error(payload.error || payload.message || `Request failed: ${response.status}`);
+    error.status = response.status;
+    throw error;
   }
   return payload;
 }
@@ -125,26 +127,22 @@ async function checkApi() {
 }
 
 async function loadMe() {
-  if (!state.token) {
-    showAuth();
-    return;
-  }
   try {
     const payload = await api("/api/me");
     state.user = payload.user;
     showApp();
     await refresh();
   } catch (error) {
-    localStorage.removeItem("calorie_token");
-    state.token = "";
-    showAuth();
+    if (error.status === 401) {
+      location.replace(`https://api.miguelnogales.com/auth/login?next=${encodeURIComponent(location.href)}`);
+      return;
+    }
     setResult({ error: error.message });
   }
 }
 
 function showAuth() {
-  els.authView.classList.remove("hidden");
-  els.appView.classList.add("hidden");
+  location.assign(`https://api.miguelnogales.com/auth/login?next=${encodeURIComponent(location.href)}`);
 }
 
 function showApp() {
@@ -478,10 +476,11 @@ els.loginForm.addEventListener("submit", async (event) => {
 });
 
 els.logoutBtn.addEventListener("click", () => {
-  localStorage.removeItem("calorie_token");
-  state.token = "";
-  state.user = null;
-  showAuth();
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = "https://api.miguelnogales.com/auth/logout";
+  document.body.append(form);
+  form.submit();
 });
 
 els.passwordForm.addEventListener("submit", async (event) => {

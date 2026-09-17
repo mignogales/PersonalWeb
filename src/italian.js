@@ -1,7 +1,7 @@
 // Same-origin proxy: browsers never need a shared backend secret or CORS rules.
 export async function handleItalian(request, env) {
   const url = new URL(request.url);
-  const routes = new Set(["/auth/login", "/auth/register", "/auth/logout", "/progress"]);
+  const routes = new Set(["/auth/login", "/auth/register", "/auth/logout", "/auth/me", "/progress"]);
   const path = url.pathname.slice("/api/italian".length);
   if (!routes.has(path)) return Response.json({ error: "Not found" }, { status: 404 });
   if (!["GET", "POST", "PUT"].includes(request.method)) return new Response(null, { status: 405 });
@@ -10,7 +10,7 @@ export async function handleItalian(request, env) {
   }
   const base = env.ITALIAN_API_BASE || "https://api.miguelnogales.com";
   const headers = new Headers({ Accept: "application/json" });
-  for (const name of ["Authorization", "Content-Type"]) {
+  for (const name of ["Cookie", "Origin", "Sec-Fetch-Site", "Content-Type", "X-Expected-User"]) {
     if (request.headers.has(name)) headers.set(name, request.headers.get(name));
   }
   let upstreamStatus;

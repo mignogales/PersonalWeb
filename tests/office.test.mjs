@@ -6,16 +6,17 @@ test('proxy restricts paths and methods', async () => {
   assert.equal((await handleOffice(new Request('https://example.com/api/office/register', {method:'POST'}), {})).status, 404);
   assert.equal((await handleOffice(new Request('https://example.com/api/office/schedule', {method:'DELETE'}), {})).status, 405);
 });
-test('proxy forwards authentication and date changes without caching', async () => {
+test('proxy forwards shared cookie and date changes without app token', async () => {
   const original = globalThis.fetch;
   globalThis.fetch = async (url, options) => {
     assert.equal(url, 'https://pi.example/office/schedule/me');
-    assert.equal(options.headers.get('Authorization'), 'Bearer test');
+    assert.equal(options.headers.get('Authorization'), null);
+    assert.equal(options.headers.get('Cookie'), 'personalweb_session=test');
     assert.deepEqual(JSON.parse(new TextDecoder().decode(options.body)), {changes:{'2026-09-08':true}});
     return Response.json({schedule:{dates:{}}});
   };
   try {
-    const result = await handleOffice(new Request('https://example.com/api/office/schedule/me', {method:'PUT', headers:{Authorization:'Bearer test','Content-Type':'application/json'}, body:JSON.stringify({changes:{'2026-09-08':true}})}), {OFFICE_SCHEDULER_API_BASE:'https://pi.example'});
+    const result = await handleOffice(new Request('https://example.com/api/office/schedule/me', {method:'PUT', headers:{Authorization:'Bearer test',Cookie:'personalweb_session=test','Content-Type':'application/json'}, body:JSON.stringify({changes:{'2026-09-08':true}})}), {OFFICE_SCHEDULER_API_BASE:'https://pi.example'});
     assert.equal(result.status, 200);
     assert.equal(result.headers.get('Cache-Control'), 'no-store');
   } finally {globalThis.fetch = original;}

@@ -14,16 +14,11 @@ export function getUserKey(name: string): string {
 }
 
 export function loadUsers(): UserProfile[] {
-  try {
-    const raw = localStorage.getItem(USERS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+  return [];
 }
 
 export function saveUsers(users: UserProfile[]) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  // Account selection belongs to the shared sign-in.
 }
 
 export function loadActiveUser(): UserProfile | null {
@@ -59,19 +54,18 @@ export function upsertUser(name: string): UserProfile {
 }
 
 export async function upsertUserRemote(name: string, password: string, register: boolean): Promise<UserProfile> {
-  const session = await apiRequest<Session>(`/auth/${register ? "register" : "login"}`, {
-    method: "POST", body: JSON.stringify({ name, password }),
-  });
+  const session = await apiRequest<Session>("/auth/me");
   setSession(session);
-  const users = loadUsers().filter((user) => getUserKey(user.name) !== getUserKey(session.user.name));
-  saveUsers([...users, session.user]);
   saveActiveUser(session.user);
   return session.user;
 }
 
 export function logout() {
-  const token = getSession()?.token;
   setSession(null);
   saveActiveUser(null);
-  if (token) void apiRequest("/auth/logout", { method: "POST", body: "{}" }, token).catch(() => {});
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = "https://api.miguelnogales.com/auth/logout";
+  document.body.append(form);
+  form.submit();
 }

@@ -8,12 +8,12 @@ try {
     calls++;
     assert.equal(url, 'https://api.miguelnogales.com/italian/progress');
     assert.equal(init.redirect, 'manual');
-    assert.equal(init.headers.get('Authorization'), 'Bearer synthetic-test');
-    assert.equal(init.headers.get('Cookie'), null);
+    assert.equal(init.headers.get('Authorization'), null);
+    assert.equal(init.headers.get('Cookie'), 'personalweb_session=synthetic-test');
     return Response.json({ revision: 1, progress: {} });
   };
   const request = new Request('https://personal.miguelnogales.com/api/italian/progress', {
-    headers: { Authorization: 'Bearer synthetic-test', Cookie: 'unrelated=private' },
+    headers: { Authorization: 'Bearer synthetic-test', Cookie: 'personalweb_session=synthetic-test' },
   });
   const response = await handleItalian(request, {});
   assert.equal(response.status, 200);
@@ -29,5 +29,5 @@ try {
   assert.equal(redirected.headers.get('X-Italian-Error-Category'), 'redirect');
   globalThis.fetch = async () => Response.json({ error: 'Unauthorized' }, { status: 401 });
   assert.equal((await handleItalian(request, {})).status, 401);
-  console.log('PASS: proxy destination, authentication, cookie isolation, no-cache, route allowlist, redirect rejection, and 401 forwarding');
+  console.log('PASS: proxy destination, shared cookie, no-cache, route allowlist, redirect rejection, and 401 forwarding');
 } finally { globalThis.fetch = original; }

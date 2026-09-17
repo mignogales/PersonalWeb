@@ -42,59 +42,38 @@ setStatus(
   state.apiBase ? "" : "error"
 );
 
-restoreSession();
+clearSession();
+void restoreSharedSession();
 renderShell();
 
-loginForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  const name = nameInput.value.trim();
-  const password = passwordInput.value;
-
-  const submit = loginForm.querySelector("button[type=submit]");
-  submit.disabled = true;
-  setStatus(loginStatus, "Signing in...");
-
+async function restoreSharedSession() {
   try {
-    const result = await apiRequest("/login", {
-      method: "POST",
-      body: {
-        name,
-        password
-      },
-      includeAuth: false
-    });
-
-    state.changes = {};
-    state.dirty = false;
-    state.token = result.token;
+    const result = await apiRequest("/login", { method: "POST", body: {}, includeAuth: false });
+    state.token = "shared-session";
     state.userName = result.user.name;
     state.schedule = result.schedule.dates || {};
     syncSelectedDatesFromSchedule();
-    saveSession(result.expiresAt);
-    passwordInput.value = "";
-    setStatus(calendarStatus, "Calendar loaded.", "success");
     renderShell();
+    setStatus(calendarStatus, "Calendar loaded.", "success");
   } catch (error) {
-    setStatus(loginStatus, error.message || "Could not sign in.", "error");
-  } finally {
-    submit.disabled = false;
+    if (error.status === 401) location.replace(`https://api.miguelnogales.com/auth/login?next=${encodeURIComponent(location.href)}`);
+    else setStatus(loginStatus, error.message || "Calendar unavailable.", "error");
   }
+}
+
+loginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  location.assign(`https://api.miguelnogales.com/auth/login?next=${encodeURIComponent(location.href)}`);
 });
 
 logoutButton.addEventListener("click", async () => {
   if (state.dirty && !window.confirm("Sign out and discard your unsaved changes?")) return;
-  try { await apiRequest("/logout", { method: "POST", body: {} }); } catch {
-    setStatus(loginStatus, "Signed out on this device. The server session could not be revoked.");
-  }
   clearSession();
-  state.token = "";
-  state.userName = "";
-  state.schedule = {};
-  state.selectedDates = new Set();
-  state.dirty = false;
-  state.changes = {};
-  renderShell();
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = "https://api.miguelnogales.com/auth/logout";
+  document.body.append(form);
+  form.submit();
 });
 
 previousMonthButton.addEventListener("click", () => {
@@ -371,10 +350,9 @@ async function apiRequest(path, options = {}) {
   const headers = {
     "Content-Type": "application/json"
   };
+  if (state.userName && path !== "/login") headers["X-Expected-User"] = state.userName;
 
-  if (includeAuth && state.token) {
-    headers.Authorization = `Bearer ${state.token}`;
-  }
+  // The gateway maps the shared HttpOnly session to this app's account.
 
   let response;
 
@@ -399,6 +377,7 @@ async function apiRequest(path, options = {}) {
   }
 
   if (!response.ok) {
+    if (response.status === 409) location.reload();
     const error = new Error(payload.error || `Request failed with ${response.status}.`);
     error.status = response.status;
     throw error;

@@ -12,7 +12,7 @@ export const dashboardHtml = `<!doctype html>
   <script src="/personal/dashboard.js" defer></script>
 </head>
 <body>
-  <header class="topbar"><a href="/" class="brand"><span class="monogram">MN</span> Miguel Nogales</a><div class="personal-actions"><a href="/">Public website ↗</a><form method="post" action="/personal/logout"><button type="submit">Sign out</button></form></div></header>
+  <header class="topbar"><a href="/" class="brand"><span class="monogram">MN</span> Miguel Nogales</a><div class="personal-actions"><a href="/">Public website ↗</a><form method="post" action="https://api.miguelnogales.com/auth/logout"><button type="submit">Sign out</button></form></div></header>
   <main>
     <nav class="personal-nav" aria-label="Personal tools"><a href="/personal/dashboard" aria-current="page">Dashboard</a><span>Your private tools, together.</span></nav>
     <div class="heading"><div><p class="eyebrow">Personal area</p><h1>Dashboard<span>.</span></h1><p class="intro">Your services, schedules, and everyday shortcuts. Only after sign-in.</p></div><div class="date"><time id="today"></time><span>Europe / Zurich</span></div></div>
@@ -44,6 +44,8 @@ export const dashboardHtml = `<!doctype html>
       <section aria-labelledby="links-title"><div class="section-heading"><div><span class="section-number">03</span><h2 id="links-title">Useful links</h2></div></div><div class="links">
         <a href="/italian/"><span class="link-icon">It</span><span><strong>Italian Verb Sprint</strong><small>A little practice, every day</small></span><span class="arrow" aria-hidden="true">↗</span></a>
         <a href="/calories/"><span class="link-icon">kcal</span><span><strong>Calorie &amp; Weight Tracker</strong><small>Log meals and follow your progress</small></span><span class="arrow" aria-hidden="true">↗</span></a>
+        <a href="https://api.miguelnogales.com/scale/"><span class="link-icon">kg</span><span><strong>Body scale</strong><small>Private weight and impedance trends</small></span><span class="arrow" aria-hidden="true">↗</span></a>
+        <a href="https://api.miguelnogales.com/nightwatch/"><span class="link-icon">◷</span><span><strong>Nightwatch</strong><small>Jobs and reminders</small></span><span class="arrow" aria-hidden="true">↗</span></a>
         <a href="/apps/office-scheduler/"><span class="link-icon">31</span><span><strong>Office Scheduler</strong><small>Plan your office days · in development</small></span><span class="arrow" aria-hidden="true">↗</span></a>
         <a href="/apps/chat-lab/"><span class="link-icon" aria-hidden="true">&gt;_</span><span><strong>Chat Lab</strong><small>Your AI chat workspace</small></span><span class="arrow" aria-hidden="true">↗</span></a>
         <a href="https://github.com/mignogales" target="_blank" rel="noopener noreferrer"><span class="link-icon">gh</span><span><strong>GitHub</strong><small>Repositories and experiments</small></span><span class="arrow" aria-hidden="true">↗</span></a>

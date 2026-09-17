@@ -1,6 +1,5 @@
 const form = document.querySelector('#form');
 const prompt = document.querySelector('#prompt');
-const password = document.querySelector('#password');
 const messages = document.querySelector('#messages');
 const status = document.querySelector('#status');
 const send = document.querySelector('#send');
@@ -30,7 +29,6 @@ form.addEventListener('submit', async event => {
   event.preventDefault();
   const text = prompt.value.trim();
   if (busy || !text) return;
-  if (!password.value) { status.textContent = 'Introduce la contraseña de prueba.'; password.focus(); return; }
   busy = true;
   send.disabled = clear.disabled = true;
   status.textContent = 'Gemini está escribiendo…';
@@ -39,7 +37,7 @@ form.addEventListener('submit', async event => {
   try {
     const response = await fetch('/api/chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Chat-Password': password.value },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ messages: pending }),
       signal: AbortSignal.timeout(30000)
     });
