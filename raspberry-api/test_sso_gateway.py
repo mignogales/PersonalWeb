@@ -31,9 +31,15 @@ with tempfile.TemporaryDirectory(prefix="sso-test-") as root:
     worker.start()
     port = server.server_address[1]
 
-    def request(method, path, cookie="", body=b"", content_type=None, expected=None, origin=None):
+    def request(method, path, cookie="", body=b"", content_type=None, expected=None, origin=None, fetch_site=None, host=None):
         conn = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
-        headers = {"Host": f"127.0.0.1:{port}", "Origin": origin or f"http://127.0.0.1:{port}"}
+        headers = {"Host": host or f"127.0.0.1:{port}"}
+        if origin is None:
+            origin = f"http://127.0.0.1:{port}"
+        if origin:
+            headers["Origin"] = origin
+        if fetch_site:
+            headers["Sec-Fetch-Site"] = fetch_site
         if cookie:
             headers["Cookie"] = cookie
         if content_type:
@@ -57,6 +63,11 @@ with tempfile.TemporaryDirectory(prefix="sso-test-") as root:
         for route in ("/scale/api/measurements", "/calories/api/logs", "/nightwatch/api/state", "/italian/progress", "/office/schedule"):
             assert request("GET", route)[0] == 401, route
         alice = login("alice", "synthetic-alice-password")
+        browser_form = urlencode({"username": "alice", "password": "synthetic-alice-password", "next": "/auth/"}).encode()
+        status, headers, _ = request("POST", "/auth/login", body=browser_form, content_type="application/x-www-form-urlencoded", origin="", fetch_site="same-origin", host="api.miguelnogales.com")
+        assert status == 303 and "Set-Cookie" in headers
+        assert request("POST", "/auth/login", body=browser_form, content_type="application/x-www-form-urlencoded", origin="", fetch_site="cross-site", host="api.miguelnogales.com")[0] == 403
+        assert request("POST", "/auth/login", body=browser_form, content_type="application/x-www-form-urlencoded", origin="null", fetch_site="same-origin", host="api.miguelnogales.com")[0] == 403
         personal_home = "https://personal.miguelnogales.com/italian/"
         personal_login = urlencode({"username": "alice", "password": "synthetic-alice-password", "next": personal_home}).encode()
         status, headers, _ = request("POST", "/auth/login", body=personal_login, content_type="application/x-www-form-urlencoded", origin="https://personal.miguelnogales.com")

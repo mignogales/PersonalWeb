@@ -81,7 +81,10 @@ class Gateway(BaseGateway):
             parsed = urlsplit(origin)
             local_target = self.headers.get("Host", "").split(":")[0] in ("127.0.0.1", "localhost")
             return (parsed.scheme == "https" and parsed.netloc in ("miguelnogales.com", "personal.miguelnogales.com", "api.miguelnogales.com")) or (local_target and parsed.scheme == "http" and parsed.hostname in ("127.0.0.1", "localhost"))
-        return not self.public_https() and self.headers.get("Sec-Fetch-Site") not in ("cross-site", "same-site")
+        fetch_site = self.headers.get("Sec-Fetch-Site")
+        if fetch_site == "same-origin":
+            return True
+        return not self.public_https() and fetch_site not in ("cross-site", "same-site")
 
     def redirect(self, location, cookie=None):
         self.send_response(303)
