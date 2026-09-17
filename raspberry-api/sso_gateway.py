@@ -2,6 +2,7 @@
 import base64
 from contextlib import closing
 import hashlib
+import hmac
 import html
 import http.client
 import json
@@ -12,6 +13,7 @@ import sqlite3
 import sys
 import threading
 import time
+from http.cookies import SimpleCookie
 from urllib.parse import parse_qs, quote, urlsplit
 
 sys.path.insert(0, str(Path.home() / "personalweb-api"))
@@ -95,11 +97,13 @@ class Gateway(BaseGateway):
         self.send_header("Content-Length", "0")
         self.end_headers()
 
-    def html(self, markup, status=200):
+    def html(self, markup, status=200, cookie=None):
         data = markup.encode()
         self.send_response(status)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(data)))
+        if cookie:
+            self.send_header("Set-Cookie", cookie)
         self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'")
         self.send_header("X-Frame-Options", "DENY")
@@ -120,8 +124,22 @@ class Gateway(BaseGateway):
 
     def login_page(self, next_url, message="", status=200):
         alert = f'<p class="error" role="alert">{html.escape(message)}</p>' if message else ""
-        markup = f'''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sign in · Your apps</title><style>body{{font:16px system-ui;background:#101827;color:#eef4fa;min-height:100vh;display:grid;place-items:center;margin:0}}main{{width:min(390px,calc(100% - 40px));background:#1b2a3a;padding:32px;border:1px solid #3b536a;border-radius:20px;box-shadow:0 22px 75px #050b14}}h1{{font-size:2rem;margin:.2em 0}}p{{color:#b9cbd8}}label{{display:block;margin:16px 0 6px}}input{{box-sizing:border-box;width:100%;padding:13px;border-radius:9px;border:1px solid #60788c;background:#0c1723;color:white;font:inherit}}button{{margin-top:24px;width:100%;padding:14px;border:0;border-radius:9px;background:#7ce1ce;color:#10231d;font-weight:800;font:inherit;cursor:pointer}}.error{{color:#ffb0ad}}</style><main><p>One account for your apps</p><h1>Sign in</h1>{alert}<form method="post" action="/auth/login"><input type="hidden" name="next" value="{html.escape(next_url, quote=True)}"><label for="username">Username</label><input id="username" name="username" autocomplete="username" required maxlength="60" autofocus><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required maxlength="256"><button type="submit">Continue</button></form></main></html>'''
-        return self.html(markup, status)
+        csrf = secrets.token_urlsafe(32)
+        secure = self.public_https()
+        cookie_name = "__Host-personalweb_csrf" if secure else "personalweb_csrf"
+        cookie = f"{cookie_name}={csrf}; Path=/; HttpOnly; SameSite=Lax; Max-Age=600{'; Secure' if secure else ''}"
+        markup = f'''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sign in · Your apps</title><style>body{{font:16px system-ui;background:#101827;color:#eef4fa;min-height:100vh;display:grid;place-items:center;margin:0}}main{{width:min(390px,calc(100% - 40px));background:#1b2a3a;padding:32px;border:1px solid #3b536a;border-radius:20px;box-shadow:0 22px 75px #050b14}}h1{{font-size:2rem;margin:.2em 0}}p{{color:#b9cbd8}}label{{display:block;margin:16px 0 6px}}input{{box-sizing:border-box;width:100%;padding:13px;border-radius:9px;border:1px solid #60788c;background:#0c1723;color:white;font:inherit}}button{{margin-top:24px;width:100%;padding:14px;border:0;border-radius:9px;background:#7ce1ce;color:#10231d;font-weight:800;font:inherit;cursor:pointer}}.error{{color:#ffb0ad}}</style><main><p>One account for your apps</p><h1>Sign in</h1>{alert}<form method="post" action="/auth/login"><input type="hidden" name="next" value="{html.escape(next_url, quote=True)}"><input type="hidden" name="csrf" value="{csrf}"><label for="username">Username</label><input id="username" name="username" autocomplete="username" required maxlength="60" autofocus><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required maxlength="256"><button type="submit">Continue</button></form></main></html>'''
+        return self.html(markup, status, cookie)
+
+    def valid_login_token(self, submitted):
+        if not submitted or len(submitted) > 128 or not submitted.isascii():
+            return False
+        cookie_name = "__Host-personalweb_csrf" if self.public_https() else "personalweb_csrf"
+        try:
+            stored = SimpleCookie(self.headers.get("Cookie", ""))[cookie_name].value
+        except (KeyError, ValueError):
+            return False
+        return hmac.compare_digest(submitted, stored)
 
     def auth_route(self, path):
         user = auth.identity(self.headers)
@@ -138,8 +156,6 @@ class Gateway(BaseGateway):
             next_url = self.safe_next(query.get("next", ["/auth/"])[0])
             return self.redirect(next_url) if user else self.login_page(next_url)
         if path == "/auth/login" and self.command == "POST":
-            if not self.valid_origin():
-                return self.send_json(403, {"error": "Invalid origin"})
             if not self.headers.get("Content-Type", "").startswith("application/x-www-form-urlencoded"):
                 return self.send_json(415, {"error": "Expected form data"})
             try:
@@ -150,6 +166,8 @@ class Gateway(BaseGateway):
                 return self.send_json(413, {"error": "Form too large"})
             form = parse_qs(self.rfile.read(length).decode(), keep_blank_values=True)
             next_url = self.safe_next(form.get("next", ["/auth/"])[0])
+            if self.headers.get("Sec-Fetch-Site") == "cross-site" or not self.valid_login_token(form.get("csrf", [""])[0]):
+                return self.login_page(next_url, "Please reload this page and try again", 403)
             username, password = form.get("username", [""])[0], form.get("password", [""])[0]
             if len(username) > 60 or len(password) > 256:
                 return self.login_page(next_url, "Invalid username or password", 401)

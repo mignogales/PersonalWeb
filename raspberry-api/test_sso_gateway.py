@@ -3,6 +3,7 @@ import http.client
 import json
 import os
 from pathlib import Path
+import re
 import tempfile
 import threading
 from urllib.parse import urlencode
@@ -52,9 +53,16 @@ with tempfile.TemporaryDirectory(prefix="sso-test-") as root:
         conn.close()
         return answer
 
+    def login_form(host=None):
+        status, headers, page = request("GET", "/auth/login", host=host)
+        assert status == 200
+        token = re.search(rb'name="csrf" value="([A-Za-z0-9_-]+)"', page).group(1).decode()
+        return headers["Set-Cookie"].split(";", 1)[0], token
+
     def login(username, password):
-        body = urlencode({"username": username, "password": password, "next": "/auth/"}).encode()
-        status, headers, _ = request("POST", "/auth/login", body=body, content_type="application/x-www-form-urlencoded")
+        csrf_cookie, csrf = login_form()
+        body = urlencode({"username": username, "password": password, "next": "/auth/", "csrf": csrf}).encode()
+        status, headers, _ = request("POST", "/auth/login", cookie=csrf_cookie, body=body, content_type="application/x-www-form-urlencoded")
         assert status == 303, status
         return headers["Set-Cookie"].split(";", 1)[0]
 
@@ -63,21 +71,25 @@ with tempfile.TemporaryDirectory(prefix="sso-test-") as root:
         for route in ("/scale/api/measurements", "/calories/api/logs", "/nightwatch/api/state", "/italian/progress", "/office/schedule"):
             assert request("GET", route)[0] == 401, route
         alice = login("alice", "synthetic-alice-password")
-        browser_form = urlencode({"username": "alice", "password": "synthetic-alice-password", "next": "/auth/"}).encode()
-        status, headers, _ = request("POST", "/auth/login", body=browser_form, content_type="application/x-www-form-urlencoded", origin="", fetch_site="same-origin", host="api.miguelnogales.com")
+        csrf_cookie, csrf = login_form(host="api.miguelnogales.com")
+        browser_form = urlencode({"username": "alice", "password": "synthetic-alice-password", "next": "/auth/", "csrf": csrf}).encode()
+        status, headers, _ = request("POST", "/auth/login", cookie=csrf_cookie, body=browser_form, content_type="application/x-www-form-urlencoded", origin="", fetch_site="same-origin", host="api.miguelnogales.com")
         assert status == 303 and "Set-Cookie" in headers
-        assert request("POST", "/auth/login", body=browser_form, content_type="application/x-www-form-urlencoded", origin="", fetch_site="cross-site", host="api.miguelnogales.com")[0] == 403
-        assert request("POST", "/auth/login", body=browser_form, content_type="application/x-www-form-urlencoded", origin="null", fetch_site="same-origin", host="api.miguelnogales.com")[0] == 403
+        assert request("POST", "/auth/login", cookie=csrf_cookie, body=browser_form, content_type="application/x-www-form-urlencoded", origin="", fetch_site="cross-site", host="api.miguelnogales.com")[0] == 403
+        assert request("POST", "/auth/login", body=browser_form, content_type="application/x-www-form-urlencoded", origin="", host="api.miguelnogales.com")[0] == 403
+        assert request("POST", "/auth/login", cookie=csrf_cookie, body=browser_form, content_type="application/x-www-form-urlencoded", origin="null", host="api.miguelnogales.com")[0] == 303
         personal_home = "https://personal.miguelnogales.com/italian/"
-        personal_login = urlencode({"username": "alice", "password": "synthetic-alice-password", "next": personal_home}).encode()
-        status, headers, _ = request("POST", "/auth/login", body=personal_login, content_type="application/x-www-form-urlencoded", origin="https://personal.miguelnogales.com")
+        csrf_cookie, csrf = login_form()
+        personal_login = urlencode({"username": "alice", "password": "synthetic-alice-password", "next": personal_home, "csrf": csrf}).encode()
+        status, headers, _ = request("POST", "/auth/login", cookie=csrf_cookie, body=personal_login, content_type="application/x-www-form-urlencoded", origin="https://personal.miguelnogales.com")
         assert status == 303 and headers["Location"] == personal_home
         personal_cookie = headers["Set-Cookie"].split(";", 1)[0]
         assert request("POST", "/auth/logout", personal_cookie, origin="https://personal.miguelnogales.com")[0] == 303
         bob = login("bob", "synthetic-bob-password")
         charlie = login("charlie", "synthetic-charlie-password")
         scale_tester = login("scale_tester", "synthetic-scale-password")
-        assert request("POST", "/auth/login", body=urlencode({"username": "alice", "password": "wrong"}).encode(), content_type="application/x-www-form-urlencoded")[0] == 401
+        csrf_cookie, csrf = login_form()
+        assert request("POST", "/auth/login", cookie=csrf_cookie, body=urlencode({"username": "alice", "password": "wrong", "csrf": csrf}).encode(), content_type="application/x-www-form-urlencoded")[0] == 401
         for route in ("/scale/api/measurements", "/calories/api/logs", "/nightwatch/api/state", "/office/schedule"):
             assert request("GET", route, alice)[0] == 403, route
         assert request("GET", "/office/schedule", bob)[0] == 200
@@ -103,8 +115,9 @@ with tempfile.TemporaryDirectory(prefix="sso-test-") as root:
         alice = login("alice", "synthetic-alice-password")
         auth.reset_password("alice", "synthetic-alice-new-password")
         assert request("GET", "/italian/progress", alice)[0] == 401
-        old = urlencode({"username": "alice", "password": "synthetic-alice-password"}).encode()
-        assert request("POST", "/auth/login", body=old, content_type="application/x-www-form-urlencoded")[0] == 401
+        csrf_cookie, csrf = login_form()
+        old = urlencode({"username": "alice", "password": "synthetic-alice-password", "csrf": csrf}).encode()
+        assert request("POST", "/auth/login", cookie=csrf_cookie, body=old, content_type="application/x-www-form-urlencoded")[0] == 401
         assert login("alice", "synthetic-alice-new-password")
         assert request("GET", "//evil.example/scale/", bob)[0] == 404
         print("PASS: shared login, session revocation, app grants, private route denial, legacy health")
