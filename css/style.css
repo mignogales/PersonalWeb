@@ -3230,17 +3230,15 @@ a.running-project-card:focus-visible {
 /* Light mode adds a soft aura around panel surfaces without tinting the page. */
 :root:not([data-theme="dark"]) .panel {
   box-shadow:
-    0 0 0 2px rgba(22, 132, 199, 0.3),
     0 0 0 1px rgba(255, 255, 255, 0.7),
-    0 0 22px rgba(22, 132, 199, 0.38),
-    0 0 56px rgba(255, 157, 47, 0.24),
+    0 0 22px rgba(22, 132, 199, 0.34),
+    0 0 56px rgba(255, 157, 47, 0.2),
     0 24px 80px var(--shadow);
 }
 
 :root:not([data-theme="dark"]) .research-card:is(:hover, :focus-visible),
 :root:not([data-theme="dark"]) a.running-project-card:is(:hover, :focus-visible) {
   box-shadow:
-    0 0 0 2px rgba(22, 132, 199, 0.34),
     0 0 0 1px rgba(255, 255, 255, 0.7),
     0 0 24px rgba(22, 132, 199, 0.36),
     0 0 62px rgba(255, 157, 47, 0.22),
@@ -3252,7 +3250,6 @@ a.running-project-card:focus-visible {
     4px 4px 0 var(--bg),
     8px 8px 0 var(--accent),
     12px 12px 0 var(--shadow),
-    0 0 0 2px rgba(22, 132, 199, 0.3),
     0 0 22px rgba(22, 132, 199, 0.36),
     0 0 56px rgba(255, 157, 47, 0.2);
 }
@@ -3262,7 +3259,6 @@ a.running-project-card:focus-visible {
     box-shadow:
       3px 3px 0 var(--bg),
       6px 6px 0 var(--accent),
-      0 0 0 2px rgba(22, 132, 199, 0.26),
       0 0 18px rgba(22, 132, 199, 0.3),
       0 0 40px rgba(255, 157, 47, 0.18);
   }
