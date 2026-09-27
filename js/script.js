@@ -757,7 +757,7 @@ function initTextReveals() {
   }, { rootMargin: "0px 0px -24px 0px", threshold: 0 });
 
   const selector = "h2, h3, h4, p, li, .card-link, .contact-meta, .contact-title, .contact-copy, .contact-cta, .about-me-flight-link";
-  document.querySelectorAll(".pixel-page .section:not(.hero)").forEach((section) => {
+  document.querySelectorAll(".pixel-page .section:not(.hero):not(.topic-showcase)").forEach((section) => {
     section.querySelectorAll(selector).forEach((element) => {
       // A paragraph owns its inline formatting; don't animate descendants twice.
       if (element.parentElement.closest(selector) || element.closest('[aria-hidden="true"]')) return;
@@ -1334,7 +1334,7 @@ if (earthPortal) {
   updateEarthPortalFocus();
 }
 
-function setCardTilt(card, x, y, strength = 16) {
+function setCardTilt(card, x, y, strength = 16, follow = 0) {
   const dx = x - 0.5;
   const dy = y - 0.5;
   const tiltY = dx * strength;
@@ -1342,42 +1342,93 @@ function setCardTilt(card, x, y, strength = 16) {
 
   card.style.setProperty("--tilt-x", `${tiltX.toFixed(2)}deg`);
   card.style.setProperty("--tilt-y", `${tiltY.toFixed(2)}deg`);
+  card.style.setProperty("--follow-x", `${(dx * follow).toFixed(1)}px`);
+  card.style.setProperty("--follow-y", `${(dy * follow * 0.72).toFixed(1)}px`);
+  card.style.setProperty("--pointer-x", `${(x * 100).toFixed(1)}%`);
+  card.style.setProperty("--pointer-y", `${(y * 100).toFixed(1)}%`);
 }
 
 function enablePointerTilt(card, strength = 16) {
-  card.addEventListener("pointermove", (event) => {
-    if (prefersReducedMotion) {
+  const slide = card.closest(".paper-slide");
+  const pointerSurface = slide || card;
+
+  pointerSurface.addEventListener("pointermove", (event) => {
+    if (prefersReducedMotion || event.pointerType === "touch") {
       return;
     }
 
-    const rect = card.getBoundingClientRect();
+    // The slide stays still while the card rotates, so the pointer does not
+    // feed its own movement back into the tilt calculation.
+    const rect = pointerSurface.getBoundingClientRect();
     const x = clamp((event.clientX - rect.left) / rect.width, 0, 1);
     const y = clamp((event.clientY - rect.top) / rect.height, 0, 1);
-    setCardTilt(card, x, y, strength);
+    const featured = slide?.classList.contains("is-active");
+    setCardTilt(card, x, y, slide ? (featured ? 40 : 25) : strength,
+      slide ? (featured ? 30 : 14) : 0);
   });
 
-  card.addEventListener("pointerleave", () => {
-    [
-      "--tilt-x",
-      "--tilt-y"
-    ].forEach((property) => card.style.removeProperty(property));
-  });
+  pointerSurface.addEventListener("pointerleave", () => clearCardTilt(card));
 }
 
 function clearCardTilt(card) {
   [
     "--tilt-x",
-    "--tilt-y"
+    "--tilt-y",
+    "--follow-x",
+    "--follow-y",
+    "--pointer-x",
+    "--pointer-y"
   ].forEach((property) => card.style.removeProperty(property));
 }
 
 const paperTooltip = paperCards.length ? document.createElement("div") : null;
 let activePaperTooltipCard = null;
+let paperTooltipHideTimer = null;
+
+const PAPER_TOOLTIP_HIDE_DELAY = 1_500;
+const PAPER_POSTER_HIDE_DELAY = 20_000;
 
 if (paperTooltip) {
   paperTooltip.className = "paper-tooltip";
   paperTooltip.setAttribute("aria-hidden", "true");
   document.body.appendChild(paperTooltip);
+  paperTooltip.addEventListener("pointerenter", clearPaperTooltipHideTimer);
+  paperTooltip.addEventListener("pointerleave", () => {
+    if (activePaperTooltipCard) {
+      schedulePaperTooltipHide(activePaperTooltipCard);
+    }
+  });
+  paperTooltip.addEventListener("focusin", clearPaperTooltipHideTimer);
+  paperTooltip.addEventListener("focusout", (event) => {
+    if (!paperTooltip.contains(event.relatedTarget) && activePaperTooltipCard) {
+      schedulePaperTooltipHide(activePaperTooltipCard);
+    }
+  });
+}
+
+function scrollPaperTooltip(event) {
+  if (!paperTooltip?.classList.contains("is-visible") || !activePaperTooltipCard) {
+    return;
+  }
+
+  if (!paperTooltip.contains(event.target) && !activePaperTooltipCard.contains(event.target)) {
+    return;
+  }
+
+  const abstract = paperTooltip.querySelector(".paper-tooltip-text");
+  if (!abstract || Math.abs(event.deltaY) <= Math.abs(event.deltaX)) {
+    return;
+  }
+
+  event.preventDefault();
+  const unit = event.deltaMode === 1
+    ? Number.parseFloat(getComputedStyle(abstract).lineHeight) || 24
+    : event.deltaMode === 2 ? abstract.clientHeight : 1;
+  abstract.scrollTop += event.deltaY * unit;
+}
+
+if (paperTooltip) {
+  document.addEventListener("wheel", scrollPaperTooltip, { passive: false });
 }
 
 function getPaperDescription(card) {
@@ -1418,6 +1469,7 @@ function syncPaperTooltipAvailability() {
     return;
   }
 
+  clearPaperTooltipHideTimer();
   paperTooltip.classList.remove("is-visible");
   paperTooltip.setAttribute("aria-hidden", "true");
   activePaperTooltipCard = null;
@@ -1475,6 +1527,9 @@ function setPaperTooltipContent(details) {
   if (details.description) {
     const description = document.createElement("div");
     description.className = "paper-tooltip-text";
+    description.tabIndex = 0;
+    description.setAttribute("role", "region");
+    description.setAttribute("aria-label", "Paper abstract");
     createAbstractParagraphs(details.description).forEach((paragraphText) => {
       const paragraph = document.createElement("p");
       paragraph.textContent = paragraphText;
@@ -1510,6 +1565,13 @@ function positionPaperTooltip() {
     return;
   }
 
+  const topicHero = activePaperTooltipCard
+    .closest(".research-topic-page")
+    ?.querySelector(".topic-hero");
+  if (topicHero) {
+    paperTooltip.style.setProperty("--topic-panel-right", `${topicHero.getBoundingClientRect().right}px`);
+  }
+
   const cardRect = activePaperTooltipCard.getBoundingClientRect();
   const cardCenter = cardRect.top + cardRect.height / 2;
   const focus = clamp(cardCenter / window.innerHeight, 0.18, 0.82);
@@ -1521,6 +1583,17 @@ function showPaperTooltip(card) {
   if (!paperTooltip || !isPaperTooltipEnabled()) {
     return;
   }
+
+  const slide = card.closest(".paper-slide");
+
+  if (slide && !slide.classList.contains("is-active")) {
+    if (activePaperTooltipCard) {
+      hidePaperTooltip(activePaperTooltipCard);
+    }
+    return;
+  }
+
+  clearPaperTooltipHideTimer();
 
   if (card === activePaperTooltipCard && paperTooltip.classList.contains("is-visible")) {
     return;
@@ -1535,6 +1608,8 @@ function showPaperTooltip(card) {
   activePaperTooltipCard = card;
   setPaperTooltipContent(details);
   syncPaperTooltipTheme(card);
+  positionPaperTooltip();
+  paperTooltip.classList.toggle("is-featured-tooltip", Boolean(card.closest(".paper-slide.is-active")));
   paperTooltip.classList.add("is-visible");
   paperTooltip.setAttribute("aria-hidden", "false");
   window.requestAnimationFrame(positionPaperTooltip);
@@ -1545,9 +1620,36 @@ function hidePaperTooltip(card) {
     return;
   }
 
+  clearPaperTooltipHideTimer();
   paperTooltip.classList.remove("is-visible");
   paperTooltip.setAttribute("aria-hidden", "true");
   activePaperTooltipCard = null;
+}
+
+function clearPaperTooltipHideTimer() {
+  if (paperTooltipHideTimer === null) {
+    return;
+  }
+
+  window.clearTimeout(paperTooltipHideTimer);
+  paperTooltipHideTimer = null;
+}
+
+function schedulePaperTooltipHide(card) {
+  if (!paperTooltip || card !== activePaperTooltipCard) {
+    return;
+  }
+
+  if (paperTooltipHideTimer !== null) {
+    return;
+  }
+
+  const delay = getPaperTooltipDetails(card).poster
+    ? PAPER_POSTER_HIDE_DELAY
+    : PAPER_TOOLTIP_HIDE_DELAY;
+  paperTooltipHideTimer = window.setTimeout(() => {
+    hidePaperTooltip(card);
+  }, delay);
 }
 
 function releasePaperCard(card) {
@@ -1841,17 +1943,186 @@ paperCards.forEach((card) => {
   }
 
   card.addEventListener("pointerenter", () => showPaperTooltip(card));
-  card.addEventListener("pointerleave", () => hidePaperTooltip(card));
+  card.addEventListener("pointerleave", () => schedulePaperTooltipHide(card));
   card.addEventListener("mouseover", () => showPaperTooltip(card));
   card.addEventListener("mouseout", (event) => {
     if (!card.contains(event.relatedTarget)) {
-      hidePaperTooltip(card);
+      schedulePaperTooltipHide(card);
     }
   });
   card.addEventListener("focus", () => showPaperTooltip(card));
-  card.addEventListener("blur", () => hidePaperTooltip(card));
-  enablePointerTilt(card);
+  card.addEventListener("blur", () => schedulePaperTooltipHide(card));
 });
+
+function initTopicPaperCarousel() {
+  const page = document.querySelector(".research-topic-page .research-page");
+  const papers = page?.querySelector(".topic-papers");
+  const grid = papers?.querySelector(".paper-grid");
+  const cards = grid ? [...grid.querySelectorAll(":scope > .paper-card")] : [];
+
+  if (!page || !papers || !grid || !cards.length) {
+    return;
+  }
+
+  const paperDate = (card) => card.dataset.publicationDate
+    || card.querySelector(".meta")?.textContent.match(/\b(?:19|20)\d{2}\b/)?.[0]
+    || "0000";
+  cards.sort((a, b) => paperDate(b).localeCompare(paperDate(a)));
+  grid.append(...cards);
+
+  const toolbar = document.createElement("div");
+  toolbar.className = "paper-carousel-toolbar";
+
+  const label = document.createElement("span");
+  label.textContent = cards.length === 1 ? "Featured paper" : "Browse papers";
+  const position = document.createElement("span");
+  position.className = "paper-carousel-position";
+  position.setAttribute("aria-live", "polite");
+  label.appendChild(position);
+
+  const actions = document.createElement("div");
+  actions.className = "paper-carousel-actions";
+  actions.setAttribute("aria-label", "Browse papers");
+  const arrows = [-1, 1].map((direction) => {
+    const button = document.createElement("button");
+    button.className = "paper-carousel-arrow";
+    button.type = "button";
+    button.textContent = direction < 0 ? "←" : "→";
+    button.setAttribute("aria-label", direction < 0 ? "Previous paper" : "Next paper");
+    button.addEventListener("click", () => select(activeIndex + direction));
+    actions.appendChild(button);
+    return button;
+  });
+  actions.hidden = cards.length === 1;
+  toolbar.append(label, actions);
+
+  const viewport = document.createElement("div");
+  viewport.className = "paper-carousel-viewport";
+  viewport.setAttribute("role", "region");
+  viewport.setAttribute("aria-label", "Research papers");
+  grid.before(toolbar, viewport);
+  viewport.appendChild(grid);
+
+  const slides = cards.map((card) => {
+    const slide = document.createElement("div");
+    slide.className = "paper-slide";
+    const float = document.createElement("div");
+    float.className = "paper-float";
+    grid.appendChild(slide);
+    slide.appendChild(float);
+    float.appendChild(card);
+    card.dataset.originalLabel = card.getAttribute("aria-label") || card.querySelector("h3")?.textContent.trim() || "Open paper";
+    return slide;
+  });
+
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let activeIndex = 0;
+  let suppressClickUntil = 0;
+  let touchStart = null;
+
+  function positionTrack(animate = false) {
+    const availableHeight = Math.max(160, viewport.clientHeight - 20);
+    const widthFraction = window.innerWidth <= 760 ? 0.68 : 0.48;
+    const cardWidth = Math.max(156, Math.min(354, availableHeight * 63 / 88, viewport.clientWidth * widthFraction));
+    const gap = Math.max(10, Math.min(26, viewport.clientWidth * 0.026));
+    const offset = viewport.clientWidth / 2 - (activeIndex * (cardWidth + gap) + cardWidth / 2);
+    grid.classList.toggle("is-animated", animate && !reducedMotion.matches);
+    grid.style.setProperty("--paper-slide-width", `${cardWidth}px`);
+    grid.style.setProperty("--paper-gap", `${gap}px`);
+    grid.style.setProperty("--paper-track-x", `${offset}px`);
+  }
+
+  function setActive(index, animate = false) {
+    activeIndex = index;
+    cards.forEach((card, cardIndex) => {
+      const isActive = cardIndex === index;
+      const title = card.querySelector("h3")?.textContent.trim() || `paper ${cardIndex + 1}`;
+      slides[cardIndex].classList.toggle("is-active", isActive);
+      card.setAttribute("role", isActive ? "link" : "button");
+      card.setAttribute("aria-label", isActive ? card.dataset.originalLabel : `Show paper ${cardIndex + 1}: ${title}`);
+      if (isActive) {
+        card.setAttribute("aria-current", "true");
+      } else {
+        card.removeAttribute("aria-current");
+      }
+    });
+    position.textContent = ` ${String(index + 1).padStart(2, "0")} / ${String(cards.length).padStart(2, "0")}`;
+    arrows[0].disabled = index === 0;
+    arrows[1].disabled = index === cards.length - 1;
+    positionTrack(animate);
+  }
+
+  function select(index) {
+    if (index < 0 || index >= cards.length || index === activeIndex) {
+      return;
+    }
+    if (activePaperTooltipCard) {
+      hidePaperTooltip(activePaperTooltipCard);
+    }
+    setActive(index, true);
+  }
+
+  viewport.addEventListener("click", (event) => {
+    if (performance.now() < suppressClickUntil) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+    const card = event.target.closest(".paper-card");
+    const index = cards.indexOf(card);
+    if (index < 0 || index === activeIndex) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    select(index);
+  }, true);
+
+  viewport.addEventListener("keydown", (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey) {
+      return;
+    }
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      event.preventDefault();
+      select(activeIndex + (event.key === "ArrowLeft" ? -1 : 1));
+      return;
+    }
+    const card = event.target.closest(".paper-card");
+    const index = cards.indexOf(card);
+    if (index >= 0 && index !== activeIndex && ["Enter", " "].includes(event.key)) {
+      event.preventDefault();
+      event.stopPropagation();
+      select(index);
+    }
+  }, true);
+
+  viewport.addEventListener("pointerdown", (event) => {
+    if (event.pointerType === "touch") {
+      touchStart = { x: event.clientX, y: event.clientY };
+    }
+  }, { passive: true });
+  viewport.addEventListener("pointerup", (event) => {
+    if (!touchStart || event.pointerType !== "touch") {
+      return;
+    }
+    const dx = event.clientX - touchStart.x;
+    const dy = event.clientY - touchStart.y;
+    touchStart = null;
+    if (Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+      suppressClickUntil = performance.now() + 450;
+      select(activeIndex + (dx < 0 ? 1 : -1));
+    }
+  }, { passive: true });
+  viewport.addEventListener("pointercancel", () => { touchStart = null; });
+
+  setActive(activeIndex);
+  document.body.classList.add("paper-carousel-ready");
+  if ("ResizeObserver" in window) {
+    new ResizeObserver(() => positionTrack()).observe(viewport);
+  } else {
+    window.addEventListener("resize", () => positionTrack(), { passive: true });
+  }
+}
 
 if (paperTooltip) {
   document.addEventListener("mousemove", handlePaperTooltipMove);
@@ -1859,6 +2130,8 @@ if (paperTooltip) {
 
 initHistoryCollages();
 
+initTopicPaperCarousel();
+paperCards.forEach((card) => enablePointerTilt(card));
 initTextReveals();
 updateSpaceshipVisibility();
 updateEarthPortalFocus();

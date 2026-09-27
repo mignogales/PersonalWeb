@@ -7,9 +7,9 @@
   <title>LLM Efficiency | Miguel Nogales</title>
   <link rel="icon" type="image/png" href="../../assets/research/misc/favicon.png" />
   <link rel="apple-touch-icon" href="../../assets/research/misc/favicon.png" />
-  <link rel="stylesheet" href="../../css/style.css?v=paper-tooltip-contrast" />
+  <link rel="stylesheet" href="../../css/style.css?v=abstract-scroll-20260927" />
 </head>
-<body>
+<body class="pixel-page research-topic-page">
   <canvas id="starfield" aria-hidden="true"></canvas>
 
   <header class="site-header">
@@ -31,7 +31,7 @@
   </header>
 
   <main class="container research-page topic-llm">
-    <section class="section">
+    <section class="section topic-showcase">
       <div class="panel topic-hero">
         <div>
           <p class="eyebrow">Efficient AI</p>
@@ -45,55 +45,55 @@
         </div>
         <img src="../../assets/research/paper-images/llm-efficiency/dynamax.png" alt="" aria-hidden="true" />
       </div>
-    </section>
 
-    <section class="section">
-      <div class="section-heading">
-        <p class="eyebrow">Papers</p>
-        <h2>Dynamic computation</h2>
-      </div>
-      <p class="topic-intro">
-        This line studies how large sequence models can spend computation adaptively,
-        using less work for easier inputs while preserving quality on harder ones.
-      </p>
-      <div class="paper-grid">
-        <article class="paper-card first-author">
-          <div class="paper-card-head">
-            <p class="meta">IEEE IJCNN, 2025</p>
-            <h3>DYNAMAX: Dynamic computing for Transformers and Mamba based architectures</h3>
-          </div>
-          <img src="../../assets/research/paper-images/llm-efficiency/dynamax.png" alt="" aria-hidden="true" />
-          <div class="paper-card-body">
-            <p class="venue">Large language models, dynamic computing, early exits</p>
-            <p>
-              Studies adaptive computation for Transformer and state-space architectures,
-              aiming to reduce inference cost through input-dependent execution.
-            </p>
-            <p class="paper-abstract" hidden>
-              Early exits (EEs) offer a promising approach to reducing computational costs and
-              latency by dynamically terminating inference once a satisfactory prediction
-              confidence on a data sample is achieved. Although many works integrate EEs into
-              encoder-only Transformers, their application to decoder-only architectures and, more
-              importantly, Mamba models, a novel family of state-space architectures in the LLM
-              realm, remains insufficiently explored. This work introduces DYNAMAX, the first
-              framework to exploit the unique properties of Mamba architectures for early exit
-              mechanisms. We not only integrate EEs into Mamba but also repurpose Mamba as an
-              efficient EE classifier for both Mamba-based and transformer-based LLMs, showcasing
-              its versatility. Our experiments employ the Mistral 7B transformer compared to the
-              Codestral 7B Mamba model, using data sets such as TruthfulQA, CoQA, and TriviaQA to
-              evaluate computational savings, accuracy, and consistency. The results highlight the
-              adaptability of Mamba as a powerful EE classifier and its efficiency in balancing
-              computational cost and performance quality across NLP tasks. By leveraging Mamba's
-              inherent design for dynamic processing, we open pathways for scalable and efficient
-              inference in embedded applications and resource-constrained environments. This study
-              underscores the transformative potential of Mamba in redefining dynamic computing
-              paradigms for LLMs.
-            </p>
-            <div class="paper-links">
-              <a href="https://ieeexplore.ieee.org/document/11228828" target="_blank" rel="noopener noreferrer">IEEE</a>
+      <div class="topic-papers">
+        <div class="section-heading">
+          <p class="eyebrow">Papers</p>
+          <h2>Dynamic computation</h2>
+        </div>
+        <p class="topic-intro">
+          This line studies how large sequence models can spend computation adaptively,
+          using less work for easier inputs while preserving quality on harder ones.
+        </p>
+        <div class="paper-grid">
+          <article class="paper-card first-author">
+            <div class="paper-card-head">
+              <p class="meta">IEEE IJCNN, 2025</p>
+              <h3>DYNAMAX: Dynamic computing for Transformers and Mamba based architectures</h3>
             </div>
-          </div>
-        </article>
+            <img src="../../assets/research/paper-images/llm-efficiency/dynamax.png" alt="" aria-hidden="true" />
+            <div class="paper-card-body">
+              <p class="venue">Large language models, dynamic computing, early exits</p>
+              <p>
+                Studies adaptive computation for Transformer and state-space architectures,
+                aiming to reduce inference cost through input-dependent execution.
+              </p>
+              <p class="paper-abstract" hidden>
+                Early exits (EEs) offer a promising approach to reducing computational costs and
+                latency by dynamically terminating inference once a satisfactory prediction
+                confidence on a data sample is achieved. Although many works integrate EEs into
+                encoder-only Transformers, their application to decoder-only architectures and, more
+                importantly, Mamba models, a novel family of state-space architectures in the LLM
+                realm, remains insufficiently explored. This work introduces DYNAMAX, the first
+                framework to exploit the unique properties of Mamba architectures for early exit
+                mechanisms. We not only integrate EEs into Mamba but also repurpose Mamba as an
+                efficient EE classifier for both Mamba-based and transformer-based LLMs, showcasing
+                its versatility. Our experiments employ the Mistral 7B transformer compared to the
+                Codestral 7B Mamba model, using data sets such as TruthfulQA, CoQA, and TriviaQA to
+                evaluate computational savings, accuracy, and consistency. The results highlight the
+                adaptability of Mamba as a powerful EE classifier and its efficiency in balancing
+                computational cost and performance quality across NLP tasks. By leveraging Mamba's
+                inherent design for dynamic processing, we open pathways for scalable and efficient
+                inference in embedded applications and resource-constrained environments. This study
+                underscores the transformative potential of Mamba in redefining dynamic computing
+                paradigms for LLMs.
+              </p>
+              <div class="paper-links">
+                <a href="https://ieeexplore.ieee.org/document/11228828" target="_blank" rel="noopener noreferrer">IEEE</a>
+              </div>
+            </div>
+          </article>
+        </div>
       </div>
     </section>
   </main>
@@ -102,6 +102,6 @@
     <p>&copy; <span id="year"></span> Miguel Nogales. Built with semantic HTML, CSS, and JavaScript. (it was LLM made, i didnt do anything)</p>
   </footer>
 
-  <script src="../../js/script.js?v=paper-tooltip-v9"></script>
+  <script src="../../js/script.js?v=abstract-scroll-20260927"></script>
 </body>
 </html>
