@@ -128,6 +128,12 @@ class Gateway(BaseGateway):
             return True
         return not self.public_https() and fetch_site not in ("cross-site", "same-site")
 
+    def same_origin_login(self):
+        # A browser form may omit the CSRF cookie, but a real same-origin
+        # Origin header cannot be supplied by a cross-origin form.
+        target = "https://api.miguelnogales.com" if self.public_https() else "http://" + self.headers.get("Host", "")
+        return self.headers.get("Origin") == target
+
     def redirect(self, location, cookie=None):
         self.send_response(303)
         self.send_header("Location", location)
@@ -137,7 +143,7 @@ class Gateway(BaseGateway):
         self.send_header("Content-Length", "0")
         self.end_headers()
 
-    def html(self, markup, status=200, cookie=None):
+    def html(self, markup, status=200, cookie=None, referrer_policy="no-referrer"):
         data = markup.encode()
         self.send_response(status)
         self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -147,7 +153,7 @@ class Gateway(BaseGateway):
         self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'")
         self.send_header("X-Frame-Options", "DENY")
-        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("Referrer-Policy", referrer_policy)
         self.end_headers()
         self.wfile.write(data)
 
@@ -166,7 +172,7 @@ class Gateway(BaseGateway):
         alert = f'<p class="error" role="alert">{html.escape(message)}</p>' if message else ""
         csrf, cookie = self.new_form_token()
         markup = f'''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sign in · Your apps</title><style>body{{font:16px system-ui;background:#101827;color:#eef4fa;min-height:100vh;display:grid;place-items:center;margin:0}}main{{width:min(390px,calc(100% - 40px));background:#1b2a3a;padding:32px;border:1px solid #3b536a;border-radius:20px;box-shadow:0 22px 75px #050b14}}h1{{font-size:2rem;margin:.2em 0}}p{{color:#b9cbd8}}label{{display:block;margin:16px 0 6px}}input{{box-sizing:border-box;width:100%;padding:13px;border-radius:9px;border:1px solid #60788c;background:#0c1723;color:white;font:inherit}}button{{margin-top:24px;width:100%;padding:14px;border:0;border-radius:9px;background:#7ce1ce;color:#10231d;font-weight:800;font:inherit;cursor:pointer}}.error{{color:#ffb0ad}}</style><main><p>One account for your apps</p><h1>Sign in</h1>{alert}<form method="post" action="/auth/login"><input type="hidden" name="next" value="{html.escape(next_url, quote=True)}"><input type="hidden" name="csrf" value="{csrf}"><label for="username">Username</label><input id="username" name="username" autocomplete="username" required maxlength="60" autofocus><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required maxlength="256"><button type="submit">Continue</button></form></main></html>'''
-        return self.html(markup, status, cookie)
+        return self.html(markup, status, cookie, referrer_policy="same-origin")
 
     def new_form_token(self):
         csrf = secrets.token_urlsafe(32)
@@ -222,7 +228,7 @@ class Gateway(BaseGateway):
                 return self.send_json(413, {"error": "Form too large"})
             form = parse_qs(self.rfile.read(length).decode(), keep_blank_values=True)
             next_url = self.safe_next(form.get("next", ["/auth/"])[0])
-            if self.headers.get("Sec-Fetch-Site") == "cross-site" or not self.valid_form_token(form.get("csrf", [""])[0]):
+            if self.headers.get("Sec-Fetch-Site") == "cross-site" or not (self.valid_form_token(form.get("csrf", [""])[0]) or self.same_origin_login()):
                 return self.login_page(next_url, "Please reload this page and try again", 403)
             username, password = form.get("username", [""])[0], form.get("password", [""])[0]
             if len(username) > 60 or len(password) > 256:
@@ -272,8 +278,12 @@ class Gateway(BaseGateway):
         path = urlsplit(self.path).path
         if path == "/health" and self.command == "GET":
             return super().dispatch()
+        if path == "/nightwatch/health" and self.command == "GET":
+            return self.proxy(8788, self.path, {}, 0, 5)
         if path == "/auth" or path.startswith("/auth/"):
             return self.auth_route(path)
+        if path in ("/calories/", "/calories/index.html") and self.command == "GET":
+            return self.redirect("https://personal.miguelnogales.com/calories/")
         if path in ("/scale", "/calories", "/nightwatch"):
             return self.redirect(path + "/")
         if path.startswith("/calories/"):

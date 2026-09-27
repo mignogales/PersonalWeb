@@ -1,5 +1,4 @@
 const state = {
-  token: "",
   user: null,
   mediaRecorder: null,
   audioChunks: [],
@@ -8,31 +7,20 @@ const state = {
 
 const config = window.CALORIE_TRACKER_CONFIG || {};
 localStorage.removeItem("calorie_token");
-const fileApiBaseUrl = window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "";
-const apiBaseUrl = (
-  localStorage.getItem("calorie_api_base_url") ||
-  config.apiBaseUrl ||
-  fileApiBaseUrl ||
-  ""
-).replace(/\/$/, "");
+const apiBaseUrl = (config.apiBaseUrl || "/calories").replace(/\/$/, "");
 
 const els = {
   apiStatus: document.querySelector("#apiStatus"),
   authView: document.querySelector("#authView"),
   appView: document.querySelector("#appView"),
-  createUserForm: document.querySelector("#createUserForm"),
-  loginForm: document.querySelector("#loginForm"),
   authMessage: document.querySelector("#authMessage"),
+  retryBtn: document.querySelector("#retryBtn"),
   username: document.querySelector("#username"),
   targetCalories: document.querySelector("#targetCalories"),
   targetProtein: document.querySelector("#targetProtein"),
   todayCalories: document.querySelector("#todayCalories"),
   todayProtein: document.querySelector("#todayProtein"),
   latestWeight: document.querySelector("#latestWeight"),
-  logoutBtn: document.querySelector("#logoutBtn"),
-  passwordForm: document.querySelector("#passwordForm"),
-  savePasswordBtn: document.querySelector("#savePasswordBtn"),
-  passwordState: document.querySelector("#passwordState"),
   settingsForm: document.querySelector("#settingsForm"),
   saveSettingsBtn: document.querySelector("#saveSettingsBtn"),
   settingsState: document.querySelector("#settingsState"),
@@ -66,6 +54,9 @@ async function api(path, options = {}) {
   const payload = await response.json();
   if (!response.ok) {
     if (response.status === 409) location.reload();
+    if (response.status === 401 && state.user) {
+      location.replace(`https://api.miguelnogales.com/auth/login?next=${encodeURIComponent(location.href)}`);
+    }
     const error = new Error(payload.error || payload.message || `Request failed: ${response.status}`);
     error.status = response.status;
     throw error;
@@ -75,11 +66,6 @@ async function api(path, options = {}) {
 
 function setResult(payload) {
   els.lastResult.textContent = JSON.stringify(payload, null, 2);
-}
-
-function setAuthMessage(message, isError = false) {
-  els.authMessage.textContent = message;
-  els.authMessage.classList.toggle("bad-text", isError);
 }
 
 function setLoggerState(message, type = "") {
@@ -130,37 +116,30 @@ async function loadMe() {
   try {
     const payload = await api("/api/me");
     state.user = payload.user;
-    showApp();
     await refresh();
+    showApp();
   } catch (error) {
     if (error.status === 401) {
       location.replace(`https://api.miguelnogales.com/auth/login?next=${encodeURIComponent(location.href)}`);
       return;
     }
-    setResult({ error: error.message });
+    els.authView.classList.remove("hidden");
+    els.appView.classList.add("hidden");
+    els.authMessage.textContent = `Could not load the tracker: ${error.message}`;
+    els.authMessage.classList.add("bad-text");
+    els.retryBtn.classList.remove("hidden");
   }
-}
-
-function showAuth() {
-  location.assign(`https://api.miguelnogales.com/auth/login?next=${encodeURIComponent(location.href)}`);
 }
 
 function showApp() {
   els.authView.classList.add("hidden");
   els.appView.classList.remove("hidden");
-  setAuthMessage("");
+  els.authMessage.classList.remove("bad-text");
   els.username.textContent = state.user.username;
   els.targetCalories.textContent = `${state.user.calorie_target} kcal`;
   els.targetProtein.textContent = `${state.user.protein_target} g`;
   els.settingsForm.calorie_target.value = state.user.calorie_target;
   els.settingsForm.protein_target.value = state.user.protein_target;
-  renderPasswordState();
-}
-
-function renderPasswordState(message = "") {
-  els.savePasswordBtn.textContent = state.user?.has_password ? "Update password" : "Save password";
-  els.passwordState.textContent = message || (state.user?.has_password ? "" : "Add a password before logging out.");
-  els.passwordState.classList.remove("bad-text");
 }
 
 async function refresh() {
@@ -195,14 +174,14 @@ function renderLogs(logs) {
         .map(
           (item) => `
             <tr data-food-item-id="${item.id}">
-              <td>
+              <td data-label="Food item">
                 <input
                   class="table-input food-item-name"
                   value="${escapeHtml(item.input_name || item.name)}"
                   aria-label="Food item name"
                 />
               </td>
-              <td>
+              <td data-label="Amount">
                 <div class="amount-edit">
                   <input
                     class="table-input amount-input"
@@ -216,12 +195,12 @@ function renderLogs(logs) {
                   <span>g</span>
                 </div>
               </td>
-              <td>${item.calories ?? "-"}</td>
-              <td>${item.protein_g ?? "-"}</td>
-              <td>${item.carbs_g ?? "-"}</td>
-              <td>${item.fat_g ?? "-"}</td>
-              <td class="${item.status === "resolved" ? "" : "flag"}">${escapeHtml(item.status)}</td>
-              <td><button class="secondary save-food-item" type="button">Save</button></td>
+              <td data-label="Calories">${item.calories ?? "-"}</td>
+              <td data-label="Protein">${item.protein_g ?? "-"}</td>
+              <td data-label="Carbs">${item.carbs_g ?? "-"}</td>
+              <td data-label="Fat">${item.fat_g ?? "-"}</td>
+              <td data-label="Status" class="${item.status === "resolved" ? "" : "flag"}">${escapeHtml(item.status)}</td>
+              <td data-label="Actions"><button class="secondary save-food-item" type="button">Save changes</button></td>
             </tr>
           `,
         )
@@ -429,79 +408,12 @@ function renderWeightChart(weights) {
   `;
 }
 
-els.createUserForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const form = event.currentTarget;
-  const data = Object.fromEntries(new FormData(form));
-  try {
-    const payload = await api("/api/users", {
-      method: "POST",
-      body: JSON.stringify({
-        username: data.username,
-        password: data.password,
-        calorie_target: Number(data.calorie_target || 2200),
-        protein_target: Number(data.protein_target || 140),
-      }),
-    });
-    state.token = payload.token;
-    localStorage.setItem("calorie_token", state.token);
-    setResult({ status: "signed_in", user: payload.user });
-    setAuthMessage("");
-    await loadMe();
-  } catch (error) {
-    setAuthMessage(error.message, true);
-  }
-});
-
-els.loginForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const form = event.currentTarget;
-  const data = Object.fromEntries(new FormData(form));
-  try {
-    const payload = await api("/api/login", {
-      method: "POST",
-      body: JSON.stringify({
-        username: data.username,
-        password: data.password,
-      }),
-    });
-    state.token = payload.token;
-    localStorage.setItem("calorie_token", state.token);
-    setResult({ status: "signed_in", user: payload.user });
-    setAuthMessage("");
-    await loadMe();
-  } catch (error) {
-    setAuthMessage(error.message, true);
-  }
-});
-
-els.logoutBtn.addEventListener("click", () => {
-  const form = document.createElement("form");
-  form.method = "POST";
-  form.action = "https://api.miguelnogales.com/auth/logout";
-  document.body.append(form);
-  form.submit();
-});
-
-els.passwordForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const form = event.currentTarget;
-  const data = Object.fromEntries(new FormData(form));
-  els.savePasswordBtn.disabled = true;
-  try {
-    const payload = await api("/api/password", {
-      method: "POST",
-      body: JSON.stringify({ password: data.password }),
-    });
-    state.user = payload.user;
-    form.reset();
-    renderPasswordState("Password saved.");
-  } catch (error) {
-    els.passwordState.textContent = error.message;
-    els.passwordState.classList.add("bad-text");
-  } finally {
-    els.savePasswordBtn.disabled = false;
-  }
+els.retryBtn.addEventListener("click", async () => {
+  els.retryBtn.classList.add("hidden");
+  els.authMessage.textContent = "Checking your account and recent logs.";
+  els.authMessage.classList.remove("bad-text");
+  await checkApi();
+  await loadMe();
 });
 
 els.settingsForm.addEventListener("submit", async (event) => {
@@ -534,7 +446,11 @@ els.settingsForm.addEventListener("submit", async (event) => {
 
 els.tabs.forEach((tab) => {
   tab.addEventListener("click", () => {
-    els.tabs.forEach((item) => item.classList.toggle("active", item === tab));
+    els.tabs.forEach((item) => {
+      const isActive = item === tab;
+      item.classList.toggle("active", isActive);
+      item.setAttribute("aria-selected", String(isActive));
+    });
     const active = tab.dataset.tab;
     els.foodForm.classList.toggle("hidden", active !== "food");
     els.weightForm.classList.toggle("hidden", active !== "weight");
@@ -552,18 +468,23 @@ els.foodForm.addEventListener("submit", async (event) => {
   }
   const submission = beginSubmission("Food log", { type: "food_log", text });
   form.reset();
+  let saved = false;
 
   try {
     const payload = await api("/api/logs/text", {
       method: "POST",
       body: JSON.stringify({ text, timestamp: submission.submittedAt }),
     });
+    saved = true;
     setResult(payload);
     await refresh();
     submission.finish("Food log processed.", "success");
   } catch (error) {
+    if (!saved && !form.elements.text.value) form.elements.text.value = text;
     setResult({ error: error.message });
-    submission.finish(`Food log was not processed: ${error.message}`, "error");
+    submission.finish(saved
+      ? `Food log saved, but recent logs could not refresh: ${error.message}`
+      : `Could not confirm the food log: ${error.message}. Check recent logs before retrying.`, "error");
   }
 });
 
@@ -577,18 +498,23 @@ els.weightForm.addEventListener("submit", async (event) => {
   }
   const submission = beginSubmission("Weight log", { type: "weight_log", weight_kg: Number(weight) });
   form.reset();
+  let saved = false;
 
   try {
     const payload = await api("/api/logs/text", {
       method: "POST",
       body: JSON.stringify({ text: `peso ${weight} kg`, timestamp: submission.submittedAt }),
     });
+    saved = true;
     setResult(payload);
     await refresh();
     submission.finish("Weight log processed.", "success");
   } catch (error) {
+    if (!saved && !form.elements.weight.value) form.elements.weight.value = weight;
     setResult({ error: error.message });
-    submission.finish(`Weight log was not processed: ${error.message}`, "error");
+    submission.finish(saved
+      ? `Weight log saved, but recent logs could not refresh: ${error.message}`
+      : `Could not confirm the weight log: ${error.message}. Check recent logs before retrying.`, "error");
   }
 });
 

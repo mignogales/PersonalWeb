@@ -50,6 +50,7 @@ button:disabled {
 }
 
 button.secondary,
+a.secondary,
 .tab,
 button.ghost {
   background: #eef3ef;
@@ -58,9 +59,21 @@ button.ghost {
 }
 
 button.secondary:hover,
+a.secondary:hover,
 .tab:hover,
 button.ghost:hover {
   background: #e3ece6;
+}
+
+a.secondary {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  padding: 0 16px;
+  border-radius: 6px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 button.danger {
@@ -591,5 +604,386 @@ textarea:focus {
 
   .topbar {
     align-items: start;
+  }
+}
+
+/* Phone layout: keep the important actions visible and turn dense data into
+   compact cards instead of making the whole page wider than the viewport. */
+@media (max-width: 680px) {
+  body {
+    font-size: 15px;
+  }
+
+  .shell {
+    width: min(calc(100% - 24px), 560px);
+    padding: max(16px, env(safe-area-inset-top)) 0 max(32px, env(safe-area-inset-bottom));
+  }
+
+  .topbar {
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    max-width: 13ch;
+    font-size: clamp(28px, 9vw, 36px);
+    line-height: 0.98;
+  }
+
+  h2 {
+    margin-bottom: 12px;
+  }
+
+  .eyebrow {
+    margin-bottom: 5px;
+    font-size: 11px;
+  }
+
+  .status {
+    flex: 0 0 auto;
+    justify-self: start;
+    padding: 7px 9px;
+    font-size: 12px;
+  }
+
+  .panel {
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: 0 7px 20px rgba(29, 35, 32, 0.07);
+  }
+
+  .app-grid {
+    gap: 12px;
+  }
+
+  .user-panel {
+    display: grid;
+    gap: 14px;
+  }
+
+  .user-panel .row {
+    align-items: flex-start;
+  }
+
+  .user-panel .row h2 {
+    margin-bottom: 0;
+  }
+
+  a.secondary {
+    min-height: 36px;
+    padding: 0 11px;
+    font-size: 13px;
+  }
+
+  .target {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    border-top: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .target > div {
+    min-width: 0;
+    border: 1px solid #e1ebe3;
+    border-radius: 11px;
+    background: #f4f8f4;
+    padding: 11px;
+  }
+
+  .target span,
+  .mini-list span {
+    font-size: 11px;
+  }
+
+  .target strong {
+    display: block;
+    margin-top: 5px;
+    font-size: clamp(20px, 6vw, 26px);
+    line-height: 1;
+  }
+
+  .mini-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+  }
+
+  .mini-list div {
+    display: grid;
+    align-content: start;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .mini-list strong {
+    overflow-wrap: anywhere;
+    font-size: 14px;
+    line-height: 1.15;
+  }
+
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .tab {
+    min-height: 42px;
+    padding: 0 8px;
+    font-size: 14px;
+  }
+
+  form {
+    gap: 12px;
+  }
+
+  input,
+  textarea {
+    border-radius: 10px;
+    padding: 12px;
+  }
+
+  textarea {
+    min-height: 106px;
+  }
+
+  form > button,
+  .recorder button {
+    width: 100%;
+    min-height: 46px;
+  }
+
+  .recorder {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .recorder button {
+    padding: 0 8px;
+    font-size: 13px;
+  }
+
+  .processing-state {
+    margin-top: 12px;
+  }
+
+  .result {
+    min-height: 84px;
+    max-height: 190px;
+    margin-top: 12px;
+    border-radius: 10px;
+    padding: 11px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .wide > .row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .wide > .row h2 {
+    margin-bottom: 0;
+  }
+
+  .chart-legend {
+    width: 100%;
+    gap: 7px 12px;
+    font-size: 12px;
+  }
+
+  .chart-grid {
+    gap: 10px;
+  }
+
+  .chart-card {
+    border-radius: 11px;
+    padding: 11px;
+  }
+
+  .chart-head {
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .chart-head strong {
+    margin-top: 2px;
+  }
+
+  .chart-stat {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+
+  .chart-wrap {
+    min-height: 116px;
+  }
+
+  .empty-chart {
+    min-height: 116px;
+    padding: 12px;
+  }
+
+  .settings-panel {
+    gap: 12px;
+  }
+
+  .settings-panel .inline-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .settings-panel .inline-form button,
+  .settings-panel .form-state {
+    grid-column: 1 / -1;
+  }
+
+  .settings-panel .inline-form button {
+    min-height: 46px;
+  }
+
+  .logs {
+    gap: 8px;
+  }
+
+  .log-item,
+  .day-item {
+    border-radius: 11px;
+    padding: 11px;
+  }
+
+  .log-head {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .log-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .item-table {
+    display: block;
+    min-width: 0;
+    font-size: 14px;
+  }
+
+  .item-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .item-table tbody,
+  .item-table tr,
+  .item-table td {
+    display: block;
+  }
+
+  .item-table tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px 12px;
+    padding: 11px 0;
+  }
+
+  .item-table tr + tr {
+    border-top: 1px solid var(--line);
+  }
+
+  .item-table td {
+    min-width: 0;
+    border: 0;
+    padding: 0;
+  }
+
+  .item-table td::before {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--muted);
+    content: attr(data-label);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .item-table td:first-child,
+  .item-table td:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .item-table td:last-child {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    border-top: 1px solid #edf1ee;
+    padding-top: 8px;
+  }
+
+  .item-table td:last-child::before {
+    display: none;
+  }
+
+  .item-table button {
+    min-height: 36px;
+    padding: 0 12px;
+  }
+
+  .table-input,
+  .food-item-name,
+  .amount-input {
+    min-width: 0;
+    border-radius: 8px;
+    padding: 9px;
+  }
+
+  .amount-edit {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .day-item strong {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 380px) {
+  .shell {
+    width: min(calc(100% - 20px), 560px);
+  }
+
+  .panel {
+    padding: 12px;
+  }
+
+  .target > div {
+    padding: 10px;
+  }
+
+  .target strong {
+    font-size: 20px;
+  }
+
+  .mini-list strong {
+    font-size: 13px;
+  }
+
+  .chart-legend {
+    gap: 6px 9px;
+    font-size: 11px;
   }
 }

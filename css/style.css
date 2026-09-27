@@ -766,12 +766,75 @@ h1 {
   font-size: clamp(1.02rem, 2vw, 1.22rem);
 }
 
-.hobbies-under-construction {
-  display: block;
-  width: min(100%, 520px);
-  height: auto;
-  margin-top: clamp(22px, 4vw, 32px);
+.hobby-list {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 24px;
+}
+
+.hobby-card {
+  overflow: hidden;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--panel-strong), var(--panel));
+  box-shadow: 0 24px 80px var(--shadow);
+  backdrop-filter: blur(12px);
+}
+
+:root:not([data-theme="dark"]) body.about-me-page .hobby-card {
+  --border: rgba(52, 116, 168, 0.18);
+  --text: #10243a;
+  --muted: #36566d;
+  --accent: #1675b0;
+}
+
+.hobby-card--books {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  align-items: center;
+}
+
+.hobby-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.hobby-card--books img {
+  height: 100%;
+  max-height: 440px;
+  object-fit: cover;
+}
+
+.hobby-card-copy {
+  padding: clamp(22px, 4vw, 38px);
+}
+
+.hobby-card-copy h2 {
+  margin-bottom: 14px;
+  color: var(--text);
+  font-size: clamp(1.8rem, 3.5vw, 2.7rem);
+  line-height: 1.1;
+}
+
+.hobby-card-copy p:last-child {
+  margin-bottom: 0;
+  color: var(--muted);
+}
+
+.hobby-card--brawl img {
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 700px) {
+  .hobby-card--books {
+    grid-template-columns: 1fr;
+  }
+
+  .hobby-card--books img {
+    max-height: none;
+  }
 }
 
 .about-timeline {
@@ -3217,7 +3280,8 @@ a.running-project-card:focus-visible {
   box-shadow: 0 4px 0 var(--shadow);
 }
 
-.pixel-page :is(.hero-panel, #about > .panel, .contact-dock, .topic-hero) {
+.pixel-page :is(.hero-panel, #about > .panel, .contact-dock, .topic-hero,
+  .about-story-hero, .hobby-card) {
   border: 2px solid var(--accent);
   border-radius: 0;
   box-shadow: 4px 4px 0 var(--bg), 8px 8px 0 var(--accent), 12px 12px 0 var(--shadow);
@@ -3263,7 +3327,8 @@ a.running-project-card:focus-visible {
 
 @media (max-width: 760px) {
   .pixel-page .nav-links a { font-size: 1.25rem; }
-  .pixel-page :is(.hero-panel, #about > .panel, .contact-dock) {
+  .pixel-page :is(.hero-panel, #about > .panel, .contact-dock,
+    .about-story-hero, .hobby-card) {
     box-shadow: 3px 3px 0 var(--bg), 6px 6px 0 var(--accent);
   }
 }
@@ -3517,7 +3582,7 @@ a.running-project-card:focus-visible {
   width: var(--paper-slide-width, 300px);
   height: calc(var(--paper-slide-width, 300px) * 88 / 63);
   flex: 0 0 auto;
-  opacity: 0.67;
+  opacity: 1;
   transform: scale(0.64);
   transition:
     transform 620ms cubic-bezier(0.2, 0.72, 0.18, 1),

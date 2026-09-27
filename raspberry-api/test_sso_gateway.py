@@ -57,6 +57,7 @@ with tempfile.TemporaryDirectory(prefix="sso-test-") as root:
     def login_form(host=None):
         status, headers, page = request("GET", "/auth/login", host=host)
         assert status == 200
+        assert headers["Referrer-Policy"] == "same-origin"
         token = re.search(rb'name="csrf" value="([A-Za-z0-9_-]+)"', page).group(1).decode()
         return headers["Set-Cookie"].split(";", 1)[0], token
 
@@ -69,15 +70,34 @@ with tempfile.TemporaryDirectory(prefix="sso-test-") as root:
 
     try:
         assert request("GET", "/health")[0] == 200
+        original_proxy = Gateway.proxy
+        def health_proxy(self, port, path, headers, limit, timeout):
+            assert (port, path, headers, limit, timeout) == (8788, "/nightwatch/health", {}, 0, 5)
+            return self.send_json(200, {"ok": True, "service": "nightwatch"})
+        Gateway.proxy = health_proxy
+        try:
+            assert json.loads(request("GET", "/nightwatch/health")[2]) == {"ok": True, "service": "nightwatch"}
+        finally:
+            Gateway.proxy = original_proxy
         for route in ("/scale/api/measurements", "/calories/api/logs", "/nightwatch/api/state", "/italian/progress", "/office/schedule"):
             assert request("GET", route)[0] == 401, route
+        for route in ("/calories/", "/calories/index.html"):
+            status, headers, _ = request("GET", route)
+            assert status == 303 and headers["Location"] == "https://personal.miguelnogales.com/calories/"
         alice = login("alice", "synthetic-alice-password")
         csrf_cookie, csrf = login_form(host="api.miguelnogales.com")
         browser_form = urlencode({"username": "alice", "password": "synthetic-alice-password", "next": "/auth/", "csrf": csrf}).encode()
         status, headers, _ = request("POST", "/auth/login", cookie=csrf_cookie, body=browser_form, content_type="application/x-www-form-urlencoded", origin="", fetch_site="same-origin", host="api.miguelnogales.com")
         assert status == 303 and "Set-Cookie" in headers
+        status, headers, _ = request("POST", "/auth/login", body=browser_form, content_type="application/x-www-form-urlencoded", origin="https://api.miguelnogales.com", fetch_site="same-origin", host="api.miguelnogales.com")
+        assert status == 303
+        firefox_session = headers["Set-Cookie"].split(";", 1)[0]
+        assert json.loads(request("GET", "/auth/session", firefox_session)[2])["user"]["name"] == "alice"
         assert request("POST", "/auth/login", cookie=csrf_cookie, body=browser_form, content_type="application/x-www-form-urlencoded", origin="", fetch_site="cross-site", host="api.miguelnogales.com")[0] == 403
+        assert request("POST", "/auth/login", body=browser_form, content_type="application/x-www-form-urlencoded", origin="https://api.miguelnogales.com", fetch_site="cross-site", host="api.miguelnogales.com")[0] == 403
         assert request("POST", "/auth/login", body=browser_form, content_type="application/x-www-form-urlencoded", origin="", host="api.miguelnogales.com")[0] == 403
+        assert request("POST", "/auth/login", body=browser_form, content_type="application/x-www-form-urlencoded", origin="null", host="api.miguelnogales.com")[0] == 403
+        assert request("POST", "/auth/login", body=browser_form, content_type="application/x-www-form-urlencoded", origin="https://personal.miguelnogales.com", host="api.miguelnogales.com")[0] == 403
         assert request("POST", "/auth/login", cookie=csrf_cookie, body=browser_form, content_type="application/x-www-form-urlencoded", origin="null", host="api.miguelnogales.com")[0] == 303
         personal_home = "https://personal.miguelnogales.com/italian/"
         csrf_cookie, csrf = login_form()

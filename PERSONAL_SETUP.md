@@ -68,15 +68,20 @@ personal dashboard. Deploy the Worker together with the static assets: the
 `https://api.miguelnogales.com/calories/api/*`. An optional
 `CALORIE_TRACKER_API_BASE` overrides the upstream origin (no path suffix).
 
-Accounts, meals, voice processing, and backups remain on the Pi. The app keeps
-its own account login; users must sign in again when switching domains because
-browser sessions are stored per origin. No database, model, or secret is copied
-into this website. Keep `/calories/api/*` in `assets.run_worker_first`.
+Accounts, meals, voice processing, and backups remain on the Pi. The shared
+sign-in grants access to Calories and the Pi gateway maps each account to its
+tracker user ID. The website forwards the shared session cookie through the
+same-origin Worker; old tracker browser tokens are ignored. No database, model,
+or secret is copied into this website. Keep `/calories/api/*` in
+`assets.run_worker_first`.
 
-Frontend source was copied from the CalorieTracking project on 7 September 2026.
-When updating it, copy `index.html`, `app.js`, and `styles.css` from that project's
-`frontend/`, preserving this site's `calories/config.js`. The original Pi URL
-continues working. Run `node --test tests/calories.test.mjs` to test the proxy.
+Frontend source was copied from the CalorieTracking project on 7 September 2026,
+then adapted for shared sign-in. Do not overwrite this site's `calories/app.js`
+or `calories/index.html` with the older standalone login frontend. Keep
+`calories/config.js` pointed at `/calories`. The website URL is the supported
+entry point; the original Pi URL redirects there.
+Run `node --test tests/calories.test.mjs tests/sso.test.mjs` to test the proxy
+and shared sign-in routes.
 
 
 ## Usage Hub panel

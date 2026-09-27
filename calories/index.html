@@ -2,56 +2,25 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f5f7f4" />
     <title>Calorie Tracker</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles.css?v=20260920" />
   </head>
   <body>
     <main class="shell">
       <header class="topbar">
         <div>
-          <p class="eyebrow">Local Pi-ready prototype</p>
+          <p class="eyebrow">Your nutrition log</p>
           <h1>Calorie & Weight Tracker</h1>
         </div>
         <div class="status" id="apiStatus">Checking API</div>
       </header>
 
-      <section class="auth-grid" id="authView">
-        <form class="panel" id="createUserForm">
-          <h2>Create Profile</h2>
-          <label>
-            Username
-            <input name="username" autocomplete="username" placeholder="miguel" required />
-          </label>
-          <label>
-            Password
-            <input name="password" type="password" autocomplete="new-password" minlength="8" required />
-          </label>
-          <label>
-            Daily calorie target
-            <input name="calorie_target" type="number" min="1000" max="6000" value="2200" />
-          </label>
-          <label>
-            Daily protein target
-            <input name="protein_target" type="number" min="20" max="400" value="140" />
-          </label>
-          <button type="submit">Create account</button>
-        </form>
-
-        <form class="panel" id="loginForm">
-          <h2>Log In</h2>
-          <label>
-            Username
-            <input name="username" autocomplete="username" required />
-          </label>
-          <label>
-            Password
-            <input name="password" type="password" autocomplete="current-password" required />
-          </label>
-          <button type="submit">Log in</button>
-        </form>
-
-        <p class="muted auth-message" id="authMessage" aria-live="polite"></p>
+      <section class="panel" id="authView" role="status">
+        <h2>Opening your tracker…</h2>
+        <p class="muted" id="authMessage" aria-live="polite">Checking your account and recent logs.</p>
+        <button class="secondary hidden" id="retryBtn" type="button">Try again</button>
       </section>
 
       <section class="app-grid hidden" id="appView">
@@ -61,7 +30,7 @@
               <p class="eyebrow">Signed in</p>
               <h2 id="username">Profile</h2>
             </div>
-            <button class="secondary" id="logoutBtn" type="button">Lock</button>
+            <a class="secondary" href="https://api.miguelnogales.com/auth/">Your apps</a>
           </div>
           <div class="target">
             <div>
@@ -73,14 +42,6 @@
               <strong id="targetProtein">0 g</strong>
             </div>
           </div>
-          <form class="password-form" id="passwordForm" hidden>
-            <label>
-              Account password
-              <input name="password" type="password" autocomplete="new-password" minlength="8" required />
-            </label>
-            <button class="secondary" type="submit" id="savePasswordBtn">Save password</button>
-            <p class="muted" id="passwordState" aria-live="polite"></p>
-          </form>
           <div class="mini-list">
             <div><span>Today</span><strong id="todayCalories">0 kcal</strong></div>
             <div><span>Protein</span><strong id="todayProtein">0 g</strong></div>
@@ -89,16 +50,16 @@
         </aside>
 
         <section class="panel logger">
-          <div class="tabs" role="tablist">
-            <button class="tab active" data-tab="food" type="button">Food</button>
-            <button class="tab" data-tab="weight" type="button">Weight</button>
-            <button class="tab" data-tab="voice" type="button">Voice</button>
+          <div class="tabs" role="tablist" aria-label="Log type">
+            <button class="tab active" data-tab="food" type="button" role="tab" aria-selected="true">Food</button>
+            <button class="tab" data-tab="weight" type="button" role="tab" aria-selected="false">Weight</button>
+            <button class="tab" data-tab="voice" type="button" role="tab" aria-selected="false">Voice</button>
           </div>
 
           <form id="foodForm" class="tab-panel">
             <label>
               Meal text
-              <textarea name="text" rows="5" placeholder="100 g patatas crudas y 100 g pechuga de pollo" required></textarea>
+              <textarea name="text" rows="4" placeholder="100 g patatas y 100 g pechuga de pollo" required></textarea>
             </label>
             <button type="submit">Log food</button>
           </form>

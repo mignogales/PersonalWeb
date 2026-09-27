@@ -17,12 +17,16 @@
 @media(max-width:600px){.village-page{padding:16px 13px;gap:16px}.outside-bar{font-size:1.125rem}.outside-bar span{font-size:1.1rem}.village-frame{outline-offset:3px;box-shadow:0 0 0 3px #34403b,0 0 0 6px #101c1c,0 12px 30px #0004}.city-sidebar{padding:22px 18px}.city-cards{grid-template-columns:1fr;gap:13px}.city-card{gap:18px;padding:9px}.city-card strong{font-size:1.8rem}.city-card small{font-size:1.2rem}.city-thumb{flex-basis:68px}.city-sidebar h1{font-size:2rem}.frame-caption{align-items:flex-start}.frame-caption p{max-width:32ch}.landmark{display:none}.chapter-photos{grid-template-columns:1fr}.dialog-content{padding:8px 20px 24px}.dialog-bar{padding:12px 18px}.chapter-dialog{max-height:calc(100svh - 24px)}.motion-toggle{display:none}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
 
-.other-chapter{display:block;text-decoration:none}.other-chapter:hover h3{text-decoration:underline}.other-chapters> :first-child{border-top:0}.other-chapter .meta{color:#b6c4b8;font-size:1.125rem}
+.other-chapter{display:block;text-decoration:none}a.other-chapter:hover h3{text-decoration:underline}.other-chapters> :first-child{border-top:0}.other-chapter .meta{color:#b6c4b8;font-size:1.125rem}
 @media(max-width:600px){.village-frame{overflow:hidden}.world{width:150%}}
 
 .art-credit{display:inline-block;margin-left:12px;text-underline-offset:3px;font-size:1.125rem}
 
 .city-card>span:last-child{min-width:0;overflow-wrap:anywhere}
+
+.other-chapter .esn-photo img{display:block;width:min(100%,315px);max-width:none;max-height:none;height:auto;aspect-ratio:3/4;object-fit:cover}
+
+.chapter--full-width p{max-width:none}
 
 /* Transparent native buttons follow the people; the painting stays decorative. */
 .people-layer{position:absolute;inset:0;z-index:3;pointer-events:none}
