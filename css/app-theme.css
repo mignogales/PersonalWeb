@@ -1,0 +1,267 @@
+/* The apps' shared pixel language. Their original styles still own layout. */
+@font-face {
+  font-family: "VT323";
+  src: url("../assets/fonts/VT323-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root[data-app] {
+  color-scheme: light;
+  --pixel-bg: #dff5ff;
+  --pixel-panel: #f8fcff;
+  --pixel-soft: #eaf5fc;
+  --pixel-ink: #123047;
+  --pixel-muted: #425f73;
+  --pixel-line: #b5d4e7;
+  --pixel-accent: #1684c7;
+  --pixel-button: #096998;
+  --pixel-highlight: #ff9d2f;
+  --pixel-shadow: #a8cddd;
+  --bg: var(--pixel-bg);
+  --panel: var(--pixel-panel);
+  --panel-strong: var(--pixel-panel);
+  --surface: var(--pixel-panel);
+  --paper: var(--pixel-panel);
+  --paper-deep: var(--pixel-soft);
+  --text: var(--pixel-ink);
+  --ink: var(--pixel-ink);
+  --muted: var(--pixel-muted);
+  --subtle: var(--pixel-muted);
+  --border: var(--pixel-line);
+  --line: var(--pixel-line);
+  --accent: var(--pixel-accent);
+  --accent-strong: var(--pixel-button);
+  --green: var(--pixel-accent);
+  --mint: var(--pixel-soft);
+  --radius: 0;
+  --shadow: 4px 4px 0 var(--pixel-shadow);
+  --good: #126c51;
+  --good-bg: #e5f5ed;
+  --bad: #a33135;
+  --bad-bg: #fcebed;
+  --neutral-bg: #edf2f7;
+  font-family: "VT323", "Courier New", monospace;
+}
+
+:root[data-app][data-theme="dark"] {
+  color-scheme: dark;
+  --pixel-bg: #0a0e17;
+  --pixel-panel: #101b2a;
+  --pixel-soft: #1b2c40;
+  --pixel-ink: #eef4ff;
+  --pixel-muted: #b8c4d9;
+  --pixel-line: #39516a;
+  --pixel-accent: #8fc7ff;
+  --pixel-button: #244d72;
+  --pixel-highlight: #ffb85c;
+  --pixel-shadow: #03070e;
+  --good: #7cddb8;
+  --good-bg: #15362e;
+  --bad: #ffb2b6;
+  --bad-bg: #412429;
+  --neutral-bg: #223044;
+}
+
+[data-app] body {
+  color: var(--pixel-ink);
+  background: var(--pixel-bg);
+  background-image: radial-gradient(var(--pixel-line) 1px, transparent 1px);
+  background-size: 24px 24px;
+  font: 1.25rem/1.35 "VT323", "Courier New", monospace;
+}
+[data-app] :is(h1, h2, h3, h4, button, .eyebrow) {
+  font-family: inherit;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+[data-app] h1 { text-shadow: 3px 3px 0 var(--pixel-shadow); }
+[data-app] :is(input, select, textarea) {
+  border-radius: 0;
+  color: var(--pixel-ink);
+  background-color: var(--pixel-panel);
+  border-color: var(--pixel-line);
+  font-family: inherit;
+  accent-color: var(--pixel-accent);
+}
+[data-app] :is(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid var(--pixel-accent);
+  outline-offset: 3px;
+}
+[data-app] :is(button:not(.board-cell), .secondary, .back-link) {
+  border: 2px solid var(--pixel-accent);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 var(--pixel-shadow);
+  font-weight: 400;
+}
+[data-app] button:not(:disabled):not(.board-cell):active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--pixel-shadow);
+}
+[data-app] :is(.panel, .login-card, .service, .job, .links, .chat, .metric) {
+  border: 2px solid var(--pixel-accent);
+  border-radius: 0;
+  background: var(--pixel-panel);
+  box-shadow: 4px 4px 0 var(--pixel-shadow);
+  backdrop-filter: none;
+}
+[data-app] :is(.badge, .status, .monogram, .mark, .service-icon, .link-icon,
+  .chart-card, .target, .result, .tab, .summary-grid > *, .log) { border-radius: 0; }
+[data-app] .eyebrow { font-size: 1rem; letter-spacing: .12em; color: var(--pixel-accent); }
+[data-app] :is(.monogram, .mark) {
+  background: var(--pixel-ink);
+  color: var(--pixel-panel);
+  box-shadow: 3px 3px 0 var(--pixel-shadow);
+  font-size: 1.4rem;
+  letter-spacing: 0;
+}
+[data-app] .app-theme-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 12px;
+  height: 48px;
+  max-width: none;
+  margin: 0;
+  padding: 4px max(16px, calc((100% - 1240px) / 2));
+  border-bottom: 2px solid var(--pixel-accent);
+  background: var(--pixel-panel);
+  color: var(--pixel-ink);
+  font-size: 1.125rem;
+}
+[data-app] .app-theme-bar a { color: inherit; text-decoration: none; white-space: nowrap; }
+[data-app] .app-theme-bar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 96px;
+  min-height: 34px;
+  margin: 0 3px 3px 0;
+  padding: 2px 10px;
+  background: var(--pixel-soft);
+  color: var(--pixel-ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Nutrition: a clear instrument panel, with colored chart series intact. */
+[data-app="calories"] :is(h2, .mini-list strong) { font-size: 1.55rem; }
+[data-app="calories"] :is(button.secondary, a.secondary, .tab, button.ghost,
+  .target, .result, .chart-card) { background: var(--pixel-soft); color: var(--pixel-ink); }
+[data-app="calories"] button:not(.secondary):not(.tab):not(.ghost):not([data-app-theme-toggle]),
+[data-app="calories"] .tab.active { background: var(--pixel-button); color: #fff; }
+[data-app="calories"] :is(input, textarea) { font-size: 1.2rem; }
+[data-app="calories"] .status { font-size: 1.1rem; }
+[data-app="calories"] .topbar { align-items: center; }
+[data-app="calories"] :is(.chart-card, .day-item, .log-item, .table-input) { background: var(--pixel-panel); }
+[data-app="calories"] :is(.chart-stat, .day-item, .log-item) { border-radius: 0; }
+[data-app="calories"] :is(.target span, .mini-list span) { font-size: 1rem; font-weight: 400; }
+[data-app="calories"][data-theme="dark"] { --warn: #ffb85c; --bad: #ffb2b6; }
+[data-app="calories"][data-theme="dark"] .protein-bar { fill: #c69aeb; }
+[data-app="calories"][data-theme="dark"] .weight-line { stroke: #8fc7ff; }
+[data-app="calories"][data-theme="dark"] .line-dot { stroke: #8fc7ff; }
+
+/* Office: pixel calendar cells and a warm action color. */
+[data-app="office"] .primary-button { background: var(--pixel-highlight); color: #271500; }
+[data-app="office"] :is(.back-link, .ghost-button, .icon-button) {
+  background: var(--pixel-panel); color: var(--pixel-ink);
+}
+[data-app="office"] :is(.day-button, .person-pill, .month-item, #month-count) {
+  border-radius: 0; background: var(--pixel-panel); border-color: var(--pixel-line);
+}
+[data-app="office"] .day-button { box-shadow: none; }
+[data-app="office"] .day-button:hover { background: var(--pixel-soft); }
+[data-app="office"] .day-button.is-today { border-color: var(--pixel-highlight); }
+[data-app="office"] .day-button.is-selected {
+  background: var(--pixel-soft); border-color: var(--pixel-accent);
+  box-shadow: inset 0 -4px 0 var(--pixel-accent);
+}
+[data-app="office"] .person-pill.is-me { background: var(--pixel-soft); }
+[data-app="office"][data-theme="dark"] .status-text.success { color: #7cddb8; }
+[data-app="office"][data-theme="dark"] .status-text.error { color: #ffb2b6; }
+
+/* Chat: spacious message windows; selection and message semantics stay native. */
+[data-app="chat"] h1 { letter-spacing: 0; }
+[data-app="chat"] :is(.intro, footer, small) { color: var(--pixel-muted); }
+[data-app="chat"] :is(label, button, #status, footer) { font-size: 1.125rem; }
+[data-app="chat"] small { font-size: 1rem; }
+[data-app="chat"] article { border: 1px solid var(--pixel-line); border-radius: 0; background: var(--pixel-soft); }
+[data-app="chat"] article.user { background: var(--pixel-panel); border-left: 4px solid var(--pixel-accent); }
+[data-app="chat"] article p { line-height: 1.4; }
+[data-app="chat"] form { border-color: var(--pixel-line); }
+[data-app="chat"] button[type="submit"] { background: var(--pixel-button); color: #fff; }
+
+/* Personal tools: the same framing, sized for denser dashboards. */
+[data-app="personal"] :is(h2, h3) { font-size: 1.5rem; }
+[data-app="personal"] :is(.footnote, .count, .label, .section-number, footer,
+  .service-bottom, .job-note, .links small) { font-size: 1rem; }
+[data-app="personal"] :is(.brand, .links strong, .usage-value) { font-weight: 400; }
+[data-app="personal"] .badge::before { border-radius: 0; }
+[data-app="gym"] h1 em { font: inherit; color: var(--pixel-accent); }
+[data-app="gym"] :is(.intro, .note, footer, nav, .heading-side,
+  .section-head p:not(.eyebrow), .toggle, .day-select, table, th, td:last-child,
+  .rankings li, .metric > span:last-of-type, .metric small, .legend) { font-size: 1.05rem; }
+[data-app="gym"] :is(.label, h3) { font-size: 1rem; }
+[data-app="gym"] .metric.now { background: var(--pixel-soft); border-color: var(--pixel-accent); }
+[data-app="gym"] .metric strong { font-weight: 400; letter-spacing: 0; }
+[data-app="gym"] .legend .day-key::before { background: var(--pixel-line); }
+[data-app="gym"] .legend .closed-key::before { background: var(--pixel-soft); }
+[data-app="gym"][data-theme="dark"] .status.warning { color: var(--pixel-highlight); border-color: var(--pixel-highlight); }
+
+/* Italian: map Tailwind's existing surfaces without changing practice logic. */
+[data-app="italian"] .app-viewport { height: calc(100dvh - 48px); color: var(--pixel-ink); }
+[data-app="italian"] :is([class~="bg-white"], .daily-options-panel) {
+  background: var(--pixel-panel); border-color: var(--pixel-line);
+}
+[data-app="italian"] :is([class~="bg-slate-100"], [class~="bg-slate-200"]) { background: var(--pixel-soft); }
+[data-app="italian"] :is([class~="bg-teal-700"], [class~="bg-slate-950"]) { background: var(--pixel-button); color: #fff; }
+[data-app="italian"] :is([class~="text-slate-950"], [class~="text-slate-900"], [class~="text-slate-800"], [class~="text-slate-700"]) { color: var(--pixel-ink); }
+[data-app="italian"] :is([class~="text-slate-600"], [class~="text-slate-500"]) { color: var(--pixel-muted); }
+[data-app="italian"] :is([class~="text-teal-700"], [class~="text-teal-800"]) { color: var(--pixel-accent); }
+[data-app="italian"] :is([class~="bg-red-50"], [class~="bg-emerald-50"], [class~="bg-teal-50"]) { background: var(--pixel-soft); }
+[data-app="italian"][data-theme="dark"] :is([class~="text-red-600"], [class~="text-red-700"]) { color: #ffb2b6; }
+[data-app="italian"][data-theme="dark"] :is([class~="text-emerald-700"], [class~="text-emerald-800"]) { color: #7cddb8; }
+[data-app="italian"] [class*="rounded-"] { border-radius: 0; }
+[data-app="italian"] :is(.practice-card, .stats-summary, .needs-practice, .login-shell form) {
+  border: 2px solid var(--pixel-accent); box-shadow: 4px 4px 0 var(--pixel-shadow);
+}
+[data-app="italian"] :is(.font-black, .font-bold) { font-weight: 400; }
+[data-app="italian"] .text-xs { font-size: .95rem; line-height: 1; }
+[data-app="italian"] .text-sm { font-size: 1.05rem; line-height: 1.15; }
+[data-app="italian"] .app-footer { font-size: .9rem; }
+[data-app="italian"] .app-header h1 { font-size: 1.9rem; line-height: 1; }
+
+/* Caso Cero keeps its room colors and sprites; the chrome joins the site. */
+[data-app="caso"] :is(.topbar, .case-heading, .clue-panel, .board-panel, .suspect-dock) {
+  background: var(--pixel-panel); color: var(--pixel-ink); border-color: var(--pixel-accent);
+}
+[data-app="caso"] :is(.clue-panel, .board-panel) { box-shadow: 5px 5px 0 var(--pixel-shadow); }
+[data-app="caso"] :is(.brand, .rules-link, .status-dot) { color: var(--pixel-ink); font-size: 1.05rem; }
+[data-app="caso"] :is(.lede, .clue-list p, .victim-note p) { font-size: 1rem; }
+[data-app="caso"] :is(.button, .language-switch, .eyebrow, .clue-list strong) { font-size: 1.1rem; }
+[data-app="caso"] :is(.button-dark, .button-accent) { background: var(--pixel-button); color: #fff; }
+[data-app="caso"] .victim-note { background: var(--pixel-soft); }
+[data-app="caso"][data-theme="dark"] { --red: #ff8d93; --red-dark: #ffb2b6; }
+
+@media (max-width: 600px) {
+  [data-app] .app-theme-bar { padding-inline: 16px; }
+  [data-app="personal"] .topbar { flex-wrap: wrap; }
+  [data-app="calories"] .topbar { align-items: start; }
+}
+@media (max-height: 740px) {
+  [data-app="italian"] .app-shell { gap: .35rem; }
+  [data-app="italian"] .app-header h1 { font-size: 1.4rem; }
+  [data-app="italian"] .practice-card { padding: .65rem; }
+  [data-app="italian"] .question-layout { gap: .4rem; }
+  [data-app="italian"] .text-xs { font-size: .8rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-app] *, [data-app] *::before, [data-app] *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}

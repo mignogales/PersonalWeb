@@ -9,7 +9,7 @@ const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'no-referrer',
   'X-Frame-Options': 'DENY',
-  'Content-Security-Policy': "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+  'Content-Security-Policy': "default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
 };
 const response = (body, status = 200, headers = {}) => new Response(body, { status, headers: { ...securityHeaders, ...headers } });
 const redirect = (location, cookie) => response(null, 303, { Location: location, ...(cookie ? { 'Set-Cookie': cookie } : {}) });
@@ -55,7 +55,8 @@ async function matchesPassword(supplied, expected) {
 }
 function loginPage(message = '', ready = true) {
   // Messages are fixed server strings, never reflected user input.
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Personal · Sign in</title><link rel="stylesheet" href="/personal/style.css"><link rel="icon" href="/assets/research/misc/favicon.png"></head><body><header class="topbar"><a class="brand" href="/"><span class="monogram">MN</span> Miguel Nogales</a></header><main class="login-main"><section class="login-card"><p class="eyebrow">Just for you</p><h1>Personal area<span>.</span></h1><p>Sign in to your private workspace.</p>${message ? `<p class="login-message" role="alert">${message}</p>` : ''}${ready ? '<form method="post" action="/personal/login"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required maxlength="256" autofocus><button type="submit">Unlock personal area</button></form><p class="login-message">This session expires after 8 hours.</p>' : ''}</section><a class="login-back" href="/">← Back to the public website</a></main></body></html>`;
+  return `<!doctype html><html lang="en" data-app="personal"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Personal · Sign in</title><link rel="stylesheet" href="/personal/style.css"><link rel="icon" href="/assets/research/misc/favicon.png"><link rel="stylesheet" href="/css/app-theme.css?v=20260930">
+    <script src="/js/app-theme.js?v=20260930"></script></head><body><header class="topbar"><a class="brand" href="/"><span class="monogram">MN</span> Miguel Nogales</a></header><main class="login-main"><section class="login-card"><p class="eyebrow">Just for you</p><h1>Personal area<span>.</span></h1><p>Sign in to your private workspace.</p>${message ? `<p class="login-message" role="alert">${message}</p>` : ''}${ready ? '<form method="post" action="/personal/login"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required maxlength="256" autofocus><button type="submit">Unlock personal area</button></form><p class="login-message">This session expires after 8 hours.</p>' : ''}</section><a class="login-back" href="/">← Back to the public website</a></main></body></html>`;
 }
 const login = (message = '', status = 200, ready = true, extra = {}) => response(loginPage(message, ready), status, { 'Content-Type': 'text/html; charset=utf-8', ...extra });
 

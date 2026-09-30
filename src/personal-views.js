@@ -1,6 +1,6 @@
 // Private views are bundled in the Worker, never published as static assets.
 export const dashboardHtml = `<!doctype html>
-<html lang="en">
+<html lang="en" data-app="personal">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,7 +10,8 @@ export const dashboardHtml = `<!doctype html>
   <link rel="icon" href="/assets/research/misc/favicon.png">
   <link rel="stylesheet" href="/personal/style.css">
   <script src="/personal/dashboard.js" defer></script>
-</head>
+<link rel="stylesheet" href="/css/app-theme.css?v=20260930">
+    <script src="/js/app-theme.js?v=20260930"></script></head>
 <body>
   <header class="topbar"><a href="/" class="brand"><span class="monogram">MN</span> Miguel Nogales</a><div class="personal-actions"><a href="/">Public website ↗</a><form method="post" action="https://api.miguelnogales.com/auth/logout"><button type="submit">Sign out</button></form></div></header>
   <main>
