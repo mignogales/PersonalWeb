@@ -56,3 +56,4 @@ __pycache__/
 
 # Private machine connection notes
 raspberry-api/PI_CONNECTION.md
+raspberry-api/local-data/

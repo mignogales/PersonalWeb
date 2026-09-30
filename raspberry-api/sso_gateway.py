@@ -1,5 +1,6 @@
 """Shared browser login for the Pi APIs, with explicit app access grants."""
 import base64
+import csv
 from contextlib import closing
 import hashlib
 import hmac
@@ -22,6 +23,7 @@ from italian import APIError, connect as italian_connect, handle as italian_hand
 from office import connect as office_connect, handle as office_handle, snapshot as office_snapshot
 from pi_gateway import Gateway as BaseGateway, ThreadingHTTPServer
 import shared_auth as auth
+from affluenza import summarize as affluenza_summary
 
 CALORIE_DB = Path.home() / "CalorieTracking/data/calorie_tracker.sqlite3"
 NIGHTWATCH_DB = Path.home() / ".local/share/nightwatch/nightwatch.sqlite3"
@@ -34,6 +36,7 @@ LAUNCHER_APPS = (
     ("italian", "Italian", "LEARNING", "A little practice today goes a long way.", "https://personal.miguelnogales.com/italian/", "IT", "lilac"),
     ("office", "Office calendar", "PLANNING", "Your office days and the shared team view.", "https://personal.miguelnogales.com/apps/office-scheduler/", "O", "blue"),
     ("personal", "Personal dashboard", "OVERVIEW", "A home for your private tools and shortcuts.", "https://personal.miguelnogales.com/personal/dashboard", "P", "coral"),
+    ("personal", "USI Gym", "TRAINING", "Crowding, quiet hours, and your 30-day view.", "https://personal.miguelnogales.com/personal/affluenza", "06", "mint"),
     ("chat", "Chat Lab", "CREATIVE", "Think through ideas, draft, and explore.", "https://personal.miguelnogales.com/apps/chat-lab/", "✦", "rose"),
     ("nightwatch", "Nightwatch", "SYSTEMS", "Follow jobs, reminders, and what is running.", "/nightwatch/", "N", "steel"),
 )
@@ -282,6 +285,16 @@ class Gateway(BaseGateway):
             return self.proxy(8788, self.path, {}, 0, 5)
         if path == "/auth" or path.startswith("/auth/"):
             return self.auth_route(path)
+        if path == "/affluenza/summary":
+            user = self.require("personal")
+            if not user:
+                return None
+            if self.command != "GET":
+                return self.send_json(405, {"error": "Method not allowed"})
+            try:
+                return self.send_json(200, affluenza_summary())
+            except (OSError, ValueError, csv.Error):
+                return self.send_json(503, {"error": "Gym readings temporarily unavailable"})
         if path in ("/calories/", "/calories/index.html") and self.command == "GET":
             return self.redirect("https://personal.miguelnogales.com/calories/")
         if path in ("/scale", "/calories", "/nightwatch"):

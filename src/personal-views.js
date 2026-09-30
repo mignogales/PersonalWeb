@@ -15,7 +15,7 @@ export const dashboardHtml = `<!doctype html>
 <body>
   <header class="topbar"><a href="/" class="brand"><span class="monogram">MN</span> Miguel Nogales</a><div class="personal-actions"><a href="/">Public website ↗</a><form method="post" action="https://api.miguelnogales.com/auth/logout"><button type="submit">Sign out</button></form></div></header>
   <main>
-    <nav class="personal-nav" aria-label="Personal tools"><a href="/personal/dashboard" aria-current="page">Dashboard</a><span>Your private tools, together.</span></nav>
+    <nav class="personal-nav" aria-label="Personal tools"><a href="/personal/dashboard" aria-current="page">Dashboard</a><a href="/personal/affluenza">USI Gym</a><span>Your private tools, together.</span></nav>
     <div class="heading"><div><p class="eyebrow">Personal area</p><h1>Dashboard<span>.</span></h1><p class="intro">Your services, schedules, and everyday shortcuts. Only after sign-in.</p></div><div class="date"><time id="today"></time><span>Europe / Zurich</span></div></div>
     <section class="status-section" aria-labelledby="services-title">
       <div class="section-heading"><div><span class="section-number">01</span><h2 id="services-title">Service status</h2></div><button id="refresh" type="button"><span aria-hidden="true">↻</span> Refresh</button></div>
@@ -43,6 +43,7 @@ export const dashboardHtml = `<!doctype html>
         <article class="job"><div class="job-heading"><span class="job-icon" aria-hidden="true">◷</span><div><h3>Italian progress backup</h3><p>Raspberry Pi · systemd timer</p></div></div><div class="schedule"><div><span class="label">Configured schedule</span><strong>Every day <span>at 00:00</span></strong><span class="muted">Raspberry Pi local timezone</span></div><span class="badge neutral">Unverified</span></div><dl><div><dt>Last run</dt><dd>Not connected</dd></div><div><dt>Next run</dt><dd>Awaiting timer status</dd></div><div><dt>Retention</dt><dd>7 days on the Pi</dd></div></dl><p class="job-note">Schedule from the project configuration. Live execution history is not connected yet.</p></article>
       </section>
       <section aria-labelledby="links-title"><div class="section-heading"><div><span class="section-number">03</span><h2 id="links-title">Useful links</h2></div></div><div class="links">
+        <a href="/personal/affluenza"><span class="link-icon">06</span><span><strong>USI Gym</strong><small>Crowding, quiet hours &amp; daily averages</small></span><span class="arrow" aria-hidden="true">↗</span></a>
         <a href="/italian/"><span class="link-icon">It</span><span><strong>Italian Verb Sprint</strong><small>A little practice, every day</small></span><span class="arrow" aria-hidden="true">↗</span></a>
         <a href="/calories/"><span class="link-icon">kcal</span><span><strong>Calorie &amp; Weight Tracker</strong><small>Log meals and follow your progress</small></span><span class="arrow" aria-hidden="true">↗</span></a>
         <a href="https://api.miguelnogales.com/scale/"><span class="link-icon">kg</span><span><strong>Body scale</strong><small>Private weight and impedance trends</small></span><span class="arrow" aria-hidden="true">↗</span></a>

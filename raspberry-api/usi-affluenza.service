@@ -1,0 +1,12 @@
+[Unit]
+Description=Record USI Lugano crowding indicator
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/Projects/usi-affluenza-monitor
+ExecStart=/usr/bin/python3 %h/Projects/usi-affluenza-monitor/monitor_affluenza.py
+Environment=TZ=Europe/Zurich
+UMask=0077
+NoNewPrivileges=true
+TimeoutStartSec=45

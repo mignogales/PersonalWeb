@@ -1,0 +1,11 @@
+[Unit]
+Description=Sample USI crowding every ten minutes
+
+[Timer]
+OnCalendar=*-*-* *:00/10:00
+Persistent=true
+AccuracySec=1s
+Unit=usi-affluenza.service
+
+[Install]
+WantedBy=timers.target
