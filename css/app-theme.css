@@ -19,6 +19,7 @@
   --pixel-button: #096998;
   --pixel-highlight: #ff9d2f;
   --pixel-shadow: #a8cddd;
+  --app-theme-bar-height: 48px;
   --bg: var(--pixel-bg);
   --panel: var(--pixel-panel);
   --panel-strong: var(--pixel-panel);
@@ -123,7 +124,7 @@
   justify-content: space-between;
   flex-shrink: 0;
   gap: 12px;
-  height: 48px;
+  height: var(--app-theme-bar-height);
   max-width: none;
   margin: 0;
   padding: 4px max(16px, calc((100% - 1240px) / 2));
@@ -246,6 +247,16 @@
 [data-app="caso"] :is(.button-dark, .button-accent) { background: var(--pixel-button); color: #fff; }
 [data-app="caso"] .victim-note { background: var(--pixel-soft); }
 [data-app="caso"][data-theme="dark"] { --red: #ff8d93; --red-dark: #ffb2b6; }
+
+/* The desktop game fills the space below the shared bar, including its dock. */
+@media (min-width: 941px) and (min-height: 651px) {
+  [data-app="caso"] .app-shell {
+    height: calc(100dvh - var(--app-theme-bar-height));
+  }
+  [data-app="caso"] .crime-board.board-normal {
+    min-width: calc(var(--board-size) * 24px);
+  }
+}
 
 @media (max-width: 600px) {
   [data-app] .app-theme-bar { padding-inline: 16px; }
