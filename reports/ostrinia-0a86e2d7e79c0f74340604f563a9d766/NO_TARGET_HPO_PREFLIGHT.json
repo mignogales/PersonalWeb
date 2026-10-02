@@ -1,0 +1,106 @@
+{
+  "status": "ready",
+  "input_policy": "covariates_only_constant_zero_target_and_mask_slots",
+  "2022_used_for_hpo": false,
+  "data_max_year": 2021,
+  "training_inputs_invariant_to_targets_masks_and_maxima": true,
+  "domains": {
+    "synthetic": {
+      "input_shape": [
+        1826,
+        160,
+        29
+      ],
+      "nonzero_target_slots": 0,
+      "inputs_identical_after_poisoning_targets_masks_and_removing_maxima": true,
+      "covariates_identical_to_target_history_condition": true
+    },
+    "real_2020": {
+      "input_shape": [
+        3502,
+        13,
+        29
+      ],
+      "nonzero_target_slots": 0,
+      "inputs_identical_after_poisoning_targets_masks_and_removing_maxima": true,
+      "covariates_identical_to_target_history_condition": true
+    },
+    "real_2021": {
+      "input_shape": [
+        3867,
+        13,
+        29
+      ],
+      "nonzero_target_slots": 0,
+      "inputs_identical_after_poisoning_targets_masks_and_removing_maxima": true,
+      "covariates_identical_to_target_history_condition": true
+    }
+  },
+  "models": {
+    "grugcn": {
+      "input_shape": [
+        32,
+        60,
+        160,
+        29
+      ],
+      "output_shape": [
+        32,
+        160
+      ],
+      "finite": true
+    },
+    "transformer": {
+      "input_shape": [
+        32,
+        60,
+        160,
+        29
+      ],
+      "output_shape": [
+        32,
+        160
+      ],
+      "finite": true
+    },
+    "gru": {
+      "input_shape": [
+        32,
+        60,
+        160,
+        29
+      ],
+      "output_shape": [
+        32,
+        160
+      ],
+      "finite": true
+    },
+    "lstm": {
+      "input_shape": [
+        32,
+        60,
+        160,
+        29
+      ],
+      "output_shape": [
+        32,
+        160
+      ],
+      "finite": true
+    },
+    "time_spatial_transformer": {
+      "input_shape": [
+        32,
+        60,
+        160,
+        29
+      ],
+      "output_shape": [
+        32,
+        160
+      ],
+      "finite": true
+    }
+  }
+}

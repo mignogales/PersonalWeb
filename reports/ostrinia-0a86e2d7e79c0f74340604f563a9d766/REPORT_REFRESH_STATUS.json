@@ -1,0 +1,38 @@
+{
+  "screening_trials": 150,
+  "screening_plots": 450,
+  "status": "complete",
+  "inspected_utc": "2026-10-02 14:40 UTC",
+  "validation_bundles": 100,
+  "validation_scores": 600,
+  "test_results": 150,
+  "test_forecasts": 150,
+  "test_plots": 15,
+  "input_policy": "covariates_only_constant_zero_target_and_mask_slots",
+  "frozen_selection_hashes_valid": true,
+  "regime_configurations_shared": true,
+  "selection_used_2022": false,
+  "all_predictions_finite_in_0_1": true,
+  "max_recomputed_macro_mae_difference": 0.0,
+  "max_recomputed_summary_difference": 1.3877787807814457e-17,
+  "report_scope": "current_covariates_only_run; earlier results archive_only",
+  "upstream": {
+    "id": "4e7f822bd1eec575603030af",
+    "title": "Ostrinia no-target HPO recovery: resume 125/150, one worker per GPU",
+    "status": "completed",
+    "started_at": 1790941822.489783,
+    "ended_at": 1790950978.8527796,
+    "exit_code": 0,
+    "heartbeat_at": 1790950974.8938155,
+    "heartbeat_expected": true,
+    "unresponsive_at": null,
+    "note": "Command completed successfully."
+  },
+  "best": {
+    "architecture": "grugcn",
+    "method": "synthetic_zero_shot_real",
+    "seed_count": 10,
+    "mean_mae": 0.07221034268538158,
+    "sd_mae": 0.008316745125714736
+  }
+}

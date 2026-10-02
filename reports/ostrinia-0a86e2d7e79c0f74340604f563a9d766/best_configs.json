@@ -1,0 +1,342 @@
+{
+  "grugcn": {
+    "synthetic_zero_shot_real": {
+      "trial_id": 2,
+      "config": {
+        "batch_size": 32,
+        "dropout": 0.35,
+        "ff_multiplier": 4,
+        "finetune_lr": 3e-05,
+        "graph_layers": 2,
+        "hidden_size": 64,
+        "layers": 3,
+        "n_heads": 4,
+        "pretrain_lr": 0.0003,
+        "scratch_lr": 0.0001,
+        "trial_id": 2,
+        "weight_decay": 1e-06,
+        "window": 7
+      },
+      "mean_validation_mae": 0.14075613729655742,
+      "validation_replicates": 20,
+      "parameter_count": 106305,
+      "selection_rule": "one shared configuration selected by average validation rank across the three real regimes"
+    },
+    "synthetic_finetune_real": {
+      "trial_id": 2,
+      "config": {
+        "batch_size": 32,
+        "dropout": 0.35,
+        "ff_multiplier": 4,
+        "finetune_lr": 3e-05,
+        "graph_layers": 2,
+        "hidden_size": 64,
+        "layers": 3,
+        "n_heads": 4,
+        "pretrain_lr": 0.0003,
+        "scratch_lr": 0.0001,
+        "trial_id": 2,
+        "weight_decay": 1e-06,
+        "window": 7
+      },
+      "mean_validation_mae": 0.1058171283453703,
+      "validation_replicates": 20,
+      "parameter_count": 106305,
+      "selection_rule": "one shared configuration selected by average validation rank across the three real regimes"
+    },
+    "real_scratch": {
+      "trial_id": 2,
+      "config": {
+        "batch_size": 32,
+        "dropout": 0.35,
+        "ff_multiplier": 4,
+        "finetune_lr": 3e-05,
+        "graph_layers": 2,
+        "hidden_size": 64,
+        "layers": 3,
+        "n_heads": 4,
+        "pretrain_lr": 0.0003,
+        "scratch_lr": 0.0001,
+        "trial_id": 2,
+        "weight_decay": 1e-06,
+        "window": 7
+      },
+      "mean_validation_mae": 0.11055613867938519,
+      "validation_replicates": 20,
+      "parameter_count": 106305,
+      "selection_rule": "one shared configuration selected by average validation rank across the three real regimes"
+    }
+  },
+  "transformer": {
+    "synthetic_zero_shot_real": {
+      "trial_id": 17,
+      "config": {
+        "batch_size": 32,
+        "dropout": 0.0,
+        "ff_multiplier": 8,
+        "finetune_lr": 0.0001,
+        "graph_layers": 2,
+        "hidden_size": 48,
+        "layers": 1,
+        "n_heads": 2,
+        "pretrain_lr": 0.001,
+        "scratch_lr": 0.0003,
+        "trial_id": 17,
+        "weight_decay": 0.001,
+        "window": 21
+      },
+      "mean_validation_mae": 0.15074411779642105,
+      "validation_replicates": 20,
+      "parameter_count": 99409,
+      "selection_rule": "one shared configuration selected by average validation rank across the three real regimes"
+    },
+    "synthetic_finetune_real": {
+      "trial_id": 17,
+      "config": {
+        "batch_size": 32,
+        "dropout": 0.0,
+        "ff_multiplier": 8,
+        "finetune_lr": 0.0001,
+        "graph_layers": 2,
+        "hidden_size": 48,
+        "layers": 1,
+        "n_heads": 2,
+        "pretrain_lr": 0.001,
+        "scratch_lr": 0.0003,
+        "trial_id": 17,
+        "weight_decay": 0.001,
+        "window": 21
+      },
+      "mean_validation_mae": 0.1211556289345026,
+      "validation_replicates": 20,
+      "parameter_count": 99409,
+      "selection_rule": "one shared configuration selected by average validation rank across the three real regimes"
+    },
+    "real_scratch": {
+      "trial_id": 17,
+      "config": {
+        "batch_size": 32,
+        "dropout": 0.0,
+        "ff_multiplier": 8,
+        "finetune_lr": 0.0001,
+        "graph_layers": 2,
+        "hidden_size": 48,
+        "layers": 1,
+        "n_heads": 2,
+        "pretrain_lr": 0.001,
+        "scratch_lr": 0.0003,
+        "trial_id": 17,
+        "weight_decay": 0.001,
+        "window": 21
+      },
+      "mean_validation_mae": 0.11962210480123758,
+      "validation_replicates": 20,
+      "parameter_count": 99409,
+      "selection_rule": "one shared configuration selected by average validation rank across the three real regimes"
+    }
+  },
+  "gru": {
+    "synthetic_zero_shot_real": {
+      "trial_id": 8,
+      "config": {
+        "batch_size": 32,
+        "dropout": 0.2,
+        "ff_multiplier": 4,
+        "finetune_lr": 0.0003,
+        "graph_layers": 2,
+        "hidden_size": 64,
+        "layers": 3,
+        "n_heads": 4,
+        "pretrain_lr": 0.0001,
+        "scratch_lr": 0.0003,
+        "trial_id": 8,
+        "weight_decay": 0.0,
+        "window": 45
+      },
+      "mean_validation_mae": 0.14972164407372474,
+      "validation_replicates": 20,
+      "parameter_count": 81345,
+      "selection_rule": "one shared configuration selected by average validation rank across the three real regimes"
+    },
+    "synthetic_finetune_real": {
+      "trial_id": 8,
+      "config": {
+        "batch_size": 32,
+        "dropout": 0.2,
+        "ff_multiplier": 4,
+        "finetune_lr": 0.0003,
+        "graph_layers": 2,
+        "hidden_size": 64,
+        "layers": 3,
+        "n_heads": 4,
+        "pretrain_lr": 0.0001,
+        "scratch_lr": 0.0003,
+        "trial_id": 8,
+        "weight_decay": 0.0,
+        "window": 45
+      },
+      "mean_validation_mae": 0.11707998998463154,
+      "validation_replicates": 20,
+      "parameter_count": 81345,
+      "selection_rule": "one shared configuration selected by average validation rank across the three real regimes"
+    },
+    "real_scratch": {
+      "trial_id": 8,
+      "config": {
+        "batch_size": 32,
+        "dropout": 0.2,
+        "ff_multiplier": 4,
+        "finetune_lr": 0.0003,
+        "graph_layers": 2,
+        "hidden_size": 64,
+        "layers": 3,
+        "n_heads": 4,
+        "pretrain_lr": 0.0001,
+        "scratch_lr": 0.0003,
+        "trial_id": 8,
+        "weight_decay": 0.0,
+        "window": 45
+      },
+      "mean_validation_mae": 0.11747825965285301,
+      "validation_replicates": 20,
+      "parameter_count": 81345,
+      "selection_rule": "one shared configuration selected by average validation rank across the three real regimes"
+    }
+  },
+  "lstm": {
+    "synthetic_zero_shot_real": {
+      "trial_id": 4,
+      "config": {
+        "batch_size": 32,
+        "dropout": 0.0,
+        "ff_multiplier": 4,
+        "finetune_lr": 0.0001,
+        "graph_layers": 2,
+        "hidden_size": 64,
+        "layers": 1,
+        "n_heads": 4,
+        "pretrain_lr": 0.0001,
+        "scratch_lr": 0.001,
+        "trial_id": 4,
+        "weight_decay": 0.001,
+        "window": 7
+      },
+      "mean_validation_mae": 0.1676534742116928,
+      "validation_replicates": 20,
+      "parameter_count": 39745,
+      "selection_rule": "one shared configuration selected by average validation rank across the three real regimes"
+    },
+    "synthetic_finetune_real": {
+      "trial_id": 4,
+      "config": {
+        "batch_size": 32,
+        "dropout": 0.0,
+        "ff_multiplier": 4,
+        "finetune_lr": 0.0001,
+        "graph_layers": 2,
+        "hidden_size": 64,
+        "layers": 1,
+        "n_heads": 4,
+        "pretrain_lr": 0.0001,
+        "scratch_lr": 0.001,
+        "trial_id": 4,
+        "weight_decay": 0.001,
+        "window": 7
+      },
+      "mean_validation_mae": 0.1215490210801363,
+      "validation_replicates": 20,
+      "parameter_count": 39745,
+      "selection_rule": "one shared configuration selected by average validation rank across the three real regimes"
+    },
+    "real_scratch": {
+      "trial_id": 4,
+      "config": {
+        "batch_size": 32,
+        "dropout": 0.0,
+        "ff_multiplier": 4,
+        "finetune_lr": 0.0001,
+        "graph_layers": 2,
+        "hidden_size": 64,
+        "layers": 1,
+        "n_heads": 4,
+        "pretrain_lr": 0.0001,
+        "scratch_lr": 0.001,
+        "trial_id": 4,
+        "weight_decay": 0.001,
+        "window": 7
+      },
+      "mean_validation_mae": 0.12257420178502798,
+      "validation_replicates": 20,
+      "parameter_count": 39745,
+      "selection_rule": "one shared configuration selected by average validation rank across the three real regimes"
+    }
+  },
+  "time_spatial_transformer": {
+    "synthetic_zero_shot_real": {
+      "trial_id": 21,
+      "config": {
+        "batch_size": 32,
+        "dropout": 0.35,
+        "ff_multiplier": 8,
+        "finetune_lr": 0.0003,
+        "graph_layers": 2,
+        "hidden_size": 64,
+        "layers": 3,
+        "n_heads": 8,
+        "pretrain_lr": 0.0001,
+        "scratch_lr": 0.0001,
+        "trial_id": 21,
+        "weight_decay": 0.0,
+        "window": 30
+      },
+      "mean_validation_mae": 0.18696253150701522,
+      "validation_replicates": 20,
+      "parameter_count": 305793,
+      "selection_rule": "one shared configuration selected by average validation rank across the three real regimes"
+    },
+    "synthetic_finetune_real": {
+      "trial_id": 21,
+      "config": {
+        "batch_size": 32,
+        "dropout": 0.35,
+        "ff_multiplier": 8,
+        "finetune_lr": 0.0003,
+        "graph_layers": 2,
+        "hidden_size": 64,
+        "layers": 3,
+        "n_heads": 8,
+        "pretrain_lr": 0.0001,
+        "scratch_lr": 0.0001,
+        "trial_id": 21,
+        "weight_decay": 0.0,
+        "window": 30
+      },
+      "mean_validation_mae": 0.12343137450516224,
+      "validation_replicates": 20,
+      "parameter_count": 305793,
+      "selection_rule": "one shared configuration selected by average validation rank across the three real regimes"
+    },
+    "real_scratch": {
+      "trial_id": 21,
+      "config": {
+        "batch_size": 32,
+        "dropout": 0.35,
+        "ff_multiplier": 8,
+        "finetune_lr": 0.0003,
+        "graph_layers": 2,
+        "hidden_size": 64,
+        "layers": 3,
+        "n_heads": 8,
+        "pretrain_lr": 0.0001,
+        "scratch_lr": 0.0001,
+        "trial_id": 21,
+        "weight_decay": 0.0,
+        "window": 30
+      },
+      "mean_validation_mae": 0.11359260827302933,
+      "validation_replicates": 20,
+      "parameter_count": 305793,
+      "selection_rule": "one shared configuration selected by average validation rank across the three real regimes"
+    }
+  }
+}

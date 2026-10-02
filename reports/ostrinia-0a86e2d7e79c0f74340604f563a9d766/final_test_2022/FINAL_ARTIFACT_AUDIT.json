@@ -1,0 +1,13 @@
+{
+  "status": "complete",
+  "input_policy": "covariates_only_constant_zero_target_and_mask_slots",
+  "fresh_screen_trials": 150,
+  "finalist_validation_bundles": 100,
+  "test_results": 150,
+  "test_forecasts": 150,
+  "test_plots": 15,
+  "baseline_dates_labels_masks_nodes_identical": true,
+  "baseline_configurations_may_differ_after_fresh_hpo": true,
+  "selected_before_2022_test": true,
+  "all_predictions_finite_in_0_1": true
+}

@@ -1,0 +1,25 @@
+{
+  "selection_used_2022": false,
+  "input_policy": "covariates_only_constant_zero_target_and_mask_slots",
+  "validation_years": [
+    2020,
+    2021
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "sha256": {
+    "MATCHED_CANDIDATES.json": "15d2268aa1d517170c2d1b5ce0756f37ff605cc63a7c73023c06e777916cd2ad",
+    "MATCHED_SELECTION.json": "84fb7d20b4060b7595b2f600fb35a78d050f364d283073d0f92d4ddc573cbc95",
+    "best_configs.json": "32eff81db9e403d92b5e98f9e45c59ebdea786c19e260e166de09bd3d9548158"
+  }
+}

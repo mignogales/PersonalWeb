@@ -1,0 +1,16 @@
+domain,method,method_label,architecture,test_year,trial_id,context_length,active_nodes,scored_targets_per_seed,seed_count,macro_mae_mean_abs_annual_shape,macro_mae_sd_across_seeds,plot
+real,real_scratch,Real scratch,gru,2022,8,45,3,549,10,0.08885868104795616,0.005295763971867238,plots/real/real_real_scratch_gru_seed_00.png
+real,real_scratch,Real scratch,grugcn,2022,2,7,3,549,10,0.0985819611698389,0.01520697381014914,plots/real/real_real_scratch_grugcn_seed_00.png
+real,real_scratch,Real scratch,lstm,2022,4,7,3,549,10,0.0923023688296477,0.00557286694036747,plots/real/real_real_scratch_lstm_seed_00.png
+real,real_scratch,Real scratch,time_spatial_transformer,2022,21,30,3,549,10,0.08969924375414848,0.0060439979115413265,plots/real/real_real_scratch_time_spatial_transformer_seed_00.png
+real,real_scratch,Real scratch,transformer,2022,17,21,3,549,10,0.09048944314320882,0.004139089464605681,plots/real/real_real_scratch_transformer_seed_00.png
+real,synthetic_finetune_real,"Synthetic pretraining, fine-tuned on real",gru,2022,8,45,3,549,10,0.08350522555410861,0.004627477996450143,plots/real/real_synthetic_finetune_real_gru_seed_00.png
+real,synthetic_finetune_real,"Synthetic pretraining, fine-tuned on real",grugcn,2022,2,7,3,549,10,0.07321966215968131,0.0047768870071075945,plots/real/real_synthetic_finetune_real_grugcn_seed_00.png
+real,synthetic_finetune_real,"Synthetic pretraining, fine-tuned on real",lstm,2022,4,7,3,549,10,0.07922877805928388,0.0012790854701924227,plots/real/real_synthetic_finetune_real_lstm_seed_00.png
+real,synthetic_finetune_real,"Synthetic pretraining, fine-tuned on real",time_spatial_transformer,2022,21,30,3,549,10,0.08218246735632419,0.006272692955114418,plots/real/real_synthetic_finetune_real_time_spatial_transformer_seed_00.png
+real,synthetic_finetune_real,"Synthetic pretraining, fine-tuned on real",transformer,2022,17,21,3,549,10,0.08221098942061264,0.002303691019075196,plots/real/real_synthetic_finetune_real_transformer_seed_00.png
+real,synthetic_zero_shot_real,"Synthetic pretraining, zero-shot real",gru,2022,8,45,3,549,10,0.12412824829419453,0.008565738362503052,plots/real/real_synthetic_zero_shot_real_gru_seed_00.png
+real,synthetic_zero_shot_real,"Synthetic pretraining, zero-shot real",grugcn,2022,2,7,3,549,10,0.07221034268538158,0.008316745125714736,plots/real/real_synthetic_zero_shot_real_grugcn_seed_00.png
+real,synthetic_zero_shot_real,"Synthetic pretraining, zero-shot real",lstm,2022,4,7,3,549,10,0.1075112661967675,0.0034522541392792475,plots/real/real_synthetic_zero_shot_real_lstm_seed_00.png
+real,synthetic_zero_shot_real,"Synthetic pretraining, zero-shot real",time_spatial_transformer,2022,21,30,3,549,10,0.10002956750492253,0.024982742695017462,plots/real/real_synthetic_zero_shot_real_time_spatial_transformer_seed_00.png
+real,synthetic_zero_shot_real,"Synthetic pretraining, zero-shot real",transformer,2022,17,21,3,549,10,0.11655094201366105,0.013817768192739041,plots/real/real_synthetic_zero_shot_real_transformer_seed_00.png

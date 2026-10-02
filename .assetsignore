@@ -23,3 +23,7 @@ CHAT_SETUP.md
 PERSONAL_SETUP.md
 apps/dashboard/**
 raspberry-api/**
+
+project_memory.md
+
+memory/**

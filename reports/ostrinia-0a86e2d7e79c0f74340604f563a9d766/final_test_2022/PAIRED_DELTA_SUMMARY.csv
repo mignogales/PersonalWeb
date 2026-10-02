@@ -1,0 +1,16 @@
+architecture,comparison,node_name,test_year,seed_count,mean_paired_mae_delta,sd_across_seed_deltas,fraction_seeds_left_better,negative_favors_left_method
+gru,synthetic_finetune_real_minus_real_scratch,node_macro,2022,10,-0.005353455493847531,0.007295432184946569,0.8,True
+gru,synthetic_finetune_real_minus_synthetic_zero_shot_real,node_macro,2022,10,-0.04062302274008592,0.011104055581815568,1.0,True
+gru,synthetic_zero_shot_real_minus_real_scratch,node_macro,2022,10,0.03526956724623839,0.00821637788141851,0.0,True
+grugcn,synthetic_finetune_real_minus_real_scratch,node_macro,2022,10,-0.02536229901015758,0.014069178348298123,1.0,True
+grugcn,synthetic_finetune_real_minus_synthetic_zero_shot_real,node_macro,2022,10,0.0010093194742997497,0.007089613156516416,0.4,True
+grugcn,synthetic_zero_shot_real_minus_real_scratch,node_macro,2022,10,-0.02637161848445733,0.010642263734723,1.0,True
+lstm,synthetic_finetune_real_minus_real_scratch,node_macro,2022,10,-0.013073590770363807,0.004830733526124607,1.0,True
+lstm,synthetic_finetune_real_minus_synthetic_zero_shot_real,node_macro,2022,10,-0.0282824881374836,0.004394850804127782,1.0,True
+lstm,synthetic_zero_shot_real_minus_real_scratch,node_macro,2022,10,0.015208897367119792,0.007671684496063944,0.0,True
+time_spatial_transformer,synthetic_finetune_real_minus_real_scratch,node_macro,2022,10,-0.007516776397824286,0.008702650220849128,0.9,True
+time_spatial_transformer,synthetic_finetune_real_minus_synthetic_zero_shot_real,node_macro,2022,10,-0.017847100148598354,0.02862258070891072,0.8,True
+time_spatial_transformer,synthetic_zero_shot_real_minus_real_scratch,node_macro,2022,10,0.010330323750774067,0.025520340990438293,0.4,True
+transformer,synthetic_finetune_real_minus_real_scratch,node_macro,2022,10,-0.00827845372259617,0.005299680512081537,1.0,True
+transformer,synthetic_finetune_real_minus_synthetic_zero_shot_real,node_macro,2022,10,-0.034339952593048416,0.014683011737931819,1.0,True
+transformer,synthetic_zero_shot_real_minus_real_scratch,node_macro,2022,10,0.026061498870452247,0.0150691223593695,0.0,True

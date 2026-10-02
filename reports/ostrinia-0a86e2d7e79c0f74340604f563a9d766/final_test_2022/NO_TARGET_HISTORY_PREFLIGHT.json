@@ -1,0 +1,105 @@
+{
+  "status": "ready",
+  "input_policy": "covariates_only_constant_zero_target_and_mask_slots",
+  "all_training_validation_test_inputs_audited": true,
+  "target_maximum_not_needed_for_inference_inputs": true,
+  "domains": {
+    "synthetic_training_validation": {
+      "input_shape": [
+        1826,
+        160,
+        29
+      ],
+      "nonzero_target_slots": 0,
+      "inputs_identical_after_poisoning_targets_masks_and_removing_maxima": true,
+      "covariates_identical_to_target_history_condition": true
+    },
+    "real_fold_2020": {
+      "input_shape": [
+        3502,
+        13,
+        29
+      ],
+      "nonzero_target_slots": 0,
+      "inputs_identical_after_poisoning_targets_masks_and_removing_maxima": true,
+      "covariates_identical_to_target_history_condition": true
+    },
+    "real_fold_2021": {
+      "input_shape": [
+        3867,
+        13,
+        29
+      ],
+      "nonzero_target_slots": 0,
+      "inputs_identical_after_poisoning_targets_masks_and_removing_maxima": true,
+      "covariates_identical_to_target_history_condition": true
+    },
+    "real_test": {
+      "input_shape": [
+        4232,
+        13,
+        29
+      ],
+      "nonzero_target_slots": 0,
+      "inputs_identical_after_poisoning_targets_masks_and_removing_maxima": true,
+      "covariates_identical_to_target_history_condition": true
+    },
+    "synthetic_test": {
+      "input_shape": [
+        2191,
+        160,
+        29
+      ],
+      "nonzero_target_slots": 0,
+      "inputs_identical_after_poisoning_targets_masks_and_removing_maxima": true,
+      "covariates_identical_to_target_history_condition": true
+    }
+  },
+  "models": {
+    "grugcn": {
+      "window_count": 183,
+      "parameter_count": 106305,
+      "finite_output_shape": [
+        3,
+        13
+      ],
+      "early_middle_late_contexts_have_zero_target_slots": true
+    },
+    "transformer": {
+      "window_count": 183,
+      "parameter_count": 99409,
+      "finite_output_shape": [
+        3,
+        13
+      ],
+      "early_middle_late_contexts_have_zero_target_slots": true
+    },
+    "gru": {
+      "window_count": 183,
+      "parameter_count": 81345,
+      "finite_output_shape": [
+        3,
+        13
+      ],
+      "early_middle_late_contexts_have_zero_target_slots": true
+    },
+    "lstm": {
+      "window_count": 183,
+      "parameter_count": 39745,
+      "finite_output_shape": [
+        3,
+        13
+      ],
+      "early_middle_late_contexts_have_zero_target_slots": true
+    },
+    "time_spatial_transformer": {
+      "window_count": 183,
+      "parameter_count": 305793,
+      "finite_output_shape": [
+        3,
+        13
+      ],
+      "early_middle_late_contexts_have_zero_target_slots": true
+    }
+  }
+}

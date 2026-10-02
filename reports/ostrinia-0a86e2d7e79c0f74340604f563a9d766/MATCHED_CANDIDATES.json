@@ -1,0 +1,317 @@
+{
+  "protocol": "capacity matched within each architecture; same screened trial/config across all three real regimes",
+  "source_hpo_dir": "/home/mnogales/Projects/ostrinia/paper_results/graph_architecture_no_target_history_hpo30_seed10_20261002/screening_hpo",
+  "selection_source": "30-config screening validation on 2021; 2022 test targets are not used",
+  "selection_rule": "rank each trial within each real regime by validation MAE; sort by mean rank, then worst regime rank, then trial id",
+  "screening_seed": 17,
+  "candidate_count_per_architecture": 2,
+  "methods": [
+    "synthetic_zero_shot_real",
+    "synthetic_finetune_real",
+    "real_scratch"
+  ],
+  "candidate_seed_runs": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "expected_validation_years": [
+    2020,
+    2021
+  ],
+  "test_year": 2022,
+  "architectures": {
+    "grugcn": {
+      "screening_csv": "/home/mnogales/Projects/ostrinia/paper_results/graph_architecture_no_target_history_hpo30_seed10_20261002/screening_hpo/grugcn/screening.csv",
+      "screening_sha256": "e44b3901f04b0a77ace3b4b31f31254c0396f9946226038ba91ca8321e02b9bd",
+      "screening_rows_per_real_regime": 30,
+      "candidate_configs": [
+        {
+          "trial_id": 2,
+          "config": {
+            "batch_size": 32,
+            "dropout": 0.35,
+            "ff_multiplier": 4,
+            "finetune_lr": 3e-05,
+            "graph_layers": 2,
+            "hidden_size": 64,
+            "layers": 3,
+            "n_heads": 4,
+            "pretrain_lr": 0.0003,
+            "scratch_lr": 0.0001,
+            "trial_id": 2,
+            "weight_decay": 1e-06,
+            "window": 7
+          },
+          "validation_rank_by_method": {
+            "synthetic_zero_shot_real": 3,
+            "synthetic_finetune_real": 2,
+            "real_scratch": 9
+          },
+          "mean_validation_rank": 4.666666666666667,
+          "worst_validation_rank": 9
+        },
+        {
+          "trial_id": 0,
+          "config": {
+            "batch_size": 32,
+            "dropout": 0.35,
+            "ff_multiplier": 4,
+            "finetune_lr": 0.0003,
+            "graph_layers": 4,
+            "hidden_size": 32,
+            "layers": 2,
+            "n_heads": 4,
+            "pretrain_lr": 0.0003,
+            "scratch_lr": 0.0001,
+            "trial_id": 0,
+            "weight_decay": 0.0,
+            "window": 30
+          },
+          "validation_rank_by_method": {
+            "synthetic_zero_shot_real": 2,
+            "synthetic_finetune_real": 8,
+            "real_scratch": 5
+          },
+          "mean_validation_rank": 5.0,
+          "worst_validation_rank": 8
+        }
+      ]
+    },
+    "transformer": {
+      "screening_csv": "/home/mnogales/Projects/ostrinia/paper_results/graph_architecture_no_target_history_hpo30_seed10_20261002/screening_hpo/transformer/screening.csv",
+      "screening_sha256": "fdf94cb612f8c068a0812504772a0e8cd04a78184b1fe390c70307d59ab37b2c",
+      "screening_rows_per_real_regime": 30,
+      "candidate_configs": [
+        {
+          "trial_id": 28,
+          "config": {
+            "batch_size": 32,
+            "dropout": 0.2,
+            "ff_multiplier": 2,
+            "finetune_lr": 3e-05,
+            "graph_layers": 2,
+            "hidden_size": 64,
+            "layers": 2,
+            "n_heads": 2,
+            "pretrain_lr": 0.0003,
+            "scratch_lr": 0.0001,
+            "trial_id": 28,
+            "weight_decay": 0.001,
+            "window": 7
+          },
+          "validation_rank_by_method": {
+            "synthetic_zero_shot_real": 8,
+            "synthetic_finetune_real": 5,
+            "real_scratch": 12
+          },
+          "mean_validation_rank": 8.333333333333334,
+          "worst_validation_rank": 12
+        },
+        {
+          "trial_id": 17,
+          "config": {
+            "batch_size": 32,
+            "dropout": 0.0,
+            "ff_multiplier": 8,
+            "finetune_lr": 0.0001,
+            "graph_layers": 2,
+            "hidden_size": 48,
+            "layers": 1,
+            "n_heads": 2,
+            "pretrain_lr": 0.001,
+            "scratch_lr": 0.0003,
+            "trial_id": 17,
+            "weight_decay": 0.001,
+            "window": 21
+          },
+          "validation_rank_by_method": {
+            "synthetic_zero_shot_real": 1,
+            "synthetic_finetune_real": 14,
+            "real_scratch": 10
+          },
+          "mean_validation_rank": 8.333333333333334,
+          "worst_validation_rank": 14
+        }
+      ]
+    },
+    "gru": {
+      "screening_csv": "/home/mnogales/Projects/ostrinia/paper_results/graph_architecture_no_target_history_hpo30_seed10_20261002/screening_hpo/gru/screening.csv",
+      "screening_sha256": "5bdf91cf30246b90f822b28f1062d7b055d3dc21bc6c2461726a3c86090df211",
+      "screening_rows_per_real_regime": 30,
+      "candidate_configs": [
+        {
+          "trial_id": 8,
+          "config": {
+            "batch_size": 32,
+            "dropout": 0.2,
+            "ff_multiplier": 4,
+            "finetune_lr": 0.0003,
+            "graph_layers": 2,
+            "hidden_size": 64,
+            "layers": 3,
+            "n_heads": 4,
+            "pretrain_lr": 0.0001,
+            "scratch_lr": 0.0003,
+            "trial_id": 8,
+            "weight_decay": 0.0,
+            "window": 45
+          },
+          "validation_rank_by_method": {
+            "synthetic_zero_shot_real": 2,
+            "synthetic_finetune_real": 1,
+            "real_scratch": 3
+          },
+          "mean_validation_rank": 2.0,
+          "worst_validation_rank": 3
+        },
+        {
+          "trial_id": 26,
+          "config": {
+            "batch_size": 32,
+            "dropout": 0.0,
+            "ff_multiplier": 4,
+            "finetune_lr": 0.0001,
+            "graph_layers": 2,
+            "hidden_size": 32,
+            "layers": 3,
+            "n_heads": 4,
+            "pretrain_lr": 0.001,
+            "scratch_lr": 0.0003,
+            "trial_id": 26,
+            "weight_decay": 1e-06,
+            "window": 12
+          },
+          "validation_rank_by_method": {
+            "synthetic_zero_shot_real": 7,
+            "synthetic_finetune_real": 3,
+            "real_scratch": 11
+          },
+          "mean_validation_rank": 7.0,
+          "worst_validation_rank": 11
+        }
+      ]
+    },
+    "lstm": {
+      "screening_csv": "/home/mnogales/Projects/ostrinia/paper_results/graph_architecture_no_target_history_hpo30_seed10_20261002/screening_hpo/lstm/screening.csv",
+      "screening_sha256": "d0de60db6f00b5fd7148925f3091905c09c4fde57e4bab66429d5968d87d6996",
+      "screening_rows_per_real_regime": 30,
+      "candidate_configs": [
+        {
+          "trial_id": 23,
+          "config": {
+            "batch_size": 32,
+            "dropout": 0.35,
+            "ff_multiplier": 4,
+            "finetune_lr": 0.0001,
+            "graph_layers": 2,
+            "hidden_size": 64,
+            "layers": 2,
+            "n_heads": 4,
+            "pretrain_lr": 0.0001,
+            "scratch_lr": 0.001,
+            "trial_id": 23,
+            "weight_decay": 0.0,
+            "window": 45
+          },
+          "validation_rank_by_method": {
+            "synthetic_zero_shot_real": 5,
+            "synthetic_finetune_real": 10,
+            "real_scratch": 2
+          },
+          "mean_validation_rank": 5.666666666666667,
+          "worst_validation_rank": 10
+        },
+        {
+          "trial_id": 4,
+          "config": {
+            "batch_size": 32,
+            "dropout": 0.0,
+            "ff_multiplier": 4,
+            "finetune_lr": 0.0001,
+            "graph_layers": 2,
+            "hidden_size": 64,
+            "layers": 1,
+            "n_heads": 4,
+            "pretrain_lr": 0.0001,
+            "scratch_lr": 0.001,
+            "trial_id": 4,
+            "weight_decay": 0.001,
+            "window": 7
+          },
+          "validation_rank_by_method": {
+            "synthetic_zero_shot_real": 11,
+            "synthetic_finetune_real": 5,
+            "real_scratch": 1
+          },
+          "mean_validation_rank": 5.666666666666667,
+          "worst_validation_rank": 11
+        }
+      ]
+    },
+    "time_spatial_transformer": {
+      "screening_csv": "/home/mnogales/Projects/ostrinia/paper_results/graph_architecture_no_target_history_hpo30_seed10_20261002/screening_hpo/time_spatial_transformer/screening.csv",
+      "screening_sha256": "86552115b97f4437caee03206dcc1df3e3478fa9dbd5638bd3c5403490ea15a6",
+      "screening_rows_per_real_regime": 30,
+      "candidate_configs": [
+        {
+          "trial_id": 4,
+          "config": {
+            "batch_size": 32,
+            "dropout": 0.1,
+            "ff_multiplier": 2,
+            "finetune_lr": 0.0001,
+            "graph_layers": 2,
+            "hidden_size": 64,
+            "layers": 1,
+            "n_heads": 8,
+            "pretrain_lr": 0.0003,
+            "scratch_lr": 0.0003,
+            "trial_id": 4,
+            "weight_decay": 0.0,
+            "window": 7
+          },
+          "validation_rank_by_method": {
+            "synthetic_zero_shot_real": 7,
+            "synthetic_finetune_real": 1,
+            "real_scratch": 7
+          },
+          "mean_validation_rank": 5.0,
+          "worst_validation_rank": 7
+        },
+        {
+          "trial_id": 21,
+          "config": {
+            "batch_size": 32,
+            "dropout": 0.35,
+            "ff_multiplier": 8,
+            "finetune_lr": 0.0003,
+            "graph_layers": 2,
+            "hidden_size": 64,
+            "layers": 3,
+            "n_heads": 8,
+            "pretrain_lr": 0.0001,
+            "scratch_lr": 0.0001,
+            "trial_id": 21,
+            "weight_decay": 0.0,
+            "window": 30
+          },
+          "validation_rank_by_method": {
+            "synthetic_zero_shot_real": 1,
+            "synthetic_finetune_real": 9,
+            "real_scratch": 6
+          },
+          "mean_validation_rank": 5.333333333333333,
+          "worst_validation_rank": 9
+        }
+      ]
+    }
+  }
+}
