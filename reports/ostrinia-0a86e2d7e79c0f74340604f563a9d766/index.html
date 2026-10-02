@@ -1,0 +1,119 @@
+<!doctype html><html lang='en'><meta charset='utf-8'><meta name='robots' content='noindex,nofollow'><meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>Ostrinia matched-capacity comparison</title><style>body{font:16px system-ui;margin:2rem auto;max-width:1200px;padding:0 1rem;color:#202a33}h1,h2{color:#16324f}table{border-collapse:collapse;width:100%;margin:1rem 0 2rem}th,td{border:1px solid #ccd5dc;padding:.55rem;text-align:left}th{background:#edf3f7}img{max-width:100%;height:auto}details{margin:.8rem 0;padding:.6rem;border:1px solid #ccd5dc;border-radius:8px}.note{background:#fff8e1;padding:1rem;border-left:4px solid #daa520}.small{color:#52606d;font-size:.9rem}</style><body><main>
+<h1>Ostrinia capacity-matched graph architecture comparison</h1>
+<p>One held-out real test year (2022), ten paired training seeds, and one shared validation-selected configuration per architecture across zero-shot, fine-tuned, and real-scratch regimes.</p>
+
+<h2>Test result summary</h2>
+<p>Best Synthetic pretraining, zero-shot real: <b>gru</b>, 0.07326 ± 0.00338. Best Synthetic pretraining, fine-tuned on real: <b>time_spatial_transformer</b>, 0.06712 ± 0.00254. Best Real scratch: <b>transformer</b>, 0.07437 ± 0.01115.</p>
+<p><b>Best overall:</b> time_spatial_transformer, Synthetic pretraining, fine-tuned on real, 0.06712 ± 0.00254 annual-shape MAE. Synthetic pretraining plus real fine-tuning had lower paired mean MAE than real scratch for 4 of 5 architectures; the Transformer was +0.00106. These are paired comparisons across ten training seeds on one held-out year, not year-to-year uncertainty.</p>
+<p>The test table covers 15 architecture–regime rows and 150 seed-level runs: five architectures × three regimes × ten seeds. Each real-data metric averages the node-specific absolute errors equally across the three nodes with 2022 observations, using 549 observed node-date targets per seed. The target is annual shape (each node-year divided by its observed annual maximum), not raw counts; October target dates are excluded. This matched-capacity comparison does not include a persistence baseline.</p>
+<h2>Initial zero-shot context audit</h2>
+<p>The first scored real target is 2022-04-01. For every forecast, the history window is restricted to dates in the same target year, so no previous-year insect-count observations can enter the 2022 test context. The target-history and target-observation-mask channels are zero throughout the first pre-season context window; source inspection confirmed zero target records and zero observed target cells there.</p>
+<ul><li>grugcn (7 days): 2022-03-11–2022-03-17; zero raw target cells and zero observed target-mask cells</li><li>transformer (7 days): 2022-03-11–2022-03-17; zero raw target cells and zero observed target-mask cells</li><li>gru (30 days): 2022-02-16–2022-03-17; zero raw target cells and zero observed target-mask cells</li><li>lstm (45 days): 2022-02-01–2022-03-17; zero raw target cells and zero observed target-mask cells</li><li>time_spatial_transformer (7 days): 2022-03-11–2022-03-17; zero raw target cells and zero observed target-mask cells</li></ul>
+<p>Weather, degree-day, static, and calendar covariates remain separate input channels as specified. Since the real dataset has no February–March 2022 trap rows, missing weather covariates for those dates are filled with day-of-year climatology from the real training years 2017–2020. They are covariates, not prior-year insect-count history; therefore the full feature tensor is not all zero.</p>
+<h2>Frozen matched configurations</h2><table><thead><tr><th>Architecture</th><th>Trial</th><th>Parameters</th><th>Width</th><th>Layers</th><th>Context</th><th>Graph depth</th><th>Heads</th><th>FF multiplier</th></tr></thead><tbody>
+<tr><td>grugcn</td><td>2</td><td>106,177</td><td>64</td><td>3</td><td>7 days</td><td>2</td><td>—</td><td>—</td></tr>
+<tr><td>transformer</td><td>15</td><td>39,121</td><td>48</td><td>1</td><td>7 days</td><td>—</td><td>8</td><td>2</td></tr>
+<tr><td>gru</td><td>25</td><td>8,481</td><td>32</td><td>1</td><td>30 days</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td>lstm</td><td>20</td><td>39,617</td><td>64</td><td>1</td><td>45 days</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td>time_spatial_transformer</td><td>4</td><td>56,577</td><td>64</td><td>1</td><td>7 days</td><td>—</td><td>8</td><td>2</td></tr>
+</tbody></table><h2>2022 test results by regime</h2>
+<h3>Synthetic pretraining, zero-shot real</h3><table><thead><tr><th>Architecture</th><th>MAE across seeds</th><th>Seed SD</th><th>Nodes</th><th>Targets per seed</th><th>Forecast plot</th></tr></thead><tbody>
+<tr><td>gru</td><td>0.07326</td><td>0.00338</td><td>3</td><td>549</td><td><a href='final_test_2022/plots/real/real_synthetic_zero_shot_real_gru_seed_00.png'>forecast</a></td></tr>
+<tr><td>grugcn</td><td>0.10004</td><td>0.01995</td><td>3</td><td>549</td><td><a href='final_test_2022/plots/real/real_synthetic_zero_shot_real_grugcn_seed_00.png'>forecast</a></td></tr>
+<tr><td>lstm</td><td>0.07879</td><td>0.00319</td><td>3</td><td>549</td><td><a href='final_test_2022/plots/real/real_synthetic_zero_shot_real_lstm_seed_00.png'>forecast</a></td></tr>
+<tr><td>time_spatial_transformer</td><td>0.09279</td><td>0.00866</td><td>3</td><td>549</td><td><a href='final_test_2022/plots/real/real_synthetic_zero_shot_real_time_spatial_transformer_seed_00.png'>forecast</a></td></tr>
+<tr><td>transformer</td><td>0.08145</td><td>0.00692</td><td>3</td><td>549</td><td><a href='final_test_2022/plots/real/real_synthetic_zero_shot_real_transformer_seed_00.png'>forecast</a></td></tr>
+</tbody></table>
+<h3>Synthetic pretraining, fine-tuned on real</h3><table><thead><tr><th>Architecture</th><th>MAE across seeds</th><th>Seed SD</th><th>Nodes</th><th>Targets per seed</th><th>Forecast plot</th></tr></thead><tbody>
+<tr><td>gru</td><td>0.07097</td><td>0.00360</td><td>3</td><td>549</td><td><a href='final_test_2022/plots/real/real_synthetic_finetune_real_gru_seed_00.png'>forecast</a></td></tr>
+<tr><td>grugcn</td><td>0.06914</td><td>0.00282</td><td>3</td><td>549</td><td><a href='final_test_2022/plots/real/real_synthetic_finetune_real_grugcn_seed_00.png'>forecast</a></td></tr>
+<tr><td>lstm</td><td>0.06834</td><td>0.00275</td><td>3</td><td>549</td><td><a href='final_test_2022/plots/real/real_synthetic_finetune_real_lstm_seed_00.png'>forecast</a></td></tr>
+<tr><td>time_spatial_transformer</td><td>0.06712</td><td>0.00254</td><td>3</td><td>549</td><td><a href='final_test_2022/plots/real/real_synthetic_finetune_real_time_spatial_transformer_seed_00.png'>forecast</a></td></tr>
+<tr><td>transformer</td><td>0.07543</td><td>0.00334</td><td>3</td><td>549</td><td><a href='final_test_2022/plots/real/real_synthetic_finetune_real_transformer_seed_00.png'>forecast</a></td></tr>
+</tbody></table>
+<h3>Real scratch</h3><table><thead><tr><th>Architecture</th><th>MAE across seeds</th><th>Seed SD</th><th>Nodes</th><th>Targets per seed</th><th>Forecast plot</th></tr></thead><tbody>
+<tr><td>gru</td><td>0.08180</td><td>0.01588</td><td>3</td><td>549</td><td><a href='final_test_2022/plots/real/real_real_scratch_gru_seed_00.png'>forecast</a></td></tr>
+<tr><td>grugcn</td><td>0.09355</td><td>0.01222</td><td>3</td><td>549</td><td><a href='final_test_2022/plots/real/real_real_scratch_grugcn_seed_00.png'>forecast</a></td></tr>
+<tr><td>lstm</td><td>0.07455</td><td>0.00591</td><td>3</td><td>549</td><td><a href='final_test_2022/plots/real/real_real_scratch_lstm_seed_00.png'>forecast</a></td></tr>
+<tr><td>time_spatial_transformer</td><td>0.08232</td><td>0.00853</td><td>3</td><td>549</td><td><a href='final_test_2022/plots/real/real_real_scratch_time_spatial_transformer_seed_00.png'>forecast</a></td></tr>
+<tr><td>transformer</td><td>0.07437</td><td>0.01115</td><td>3</td><td>549</td><td><a href='final_test_2022/plots/real/real_real_scratch_transformer_seed_00.png'>forecast</a></td></tr>
+</tbody></table>
+<h2>Paired regime differences</h2><p class='small'>Delta is left-method MAE minus right-method MAE; negative favors the left method. Seed SD describes training-seed variability on this one test year, not year-to-year uncertainty.</p><table><thead><tr><th>Architecture</th><th>Comparison</th><th>Mean delta</th><th>Seed SD</th><th>Seeds left better</th></tr></thead><tbody>
+<tr><td>gru</td><td>synthetic_finetune_real_minus_real_scratch</td><td>-0.01083</td><td>0.01742</td><td>80%</td></tr>
+<tr><td>gru</td><td>synthetic_finetune_real_minus_synthetic_zero_shot_real</td><td>-0.00229</td><td>0.00376</td><td>80%</td></tr>
+<tr><td>gru</td><td>synthetic_zero_shot_real_minus_real_scratch</td><td>-0.00854</td><td>0.01608</td><td>80%</td></tr>
+<tr><td>grugcn</td><td>synthetic_finetune_real_minus_real_scratch</td><td>-0.02441</td><td>0.01225</td><td>100%</td></tr>
+<tr><td>grugcn</td><td>synthetic_finetune_real_minus_synthetic_zero_shot_real</td><td>-0.03090</td><td>0.01990</td><td>90%</td></tr>
+<tr><td>grugcn</td><td>synthetic_zero_shot_real_minus_real_scratch</td><td>+0.00649</td><td>0.01392</td><td>30%</td></tr>
+<tr><td>lstm</td><td>synthetic_finetune_real_minus_real_scratch</td><td>-0.00622</td><td>0.00490</td><td>100%</td></tr>
+<tr><td>lstm</td><td>synthetic_finetune_real_minus_synthetic_zero_shot_real</td><td>-0.01045</td><td>0.00410</td><td>100%</td></tr>
+<tr><td>lstm</td><td>synthetic_zero_shot_real_minus_real_scratch</td><td>+0.00423</td><td>0.00730</td><td>10%</td></tr>
+<tr><td>time_spatial_transformer</td><td>synthetic_finetune_real_minus_real_scratch</td><td>-0.01520</td><td>0.00887</td><td>100%</td></tr>
+<tr><td>time_spatial_transformer</td><td>synthetic_finetune_real_minus_synthetic_zero_shot_real</td><td>-0.02567</td><td>0.00995</td><td>100%</td></tr>
+<tr><td>time_spatial_transformer</td><td>synthetic_zero_shot_real_minus_real_scratch</td><td>+0.01047</td><td>0.01254</td><td>40%</td></tr>
+<tr><td>transformer</td><td>synthetic_finetune_real_minus_real_scratch</td><td>+0.00106</td><td>0.00920</td><td>40%</td></tr>
+<tr><td>transformer</td><td>synthetic_finetune_real_minus_synthetic_zero_shot_real</td><td>-0.00602</td><td>0.00690</td><td>90%</td></tr>
+<tr><td>transformer</td><td>synthetic_zero_shot_real_minus_real_scratch</td><td>+0.00708</td><td>0.01295</td><td>20%</td></tr>
+</tbody></table>
+<!-- MATCHED MILESTONE AND HPO DETAIL START -->
+<h2>20%, 50%, and 80% milestone timing error</h2>
+<p>For each of the three nodes with 2022 observations, this is the absolute calendar-day difference between the first observed date and first predicted date at or above 20%, 50%, or 80% of that node's annual maximum. We first average absolute day errors across nodes within each seed, then report mean ± sample SD across ten seeds. The final column averages the three threshold-level errors. Lower is better; all values are days.</p>
+<p class='small'>The model is scored against the observed 2022 test dates only; the predicted crossing is searched on the same dates and observation mask. This timing metric was computed after model/configuration selection and was not an HPO objective.</p>
+<h3>Synthetic pretraining, zero-shot real</h3><table><thead><tr><th>Architecture</th><th>20% error</th><th>50% error</th><th>80% error</th><th>Mean across 3</th></tr></thead><tbody>
+<tr><td>GRU-GCN</td><td>15.7 ± 5.0 d</td><td>9.1 ± 2.0 d</td><td>34.5 ± 9.0 d</td><td>19.8 ± 4.2 d</td></tr>
+<tr><td>Transformer</td><td>18.6 ± 1.6 d</td><td>9.6 ± 0.8 d</td><td>15.6 ± 2.7 d</td><td>14.6 ± 1.1 d</td></tr>
+<tr><td>GRU</td><td>14.9 ± 1.6 d</td><td>10.6 ± 1.4 d</td><td>11.2 ± 0.6 d</td><td>12.2 ± 0.5 d</td></tr>
+<tr><td>LSTM</td><td>17.8 ± 2.3 d</td><td>10.8 ± 1.5 d</td><td>13.3 ± 1.9 d</td><td>14.0 ± 0.9 d</td></tr>
+<tr><td>Time-spatial Transformer</td><td>17.8 ± 1.9 d</td><td>7.6 ± 1.4 d</td><td>21.7 ± 2.8 d</td><td>15.7 ± 1.2 d</td></tr>
+</tbody></table>
+<h3>Synthetic pretraining, fine-tuned on real</h3><table><thead><tr><th>Architecture</th><th>20% error</th><th>50% error</th><th>80% error</th><th>Mean across 3</th></tr></thead><tbody>
+<tr><td>GRU-GCN</td><td>7.4 ± 1.3 d</td><td>14.3 ± 0.7 d</td><td>13.9 ± 1.5 d</td><td>11.9 ± 0.8 d</td></tr>
+<tr><td>Transformer</td><td>14.5 ± 3.6 d</td><td>10.8 ± 0.8 d</td><td>13.1 ± 0.8 d</td><td>12.8 ± 1.4 d</td></tr>
+<tr><td>GRU</td><td>10.8 ± 2.2 d</td><td>11.5 ± 0.2 d</td><td>11.3 ± 0.6 d</td><td>11.2 ± 0.9 d</td></tr>
+<tr><td>LSTM</td><td>4.9 ± 2.0 d</td><td>8.9 ± 2.8 d</td><td>12.7 ± 1.8 d</td><td>8.8 ± 0.9 d</td></tr>
+<tr><td>Time-spatial Transformer</td><td>8.5 ± 1.7 d</td><td>13.4 ± 1.5 d</td><td>13.5 ± 1.3 d</td><td>11.8 ± 0.5 d</td></tr>
+</tbody></table>
+<h3>Real scratch</h3><table><thead><tr><th>Architecture</th><th>20% error</th><th>50% error</th><th>80% error</th><th>Mean across 3</th></tr></thead><tbody>
+<tr><td>GRU-GCN</td><td>10.8 ± 2.9 d</td><td>18.9 ± 2.1 d</td><td>18.1 ± 2.5 d</td><td>15.9 ± 2.0 d</td></tr>
+<tr><td>Transformer</td><td>8.6 ± 3.1 d</td><td>15.4 ± 2.0 d</td><td>13.8 ± 2.5 d</td><td>12.6 ± 2.0 d</td></tr>
+<tr><td>GRU</td><td>10.5 ± 4.1 d</td><td>15.2 ± 2.8 d</td><td>14.8 ± 2.4 d</td><td>13.5 ± 2.7 d</td></tr>
+<tr><td>LSTM</td><td>7.8 ± 4.2 d</td><td>12.7 ± 3.8 d</td><td>13.6 ± 2.0 d</td><td>11.3 ± 2.1 d</td></tr>
+<tr><td>Time-spatial Transformer</td><td>8.9 ± 4.2 d</td><td>17.1 ± 1.3 d</td><td>18.3 ± 2.7 d</td><td>14.8 ± 2.1 d</td></tr>
+</tbody></table>
+<figure><img src='final_test_2022/milestone_crossing_errors_2022.svg' alt='Heatmap of mean absolute 20, 50 and 80 percent milestone timing errors in days'><figcaption>Mean absolute timing error in days across ten seeds and three test nodes. The tables include seed-to-seed SD.</figcaption></figure>
+<p class='small'>Per-node observed/predicted dates and errors: <a href='final_test_2022/MILESTONE_ERRORS_BY_NODE.csv'>MILESTONE_ERRORS_BY_NODE.csv</a>. Per-seed node-macro metrics: <a href='final_test_2022/MILESTONE_ERRORS_BY_SEED.csv'>MILESTONE_ERRORS_BY_SEED.csv</a>. Threshold and three-threshold summaries: <a href='final_test_2022/MILESTONE_ERRORS_SUMMARY.csv'>MILESTONE_ERRORS_SUMMARY.csv</a> and <a href='final_test_2022/MILESTONE_ERRORS_COMBINED.csv'>MILESTONE_ERRORS_COMBINED.csv</a>.</p>
+<h2>HPO search and selection objective</h2>
+<ul>
+<li>The first stage screened 30 unique grid-random configurations per architecture. Input context was 7, 12, 21, 30, 45, or 60 days; hidden width 16/32/48/64; depth 1/2/3 layers; dropout 0/0.1/0.2/0.35; weight decay 0/1e-6/1e-4/1e-3. Batch size was fixed at 32. Synthetic-pretrain and real-scratch learning rates were 1e-4/3e-4/1e-3; fine-tuning rates were 3e-5/1e-4/3e-4. Transformers also swept compatible head counts (2/4/8) and feed-forward multipliers (2/4/8), while GRU-GCN swept graph depth (1–4).</li>
+<li>The score being optimized was validation mean absolute error (MAE) on the annual-shape target. Within a validation result, absolute errors are averaged per node and then equally across the three active real nodes.</li>
+<li>For the matched comparison, candidates were ranked by validation MAE separately in zero-shot, synthetic-pretrained/fine-tuned, and real-scratch regimes. Two shared candidates per architecture were shortlisted by mean rank, then rerun on real validation years 2020 and 2021 with seeds 0–9. One configuration per architecture was selected by the same regime-balanced rank rule and used across all three regimes.</li>
+<li>The 2022 test year was reserved for final reporting. The 20/50/80% timing errors are descriptive test metrics; they did not select configurations.</li>
+</ul>
+<!-- MATCHED MILESTONE AND HPO DETAIL END -->
+<h2>Observed vs forecast plots</h2>
+<h3>Synthetic pretraining, zero-shot real</h3>
+<details><summary>grugcn</summary><img src='final_test_2022/plots/real/real_synthetic_zero_shot_real_grugcn_seed_00.png' alt='synthetic_zero_shot_real grugcn forecasts'></details>
+<details><summary>transformer</summary><img src='final_test_2022/plots/real/real_synthetic_zero_shot_real_transformer_seed_00.png' alt='synthetic_zero_shot_real transformer forecasts'></details>
+<details><summary>gru</summary><img src='final_test_2022/plots/real/real_synthetic_zero_shot_real_gru_seed_00.png' alt='synthetic_zero_shot_real gru forecasts'></details>
+<details><summary>lstm</summary><img src='final_test_2022/plots/real/real_synthetic_zero_shot_real_lstm_seed_00.png' alt='synthetic_zero_shot_real lstm forecasts'></details>
+<details><summary>time_spatial_transformer</summary><img src='final_test_2022/plots/real/real_synthetic_zero_shot_real_time_spatial_transformer_seed_00.png' alt='synthetic_zero_shot_real time_spatial_transformer forecasts'></details>
+<h3>Synthetic pretraining, fine-tuned on real</h3>
+<details><summary>grugcn</summary><img src='final_test_2022/plots/real/real_synthetic_finetune_real_grugcn_seed_00.png' alt='synthetic_finetune_real grugcn forecasts'></details>
+<details><summary>transformer</summary><img src='final_test_2022/plots/real/real_synthetic_finetune_real_transformer_seed_00.png' alt='synthetic_finetune_real transformer forecasts'></details>
+<details><summary>gru</summary><img src='final_test_2022/plots/real/real_synthetic_finetune_real_gru_seed_00.png' alt='synthetic_finetune_real gru forecasts'></details>
+<details><summary>lstm</summary><img src='final_test_2022/plots/real/real_synthetic_finetune_real_lstm_seed_00.png' alt='synthetic_finetune_real lstm forecasts'></details>
+<details><summary>time_spatial_transformer</summary><img src='final_test_2022/plots/real/real_synthetic_finetune_real_time_spatial_transformer_seed_00.png' alt='synthetic_finetune_real time_spatial_transformer forecasts'></details>
+<h3>Real scratch</h3>
+<details><summary>grugcn</summary><img src='final_test_2022/plots/real/real_real_scratch_grugcn_seed_00.png' alt='real_scratch grugcn forecasts'></details>
+<details><summary>transformer</summary><img src='final_test_2022/plots/real/real_real_scratch_transformer_seed_00.png' alt='real_scratch transformer forecasts'></details>
+<details><summary>gru</summary><img src='final_test_2022/plots/real/real_real_scratch_gru_seed_00.png' alt='real_scratch gru forecasts'></details>
+<details><summary>lstm</summary><img src='final_test_2022/plots/real/real_real_scratch_lstm_seed_00.png' alt='real_scratch lstm forecasts'></details>
+<details><summary>time_spatial_transformer</summary><img src='final_test_2022/plots/real/real_real_scratch_time_spatial_transformer_seed_00.png' alt='real_scratch time_spatial_transformer forecasts'></details>
+<h2>Method</h2><ul>
+<li>For each of five architectures, shortlist two common trial configurations from the existing 30-trial screen using mean validation rank across the three real-data regimes.</li>
+<li>Re-evaluate both candidates on 2020 and 2021 validation folds with seeds 0–9; select one shared configuration by mean regime rank. Configurations match within architecture across regimes, including hidden width, depth, context, regularization, and graph/attention dimensions.</li>
+<li>Freeze those choices before the one-year 2022 real test. Fine-tuning and scratch use 2021 for early stopping; 2022 targets are scored after fitting. The graph, 15-day lead, fixed batch size 32, and October exclusion follow the prior setup.</li>
+<li>Inputs include the target history and observation mask, all available real weather features, base-10°C cumulative degree-days, day-of-year and weekday encodings, coordinates, elevation, and corn size. Alternate insect-count columns are excluded. Missing real weather values use a training-period day-of-year climatology.</li>
+<li>Real training regimes are synthetic pretraining applied zero-shot, synthetic pretraining followed by real fine-tuning, and real-only scratch training. Zero-shot uses synthetic-trained weights without real fine-tuning; its real target-history inputs are the same-year rolling context. Model weights are shared across graph nodes.</li>
+</ul><p class='small'>Machine-readable results: TEST_RESULTS.csv, TEST_RESULTS_BY_SEED.csv, PER_NODE_TEST_RESULTS.csv, PAIRED_DELTAS_BY_SEED.csv, PAIRED_NODE_DELTAS_BY_SEED.csv, and PAIRED_DELTA_SUMMARY.csv.</p></main></body></html>
