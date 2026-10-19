@@ -7,9 +7,9 @@
   <title>Dermatoscopic Images | Miguel Nogales</title>
   <link rel="icon" type="image/png" href="../../assets/research/misc/favicon.png" />
   <link rel="apple-touch-icon" href="../../assets/research/misc/favicon.png" />
-  <link rel="stylesheet" href="../../css/style.css?v=abstract-scroll-20260927" />
+  <link rel="stylesheet" href="../../css/style.css?v=paper-collection-20261019" />
 </head>
-<body class="pixel-page research-topic-page">
+<body class="pixel-page research-topic-page paper-layout-collection">
   <canvas id="starfield" aria-hidden="true"></canvas>
 
   <header class="site-header">
@@ -59,18 +59,18 @@
           more clinically relevant.
         </p>
         <div class="paper-grid">
-          <article class="paper-card first-author">
+          <article class="paper-card paper-card-attacks first-author">
             <div class="paper-card-head">
-              <p class="meta">Array, 2026</p>
-              <h3>Are deep features able to learn melanoma depth gradation when trained only for binary tasks?</h3>
+              <p class="meta">Array</p>
             </div>
             <img src="../../assets/research/paper-images/derma/binary%20task.png" alt="" aria-hidden="true" />
             <div class="paper-card-body">
+              <h3>Are deep features able to learn melanoma depth gradation when trained only for binary tasks?</h3>
+              <ul class="paper-attacks" aria-label="Research keywords">
+                <li><span class="paper-energy energy-features" aria-hidden="true">◉</span><span>Deep features</span></li>
+                <li><span class="paper-energy energy-medical" aria-hidden="true">✚</span><span>Melanoma depth</span></li>
+              </ul>
               <p class="venue">Deep features, dermoscopy images, melanoma thickness, XAI</p>
-              <p>
-                Explores whether representations learned for simpler classification objectives
-                still encode information that is useful for melanoma-depth analysis.
-              </p>
               <p class="paper-abstract" hidden>
                 This study aims to analyze dermoscopic images to estimate the Breslow depth of
                 melanoma, which is crucial for diagnosing and treating skin cancer. The study has two
@@ -95,24 +95,28 @@
                 methodology for enhancing the understanding of melanoma classification through deep
                 learning models.
               </p>
-              <div class="paper-links">
+            </div>
+            <footer class="paper-card-credit">
+              <p><span class="paper-credit-label">Lead author</span> Miguel Nogales</p>
+              <span class="paper-card-year">2026</span>
+              <div class="paper-links" hidden>
                 <a href="https://www.sciencedirect.com/science/article/pii/S2590005626001815" target="_blank" rel="noopener noreferrer">ScienceDirect</a>
               </div>
-            </div>
+            </footer>
           </article>
 
-          <article class="paper-card coauthor" data-publication-date="2025-05-22">
+          <article class="paper-card paper-card-attacks coauthor" data-publication-date="2025-05-22">
             <div class="paper-card-head">
-              <p class="meta">arXiv, 2025</p>
-              <h3>Mitigating Overfitting in Medical Imaging: Self-Supervised Pretraining vs. ImageNet Transfer Learning for Dermatological Diagnosis</h3>
+              <p class="meta">arXiv</p>
             </div>
             <img src="../../assets/research/paper-images/derma/arxiv-derma.png" alt="" aria-hidden="true" />
             <div class="paper-card-body">
+              <h3 class="paper-title-long">Mitigating Overfitting in Medical Imaging: Self-Supervised Pretraining vs. ImageNet Transfer Learning for Dermatological Diagnosis</h3>
+              <ul class="paper-attacks" aria-label="Research keywords">
+                <li><span class="paper-energy energy-learning" aria-hidden="true">↻</span><span>Self-supervised learning</span></li>
+                <li><span class="paper-energy energy-transfer" aria-hidden="true">⇄</span><span>Transfer learning</span></li>
+              </ul>
               <p class="venue">Self-supervised learning, transfer learning, dermatological diagnosis</p>
-              <p>
-                Compares domain-specific representation learning with general ImageNet transfer
-                for dermatological diagnosis under limited and specialized medical data.
-              </p>
               <p class="paper-abstract" hidden>
                 Deep learning has transformed computer vision but relies heavily on large labeled
                 datasets and computational resources. Transfer learning, particularly fine-tuning
@@ -137,24 +141,28 @@
                 stronger generalization, and superior adaptability, underscoring the importance of
                 domain-specific feature extraction in medical imaging.
               </p>
-              <div class="paper-links">
+            </div>
+            <footer class="paper-card-credit">
+              <p><span class="paper-credit-label">Lead author</span> Iván Matas</p>
+              <span class="paper-card-year">2025</span>
+              <div class="paper-links" hidden>
                 <a href="https://arxiv.org/pdf/2505.16773" target="_blank" rel="noopener noreferrer">arXiv</a>
               </div>
-            </div>
+            </footer>
           </article>
 
-          <article class="paper-card first-author" data-publication-date="2025-06">
+          <article class="paper-card paper-card-attacks first-author" data-publication-date="2025-06">
             <div class="paper-card-head">
-              <p class="meta">IEEE EEITE, 2025</p>
-              <h3>Domain-Specific Knowledge Distillation for Melanoma Depth in Dermatological Imaging</h3>
+              <p class="meta">IEEE EEITE</p>
             </div>
             <img src="../../assets/research/paper-images/derma/KD.png" alt="" aria-hidden="true" />
             <div class="paper-card-body">
+              <h3>Domain-Specific Knowledge Distillation for Melanoma Depth in Dermatological Imaging</h3>
+              <ul class="paper-attacks" aria-label="Research keywords">
+                <li><span class="paper-energy energy-transfer" aria-hidden="true">⇄</span><span>Knowledge distillation</span></li>
+                <li><span class="paper-energy energy-medical" aria-hidden="true">✚</span><span>Melanoma depth</span></li>
+              </ul>
               <p class="venue">Knowledge distillation, melanoma, Breslow depth</p>
-              <p>
-                Uses domain-specific distillation to make dermatological models more compact
-                while preserving signals connected to melanoma-depth estimation.
-              </p>
               <p class="paper-abstract" hidden>
                 Melanoma, a highly aggressive form of skin cancer, is primarily assessed by its depth
                 of invasion (Breslow thickness), a key prognostic factor influencing clinical
@@ -180,10 +188,14 @@
                 Future work will explore hybrid distillation techniques and domain adaptation
                 strategies to further enhance deep learning applications in dermatological oncology.
               </p>
-              <div class="paper-links">
+            </div>
+            <footer class="paper-card-credit">
+              <p><span class="paper-credit-label">Lead author</span> Miguel Nogales</p>
+              <span class="paper-card-year">2025</span>
+              <div class="paper-links" hidden>
                 <a href="https://ieeexplore.ieee.org/document/11165955" target="_blank" rel="noopener noreferrer">IEEE</a>
               </div>
-            </div>
+            </footer>
           </article>
         </div>
       </div>
@@ -194,6 +206,6 @@
     <p>&copy; <span id="year"></span> Miguel Nogales. Built with semantic HTML, CSS, and JavaScript. (it was LLM made, i didnt do anything)</p>
   </footer>
 
-  <script src="../../js/script.js?v=abstract-scroll-20260927"></script>
+  <script src="../../js/script.js?v=paper-collection-20261019"></script>
 </body>
 </html>

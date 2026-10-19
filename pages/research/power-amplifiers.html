@@ -7,9 +7,9 @@
   <title>Digital Predistortion | Miguel Nogales</title>
   <link rel="icon" type="image/png" href="../../assets/research/misc/favicon.png" />
   <link rel="apple-touch-icon" href="../../assets/research/misc/favicon.png" />
-  <link rel="stylesheet" href="../../css/style.css?v=abstract-scroll-20260927" />
+  <link rel="stylesheet" href="../../css/style.css?v=paper-collection-20261019" />
 </head>
-<body class="pixel-page research-topic-page">
+<body class="pixel-page research-topic-page paper-layout-collection">
   <canvas id="starfield" aria-hidden="true"></canvas>
 
   <header class="site-header">
@@ -59,17 +59,18 @@
           matching pursuit, and compact models for practical wireless transmitters.
         </p>
         <div class="paper-grid">
-          <article class="paper-card coauthor">
+          <article class="paper-card paper-card-attacks coauthor">
             <div class="paper-card-head">
-              <p class="meta">IEEE PAWR, 2022</p>
-              <h3>Preconditioning the Regression of Power Amplifier Behavioral Models and Digital Predistorters</h3>
+              <p class="meta">IEEE PAWR</p>
             </div>
             <img src="../../assets/research/paper-images/pa/preconditioning.png" alt="" aria-hidden="true" />
             <div class="paper-card-body">
-              <p>
-                Improves the numerical stability of regression models used to linearize
-                RF power amplifiers.
-              </p>
+              <h3>Preconditioning the Regression of Power Amplifier Behavioral Models and Digital Predistorters</h3>
+              <ul class="paper-attacks" aria-label="Research keywords">
+                <li><span class="paper-energy energy-regression" aria-hidden="true">◎</span><span>Regression conditioning</span></li>
+                <li><span class="paper-energy energy-signal" aria-hidden="true">ϟ</span><span>Digital predistortion</span></li>
+              </ul>
+
               <p class="paper-abstract" hidden>
                 This work presents insights into the regression of power amplifier behavioral models
                 and digital predistorters. First, the least squares regression equation is split into
@@ -80,23 +81,28 @@
                 a class J PA working in its saturation regime in a dual band scenario, concluding that
                 the presented methods are beneficial in the regression.
               </p>
-              <div class="paper-links">
+            </div>
+            <footer class="paper-card-credit">
+              <p><span class="paper-credit-label">Lead author</span> Juan A. Becerra</p>
+              <span class="paper-card-year">2022</span>
+              <div class="paper-links" hidden>
                 <a href="https://ieeexplore.ieee.org/document/9719703" target="_blank" rel="noopener noreferrer">IEEE</a>
               </div>
-            </div>
+            </footer>
           </article>
 
-          <article class="paper-card coauthor">
+          <article class="paper-card paper-card-attacks coauthor">
             <div class="paper-card-head">
-              <p class="meta">IEEE PAWR, 2023</p>
-              <h3>Sparse Regression of Power Amplifier Behavioral Models with a Stagewise Doubly Orthogonal Matching Pursuit</h3>
+              <p class="meta">IEEE PAWR</p>
             </div>
             <img src="../../assets/research/paper-images/pa/stdomp.png" alt="" aria-hidden="true" />
             <div class="paper-card-body">
-              <p>
-                Selects compact behavioral-model terms with sparse regression while
-                preserving model fidelity.
-              </p>
+              <h3>Sparse Regression of Power Amplifier Behavioral Models with a Stagewise Doubly Orthogonal Matching Pursuit</h3>
+              <ul class="paper-attacks" aria-label="Research keywords">
+                <li><span class="paper-energy energy-regression" aria-hidden="true">◎</span><span>Sparse regression</span></li>
+                <li><span class="paper-energy energy-selection" aria-hidden="true">◇</span><span>Matching pursuit</span></li>
+              </ul>
+
               <p class="paper-abstract" hidden>
                 This work presents the sparse regression of Volterra-based behavioral models and
                 digital predistorters (DPDs) through a Stagewise Doubly Orthogonal Matching Pursuit
@@ -110,25 +116,28 @@
                 concluding that the StDOMP is able to reduce runtime while still holding the
                 performance level with respect to the DOMP.
               </p>
-              <div class="paper-links">
+            </div>
+            <footer class="paper-card-credit">
+              <p><span class="paper-credit-label">Lead author</span> Juan A. Becerra</p>
+              <span class="paper-card-year">2023</span>
+              <div class="paper-links" hidden>
                 <a href="https://ieeexplore.ieee.org/document/10046270" target="_blank" rel="noopener noreferrer">IEEE</a>
               </div>
-            </div>
+            </footer>
           </article>
 
-          <article class="paper-card coauthor">
+          <article class="paper-card paper-card-attacks coauthor">
             <div class="paper-card-head">
-              <p class="meta">IEEE TMTT, 2026</p>
-              <h3>Canonical-Volterra-Based Model Generation for Digital Predistortion of Wideband PAs</h3>
+              <p class="meta">IEEE TMTT</p>
             </div>
             <img src="../../assets/research/paper-images/pa/canonical_volterra.png" alt="" aria-hidden="true" />
             <div class="paper-card-body">
+              <h3>Canonical-Volterra-Based Model Generation for Digital Predistortion of Wideband PAs</h3>
+              <ul class="paper-attacks" aria-label="Research keywords">
+                <li><span class="paper-energy energy-signal" aria-hidden="true">ϟ</span><span>Digital predistortion</span></li>
+                <li><span class="paper-energy energy-evolution" aria-hidden="true">✣</span><span>Genetic algorithms</span></li>
+              </ul>
               <p class="venue">Behavioral modeling, digital predistortion, genetic algorithms, Volterra series</p>
-              <p>
-                Introduces a data-driven Volterra-subspace generator that discovers
-                device-specific regressors for wideband PA predistortion without fixed
-                model-structure assumptions.
-              </p>
               <p class="paper-abstract" hidden>
                 High-efficiency power amplifiers (PAs) exhibit pronounced nonlinear and memory
                 effects when driven by wideband signals. Classical Volterra-based behavioral models,
@@ -154,12 +163,16 @@
                 results demonstrate the capability of the proposed framework to identify the most
                 relevant features without prior knowledge of the system.
               </p>
-              <div class="paper-links">
+            </div>
+            <footer class="paper-card-credit">
+              <p><span class="paper-credit-label">Lead author</span> Juan A. Becerra</p>
+              <span class="paper-card-year">2026</span>
+              <div class="paper-links" hidden>
                 <a href="../../papers/pa/Canonical-Volterra-Based_Model_Generation_for_Digital_Predistortion_of_Wideband_PAs.pdf" target="_blank" rel="noopener noreferrer">PDF</a>
                 <a href="https://doi.org/10.1109/TMTT.2026.3700764" target="_blank" rel="noopener noreferrer">DOI</a>
                 <a href="https://ieeexplore.ieee.org/document/11561007" target="_blank" rel="noopener noreferrer">IEEE</a>
               </div>
-            </div>
+            </footer>
           </article>
         </div>
       </div>
@@ -170,6 +183,6 @@
     <p>&copy; <span id="year"></span> Miguel Nogales. Built with semantic HTML, CSS, and JavaScript. (it was LLM made, i didnt do anything)</p>
   </footer>
 
-  <script src="../../js/script.js?v=abstract-scroll-20260927"></script>
+  <script src="../../js/script.js?v=paper-collection-20261019"></script>
 </body>
 </html>

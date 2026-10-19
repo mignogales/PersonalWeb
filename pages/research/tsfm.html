@@ -7,9 +7,9 @@
   <title>Time Series Foundation Models | Miguel Nogales</title>
   <link rel="icon" type="image/png" href="../../assets/research/misc/favicon.png" />
   <link rel="apple-touch-icon" href="../../assets/research/misc/favicon.png" />
-  <link rel="stylesheet" href="../../css/style.css?v=abstract-scroll-20260927" />
+  <link rel="stylesheet" href="../../css/style.css?v=paper-collection-20261019" />
 </head>
-<body class="pixel-page research-topic-page">
+<body class="pixel-page research-topic-page paper-layout-collection">
   <canvas id="starfield" aria-hidden="true"></canvas>
 
   <header class="site-header">
@@ -60,23 +60,22 @@
         </p>
         <div class="paper-grid">
           <article
-            class="paper-card first-author"
+            class="paper-card first-author paper-card-attacks"
             data-poster="../../assets/research/paper-images/tsfm/context_saturation_poster.png"
             data-poster-pdf="../../assets/research/paper-images/tsfm/context_saturation_poster.pdf"
             data-poster-ratio="0.7063"
           >
             <div class="paper-card-head">
-              <p class="meta">CTB@ICML, 2026</p>
-              <h3>Context Saturation in Zero-Shot Time-Series Foundation Models</h3>
+              <p class="meta">CTB@ICML</p>
             </div>
             <img src="../../assets/research/paper-images/tsfm/context_saturation.png" alt="" aria-hidden="true" />
             <div class="paper-card-body">
+              <h3>Context Saturation in Zero-Shot Time-Series Foundation Models</h3>
+              <ul class="paper-attacks" aria-label="Research keywords">
+                <li><span class="paper-energy energy-context" aria-hidden="true">◷</span><span>Context saturation</span></li>
+                <li><span class="paper-energy energy-prediction" aria-hidden="true">✦</span><span>Zero-shot forecasting</span></li>
+              </ul>
               <p class="venue">Miguel Nogales, Luca Butera, Alberto Ferrante, Cesare Alippi</p>
-              <p>
-                Introduces context saturation length as a practical lens for choosing
-                input length in zero-shot forecasting, showing that many periodic
-                series saturate at roughly twice the dominant seasonal period.
-              </p>
               <p class="paper-abstract" hidden>
                 Despite time series foundation models (TSFMs) supporting variable input lengths,
                 they are usually evaluated using the longest input possible, depending on data
@@ -98,10 +97,14 @@
                 characteristics of the target time series, can provide practical guidelines for input
                 length selection, and lead to the design of principled benchmarks to evaluate TSFMs.
               </p>
-              <div class="paper-links">
+            </div>
+            <footer class="paper-card-credit">
+              <p><span class="paper-credit-label">Lead author</span> Miguel Nogales</p>
+              <span class="paper-card-year">2026</span>
+              <div class="paper-links" hidden>
                 <a href="https://openreview.net/forum?id=oHM0cg2YkF" target="_blank" rel="noopener noreferrer">OpenReview</a>
               </div>
-            </div>
+            </footer>
           </article>
         </div>
       </div>
@@ -112,6 +115,6 @@
     <p>&copy; <span id="year"></span> Miguel Nogales. Built with semantic HTML, CSS, and JavaScript. (it was LLM made, i didnt do anything)</p>
   </footer>
 
-  <script src="../../js/script.js?v=abstract-scroll-20260927"></script>
+  <script src="../../js/script.js?v=paper-collection-20261019"></script>
 </body>
 </html>

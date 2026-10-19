@@ -1965,6 +1965,7 @@ function initTopicPaperCarousel() {
   }
 
   const paperDate = (card) => card.dataset.publicationDate
+    || card.querySelector(".paper-card-year")?.textContent.trim()
     || card.querySelector(".meta")?.textContent.match(/\b(?:19|20)\d{2}\b/)?.[0]
     || "0000";
   cards.sort((a, b) => paperDate(b).localeCompare(paperDate(a)));
@@ -2022,7 +2023,9 @@ function initTopicPaperCarousel() {
 
   function positionTrack(animate = false) {
     const availableHeight = Math.max(160, viewport.clientHeight - 20);
-    const widthFraction = window.innerWidth <= 760 ? 0.68 : 0.48;
+    const widthFraction = window.innerWidth <= 760
+      ? (cards.some((card) => card.classList.contains("paper-card-attacks")) ? 0.9 : 0.68)
+      : 0.48;
     const cardWidth = Math.max(156, Math.min(354, availableHeight * 63 / 88, viewport.clientWidth * widthFraction));
     const gap = Math.max(10, Math.min(26, viewport.clientWidth * 0.026));
     const offset = viewport.clientWidth / 2 - (activeIndex * (cardWidth + gap) + cardWidth / 2);
