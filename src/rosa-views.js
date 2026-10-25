@@ -180,6 +180,38 @@ tr.mine {background:color-mix(in srgb,var(--accent) 4%,var(--panel))}
 [data-monitor="rosa"] th {border-bottom:2px solid var(--rpg-edge);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 [data-monitor="rosa"] footer {border-top:2px solid var(--border)}
 @media(max-width:600px) {.rosa-gpus{gap:18px}.rosa-node[data-allocation]{box-shadow:inset 2px 2px 0 var(--rpg-highlight),inset -2px -2px 0 var(--border),3px 3px 0 var(--rpg-shadow)}}
+
+/* Console typography throughout; generous sizes keep the pixel font legible. */
+:root[data-app][data-monitor="rosa"], [data-monitor="rosa"] body {
+  font-family:"VT323",ui-monospace,monospace;font-size:22px;line-height:1.35;
+}
+:root[data-app][data-monitor="rosa"] {font-size:16px}
+[data-monitor="rosa"] :is(button,input,select,summary,.eyebrow,.app-theme-bar,.rosa-user-chip,.rosa-owner-label,th) {
+  font-family:"VT323",ui-monospace,monospace;font-weight:400;letter-spacing:.015em;
+}
+[data-monitor="rosa"] .eyebrow {font-size:1.1rem}
+[data-monitor="rosa"] .personal-nav {font-size:1.4rem}
+[data-monitor="rosa"] .personal-nav a {font-weight:400}
+[data-monitor="rosa"] :is(.intro,.rosa-status p,.rosa-history-note,.empty-note) {font-size:1.4rem}
+[data-monitor="rosa"] :is(.check-summary,.section-heading .count,.rosa-section-note,.rosa-stats p,.rosa-gpu-model,.rosa-owner-empty,.rosa-data-note,footer) {font-size:1.25rem}
+[data-monitor="rosa"] .app-theme-bar {font-size:1.2rem}
+[data-monitor="rosa"] .app-theme-bar button {font-size:1.1rem}
+[data-monitor="rosa"] button:not([data-app-theme-toggle]) {font-size:1.3rem;font-weight:400;line-height:1.1}
+[data-monitor="rosa"] .rosa-node-filters button {font-size:1.25rem}
+[data-monitor="rosa"] :is(.rosa-stats h3,.rosa-filters label) {font-size:1.35rem;font-weight:400}
+[data-monitor="rosa"] .usage-value {font-size:3rem;font-weight:400;letter-spacing:0}
+[data-monitor="rosa"] .rosa-node h3 {font-family:"VT323",ui-monospace,monospace;font-size:1.6rem;font-weight:400;letter-spacing:0}
+[data-monitor="rosa"] .rosa-node h3::before {margin-right:7px}
+[data-monitor="rosa"] .rosa-occupancy strong {font-size:1.75rem;font-weight:400}
+[data-monitor="rosa"] .rosa-occupancy span {font-size:1.2rem}
+[data-monitor="rosa"] .rosa-owner-label {font-size:1.1rem;letter-spacing:.05em}
+[data-monitor="rosa"] .rosa-user-chip {font-size:1.9rem;line-height:1.2;letter-spacing:.015em;padding:3px 10px}
+[data-monitor="rosa"] :is(.rosa-node-details,.rosa-node-details summary,.rosa-node-details p,.rosa-node-details ul,.rosa-node-warning,.rosa-history-label,.rosa-legend) {font-size:1.2rem;font-weight:400}
+[data-monitor="rosa"] :is(.badge,.rosa-node .rosa-node-status,.rosa-job-badge) {font-size:1.15rem;font-weight:400;line-height:1.1}
+[data-monitor="rosa"] :is(table,th,#rosa-jobs td:nth-child(5)) {font-size:1.25rem;font-weight:400;line-height:1.3}
+[data-monitor="rosa"] #rosa-jobs td:nth-child(2) {font-size:1.5rem;font-weight:400}
+[data-monitor="rosa"] .rosa-partitions-panel>summary {font-size:1.45rem;font-weight:400}
+
 `;
 
 export function allocationTone(allocated, total, state = '') {
