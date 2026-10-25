@@ -117,6 +117,69 @@ tr.mine {background:color-mix(in srgb,var(--accent) 4%,var(--panel))}
 [data-monitor="rosa"] footer {font-size:.8rem;line-height:1.7;padding:20px 0;margin-top:30px}
 @media(max-width:900px) {.rosa-gpus{grid-template-columns:repeat(2,minmax(0,1fr))}.rosa-node-toolbar{align-items:flex-start}.rosa-legend{gap:10px}}
 @media(max-width:600px) {[data-monitor="rosa"] main{padding:22px 16px 0}[data-monitor="rosa"] .topbar{padding:12px 16px}[data-monitor="rosa"] .app-theme-bar{padding-inline:16px}.heading{flex-wrap:wrap}.rosa-gpus{grid-template-columns:1fr}.rosa-node{padding:20px}.rosa-filters{gap:12px}.rosa-stats{gap:12px}[data-monitor="rosa"] .rosa-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.rosa-stats .rosa-gpu-summary{grid-column:1/-1}[data-monitor="rosa"] .personal-nav{gap:4px}[data-monitor="rosa"] .personal-nav a{padding:6px 8px}.rosa-node-filters{gap:5px}.rosa-legend{font-size:.75rem}}
+/* A 16-bit console frame, with clear text for names and monitoring data. */
+:root[data-app][data-monitor="rosa"] {
+  --bg:#e3e8f4;--panel:#f3f5fd;--text:#29324c;--muted:#5f6c88;--border:#9ca9c7;--accent:#6250a6;--neutral-bg:#e2e7f4;
+  --rpg-edge:#6a789f;--rpg-shadow:#a0adca;--rpg-highlight:#fff;--rpg-grid:#6779ac0a;
+}
+:root[data-app][data-monitor="rosa"][data-theme="dark"] {
+  --bg:#161a2d;--panel:#272e49;--text:#f0f3ff;--muted:#b6c2df;--border:#5c6b93;--accent:#bfadff;--neutral-bg:#343e5c;
+  --rpg-edge:#8190b8;--rpg-shadow:#090d1b;--rpg-highlight:#6b799d;--rpg-grid:#bdcaff06;
+}
+[data-monitor="rosa"] body {
+  background-image:linear-gradient(var(--rpg-grid) 1px,transparent 1px),linear-gradient(90deg,var(--rpg-grid) 1px,transparent 1px);
+  background-size:16px 16px;
+}
+:root[data-monitor="rosa"] h1 {
+  font-family:"VT323",ui-monospace,monospace;font-size:clamp(2.8rem,5vw,3.5rem);font-weight:400;line-height:.95;
+  text-transform:uppercase;letter-spacing:.025em;text-shadow:2px 2px 0 var(--rpg-shadow);margin-bottom:12px;
+}
+:root[data-monitor="rosa"] h2 {
+  font-family:"VT323",ui-monospace,monospace;font-size:1.85rem;font-weight:400;letter-spacing:.035em;line-height:1.1;
+}
+[data-monitor="rosa"] .eyebrow {font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.74rem;letter-spacing:.13em}
+[data-monitor="rosa"] .app-theme-bar {border-bottom:2px solid var(--rpg-edge);box-shadow:0 2px 0 var(--rpg-shadow);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+[data-monitor="rosa"] .personal-nav {border-bottom:2px solid var(--border);padding-bottom:16px}
+[data-monitor="rosa"] .personal-nav a {border-radius:1px;font-weight:600}
+[data-monitor="rosa"] .personal-nav a[aria-current="page"] {box-shadow:inset 2px 2px 0 var(--rpg-highlight),inset -2px -2px 0 var(--border);border:1px solid var(--rpg-edge)}
+[data-monitor="rosa"] .rosa-stats .service {
+  border:2px solid var(--rpg-edge);border-radius:1px;
+  box-shadow:inset 2px 2px 0 var(--rpg-highlight),inset -2px -2px 0 var(--border),4px 4px 0 var(--rpg-shadow);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--rpg-highlight) 7%,var(--panel)),var(--panel));
+}
+[data-monitor="rosa"] .rosa-stats .rosa-gpu-summary[data-allocation] {border-left:5px solid var(--allocation-color)}
+.rosa-node[data-allocation] {
+  border:2px solid var(--rpg-edge);border-left:5px solid var(--allocation-color);border-radius:1px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--allocation-color) 5%,var(--panel)),var(--panel));
+  box-shadow:inset 2px 2px 0 var(--rpg-highlight),inset -2px -2px 0 var(--border),4px 4px 0 var(--rpg-shadow);
+}
+[data-monitor="rosa"] .rosa-node h3::before {content:"";display:inline-block;width:8px;height:8px;margin-right:9px;background:var(--allocation-color);box-shadow:2px 2px 0 var(--rpg-shadow);vertical-align:2px}
+[data-monitor="rosa"] button:not([data-app-theme-toggle]),[data-monitor="rosa"] .app-theme-bar button {
+  border:2px solid var(--rpg-edge);border-radius:1px;
+  box-shadow:inset 2px 2px 0 var(--rpg-highlight),inset -2px -2px 0 var(--border),2px 2px 0 var(--rpg-shadow);
+}
+[data-monitor="rosa"] button:not(:disabled):not(.board-cell):active {transform:translate(1px,1px);box-shadow:inset 2px 2px 0 var(--border)}
+[data-monitor="rosa"] .rosa-node-filters button[aria-pressed="true"] {
+  color:var(--text);background:var(--neutral-bg);border-color:var(--rpg-edge);
+  box-shadow:inset 2px 2px 0 var(--border),inset -1px -1px 0 var(--rpg-highlight);
+}
+[data-monitor="rosa"] .rosa-node-filters button[aria-pressed="true"]::before {content:"▶";font-size:.65rem;margin-right:6px;color:var(--accent)}
+.rosa-user-chip {
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:1.16rem;font-weight:750;letter-spacing:-.035em;
+  border:1px solid var(--rpg-edge);border-radius:1px;box-shadow:inset 1px 1px 0 var(--rpg-highlight),2px 2px 0 var(--rpg-shadow);padding:3px 10px;
+}
+.rosa-owner-label {font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.7rem;letter-spacing:.08em}
+[data-monitor="rosa"] .badge,.rosa-job-badge {border-radius:1px;border:1px solid color-mix(in srgb,currentColor 25%,transparent)}
+.rosa-node progress {appearance:none;-webkit-appearance:none;height:10px;border:1px solid var(--rpg-edge);border-radius:0;background:var(--neutral-bg)}
+.rosa-node progress::-webkit-progress-bar {background:var(--neutral-bg);box-shadow:inset 1px 1px 0 var(--rpg-shadow)}
+.rosa-node progress::-webkit-progress-value {background:repeating-linear-gradient(90deg,var(--allocation-color) 0,var(--allocation-color) 8px,transparent 8px,transparent 10px)}
+.rosa-node progress::-moz-progress-bar {background:repeating-linear-gradient(90deg,var(--allocation-color) 0,var(--allocation-color) 8px,transparent 8px,transparent 10px)}
+.rosa-node-details {border-top:1px solid var(--border)}
+.rosa-table-wrap,.rosa-partitions-panel,.rosa-history-note {border:2px solid var(--rpg-edge);border-radius:1px;box-shadow:2px 2px 0 var(--rpg-shadow)}
+[data-monitor="rosa"] .rosa-filters select {border:2px solid var(--rpg-edge);border-radius:1px;box-shadow:inset 1px 1px 0 var(--rpg-highlight)}
+[data-monitor="rosa"] th {border-bottom:2px solid var(--rpg-edge);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+[data-monitor="rosa"] footer {border-top:2px solid var(--border)}
+@media(max-width:600px) {.rosa-gpus{gap:18px}.rosa-node[data-allocation]{box-shadow:inset 2px 2px 0 var(--rpg-highlight),inset -2px -2px 0 var(--border),3px 3px 0 var(--rpg-shadow)}}
 `;
 
 export function allocationTone(allocated, total, state = '') {
