@@ -1,0 +1,11 @@
+[Unit]
+Description=Send Rosa monitoring snapshot every five minutes
+
+[Timer]
+OnCalendar=*:0/5
+Persistent=true
+AccuracySec=10s
+Unit=personalweb-rosa-push.service
+
+[Install]
+WantedBy=timers.target

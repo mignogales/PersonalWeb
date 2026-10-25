@@ -27,3 +27,6 @@ raspberry-api/**
 project_memory.md
 
 memory/**
+
+# Private monitoring service source and setup helpers
+services/**

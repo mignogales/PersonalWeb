@@ -1,0 +1,11 @@
+[Unit]
+Description=Read Rosa scheduler and send one private monitoring snapshot
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/personalweb-rosa
+ExecStart=/usr/bin/python3 %h/personalweb-rosa/titan-agent.py
+NoNewPrivileges=yes
+UMask=0077
+TimeoutStartSec=80

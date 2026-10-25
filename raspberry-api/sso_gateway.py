@@ -285,6 +285,17 @@ class Gateway(BaseGateway):
             return self.proxy(8788, self.path, {}, 0, 5)
         if path == "/auth" or path.startswith("/auth/"):
             return self.auth_route(path)
+        if path == "/rosa/agent/report":
+            from rosa import receive as rosa_receive
+            return rosa_receive(self)
+        if path == "/rosa/summary":
+            user = self.require("personal")
+            if not user:
+                return None
+            if self.command != "GET":
+                return self.send_json(405, {"error": "Method not allowed"})
+            from rosa import summary as rosa_summary
+            return self.send_json(200, rosa_summary())
         if path == "/affluenza/summary":
             user = self.require("personal")
             if not user:

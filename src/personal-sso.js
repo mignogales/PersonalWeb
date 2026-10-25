@@ -3,6 +3,8 @@ import { dashboardHtml, personalCss, dashboardScript } from "./personal-views.js
 import { guardAppPage, loginRedirect } from "./sso.js";
 import { affluenzaHtml, affluenzaCss, affluenzaScript } from "./affluenza-views.js";
 import { handleAffluenza } from "./affluenza.js";
+import { handleRosa } from "./rosa.js";
+import { rosaHtml, rosaCss, rosaScript } from "./rosa-views.js";
 
 const headers = {
   "Cache-Control": "private, no-store",
@@ -22,6 +24,7 @@ export async function handlePersonalSSO(request, env) {
   const denial = await guardAppPage(request, "personal");
   if (denial) return path.startsWith("/api/") ? Response.json({ error: "Sign in required" }, { status: denial.status === 403 ? 403 : 401, headers }) : denial;
   if (path === "/api/personal/affluenza") return handleAffluenza(request);
+  if (path === "/api/personal/rosa") return handleRosa(request);
   if (path === "/api/personal/status" || path === "/api/dashboard/status") {
     const result = await handleDashboard(request, env);
     return new Response(result.body, { status: result.status, headers: { ...Object.fromEntries(result.headers), ...headers } });
@@ -32,6 +35,10 @@ export async function handlePersonalSSO(request, env) {
     "/personal/dashboard": [dashboardHtml, "text/html"],
     "/personal/dashboard/": [dashboardHtml, "text/html"],
     "/personal/dashboard.js": [dashboardScript, "application/javascript"],
+    "/personal/rosa": [rosaHtml, "text/html"],
+    "/personal/rosa/": [rosaHtml, "text/html"],
+    "/personal/rosa.css": [rosaCss, "text/css"],
+    "/personal/rosa.js": [rosaScript, "application/javascript"],
     "/personal/affluenza": [affluenzaHtml, "text/html"],
     "/personal/affluenza/": [affluenzaHtml, "text/html"],
     "/personal/affluenza.css": [affluenzaCss, "text/css"],
